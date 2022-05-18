@@ -1,0 +1,19 @@
+version: '3.7'
+services:
+  web:
+    image: bioapi:1.0.0
+    build:
+      context: .
+    command: gunicorn --bind 0.0.0.0:7777 wsgi:app --timeout 240 --workers 3 --threads 3 --worker-connections 100 --log-syslog --capture-output --error-logfile LogFile.log
+    volumes:
+      - .:/app
+    expose:
+      - 7777
+#    ports:
+#      - 27017:27017
+  nginx:
+    build: ./nginx
+    ports:
+      - 8087:80
+    depends_on:
+      - web

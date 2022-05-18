@@ -1,0 +1,22 @@
+[2022-05-18 14:30:30 +0000] [1] [INFO] Starting gunicorn 20.1.0
+[2022-05-18 14:30:30 +0000] [1] [INFO] Listening at: http://0.0.0.0:7777 (1)
+[2022-05-18 14:30:30 +0000] [1] [INFO] Using worker: gthread
+[2022-05-18 14:30:30 +0000] [9] [INFO] Booting worker with pid: 9
+[2022-05-18 14:30:30 +0000] [10] [INFO] Booting worker with pid: 10
+[2022-05-18 14:30:30 +0000] [11] [INFO] Booting worker with pid: 11
+[2022-05-18 14:34:30 +0000] [1] [INFO] Handling signal: term
+[2022-05-18 14:34:30 +0000] [10] [INFO] Worker exiting (pid: 10)
+[2022-05-18 14:34:30 +0000] [11] [INFO] Worker exiting (pid: 11)
+[2022-05-18 14:34:30 +0000] [9] [INFO] Worker exiting (pid: 9)
+[2022-05-18 14:34:30 +0000] [1] [INFO] Shutting down: Master
+[2022-05-18 14:34:57 +0000] [1] [INFO] Starting gunicorn 20.1.0
+[2022-05-18 14:34:57 +0000] [1] [INFO] Listening at: http://0.0.0.0:7777 (1)
+[2022-05-18 14:34:57 +0000] [1] [INFO] Using worker: gthread
+[2022-05-18 14:34:57 +0000] [10] [INFO] Booting worker with pid: 10
+[2022-05-18 14:34:57 +0000] [11] [INFO] Booting worker with pid: 11
+[2022-05-18 14:34:57 +0000] [12] [INFO] Booting worker with pid: 12
+[2022-05-18 14:37:36 +0000] [1] [INFO] Handling signal: term
+[2022-05-18 14:37:36 +0000] [10] [INFO] Worker exiting (pid: 10)
+[2022-05-18 14:37:36 +0000] [11] [INFO] Worker exiting (pid: 11)
+[2022-05-18 14:37:36 +0000] [12] [INFO] Worker exiting (pid: 12)
+[2022-05-18 14:37:37 +0000] [1] [INFO] Shutting down: Master
