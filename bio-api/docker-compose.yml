@@ -4,13 +4,13 @@ services:
     image: bioapi:1.0.0
     build:
       context: .
-    command: gunicorn --bind 0.0.0.0:7777 wsgi:app --timeout 240 --workers 3 --threads 3 --worker-connections 100 --log-syslog --capture-output --error-logfile LogFile.log
+    command: gunicorn --bind 0.0.0.0:7777 bioapi:app --timeout 60
     volumes:
       - .:/app
     expose:
       - 7777
 #    ports:
-#      - 27017:27017
+#      - 27017:27018
   nginx:
     build: ./nginx
     ports:

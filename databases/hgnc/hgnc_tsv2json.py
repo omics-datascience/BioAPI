@@ -10,7 +10,6 @@ import csv
 from tqdm import tqdm
 import re
 import argparse
-import unicodedata
 
 class C:
 	pass
@@ -23,35 +22,25 @@ parser.add_argument('--output', help='Nombre del archivo Json de salida', requir
 args = parser.parse_args(namespace=c)
 
 #Campos que quiero eliminar de la DB
-fields_to_remove = ["date_approved_reserved","date_symbol_changed","date_name_changed","date_modified","location_sortable","mgd_id","rgd_id"]
+fields_to_remove = ["date_approved_reserved","date_symbol_changed","date_name_changed","date_modified","location","mgd_id","rgd_id", "kznf_gene_catalog"]
 
 #Defino Expresiones regulares para buscar caracteres que producen error en la importacion a MongoDB
 er0 = re.compile("\'\'", re.IGNORECASE) #si tiene dos comillas simples juntas 
 er1 = re.compile(".\'", re.IGNORECASE) #si tiene cualquier caracter seguido de una tilde '  (por ejemplo, 5' o 3')
 er2 = re.compile("\'s", re.IGNORECASE) #si tiene 's  (por ejemplo, descripciones de patologias)
-er3 = re.compile("\\xa0", re.IGNORECASE) # si tiene caracter \xa0
-er4 = re.compile("\\x80", re.IGNORECASE) # si tiene caracter \x80
-er5 = re.compile("\\x90", re.IGNORECASE) # si tiene caracter \x90
 
-	
 #Defino funciones
 def repair_values(elementos): #arregla caracteres especiales en los strings obtenidos de la base de datos
     r = []
     for e in elementos:
-        new_value = e
+        new_value = e.encode('latin1', errors='replace').decode('utf-8', errors='replace')
         if re.search(er0, new_value) != None:
-            new_value = new_value.replace(u"\'\'", u"") #Si tiene doble comillas simples, las elimina
+            new_value = new_value.replace("\'\'", "") #Si tiene doble comillas simples, las elimina
         if re.search(er1, new_value) != None:
             if re.search(er2, new_value) != None:
-                new_value = new_value.replace(u"\'s", u"s") #Si tiene comilla simple seguido de "s", lo cambio solo por "s" (Ej, Sjogren's syndrome pasa a ser Sjogrens syndrome)
+                new_value = new_value.replace("\'s", "s") #Si tiene comilla simple seguido de "s", lo cambio solo por " s" (Ej, Sjogren's syndrome pasa a ser Sjogren s syndrome)
             else:
-                new_value = new_value.replace(u"\'", u"p")  #Si tiene solo una comilla simple, las cambio por la letra "p" (Ej, pasaria de 3' a 3p)
-        if re.search(er3, new_value) != None:
-            new_value = new_value.replace(u"\xa0", u"") #Si tiene el caracter \xa0 lo elimino
-        if re.search(er4, new_value) != None:
-            new_value = new_value.replace(u"\x80", u"") #Si tiene el caracter \x80 lo elimino
-        if re.search(er5, new_value) != None:
-            new_value = new_value.replace(u"\x90", u"") #Si tiene el caracter \x90 lo elimino
+                new_value = new_value.replace("\'", "p")  #Si tiene solo una comilla simple, las cambio por la letra "p" (Ej, pasaria de 3' a 3p)
         r.append(new_value)
     return r
 
@@ -71,15 +60,19 @@ if __name__ == '__main__':
     archivo = c.input
     archivo_salida = c.output
     tsvfile = open(archivo)
-    contenido = csv.reader(tsvfile, dialect='excel', delimiter='\t') 
+    contenido = csv.reader(tsvfile, dialect='excel', delimiter='\t')
     cont_json = []
     print("Procesando archivo...")
     headers = next(contenido) 
+    i = headers.index('pseudogene.org')
+    headers[i] = 'pseudogene'
+
     # c=0
-    for registro in tqdm(contenido):
+    for registro in tqdm(contenido, desc = 'Reformateando'):
         # c=c+1
         registro_arreglado = repair_values(registro)
-        # if c==15130:
+        # if c==535:
+        #     print()
         #     print(registro)
         #     print(registro_arreglado)
         json_file = {}

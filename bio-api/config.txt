@@ -2,7 +2,7 @@
 port:8088
 
 [mongodb]
-host: localhost
+host: 192.168.1.11
 port: 27017
 user: multiomix_bioapi_user
 pass: multiomix_bioapi_pass
