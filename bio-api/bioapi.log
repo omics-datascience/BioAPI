@@ -1542,3 +1542,267 @@ pymongo.errors.ServerSelectionTimeoutError: 192.168.1.11:27017: [Errno 111] Conn
 26-May-22 18:52:07	root	INFO	BIO-API iniciado
 26-May-22 18:52:07	werkzeug	WARNING	 * Debugger is active!
 26-May-22 18:52:07	werkzeug	INFO	 * Debugger PIN: 287-753-799
+27-May-22 16:35:21	root	INFO	BIO-API iniciado
+27-May-22 16:35:21	werkzeug	INFO	 * Running on http://localhost:8088 (Press CTRL+C to quit)
+27-May-22 16:35:21	werkzeug	INFO	 * Restarting with stat
+27-May-22 16:35:22	root	INFO	BIO-API iniciado
+27-May-22 16:35:22	werkzeug	WARNING	 * Debugger is active!
+27-May-22 16:35:22	werkzeug	INFO	 * Debugger PIN: 473-322-052
+27-May-22 16:36:49	werkzeug	INFO	127.0.0.1 - - [27/May/2022 16:36:49] "[31m[1mGET /genes_of_the_same_family?gene_id=BRCA1 HTTP/1.1[0m" 400 -
+27-May-22 16:37:53	werkzeug	INFO	 * Detected change in '/home/mauri/Documentos/Multiomix/BioAPI/bio-api/bioapi.py', reloading
+27-May-22 16:37:53	werkzeug	INFO	 * Restarting with stat
+27-May-22 16:37:54	root	INFO	BIO-API iniciado
+27-May-22 16:37:54	werkzeug	WARNING	 * Debugger is active!
+27-May-22 16:37:54	werkzeug	INFO	 * Debugger PIN: 473-322-052
+27-May-22 16:37:57	root	INFO	BIO-API iniciado
+27-May-22 16:37:57	werkzeug	INFO	 * Running on http://localhost:8088 (Press CTRL+C to quit)
+27-May-22 16:37:57	werkzeug	INFO	 * Restarting with stat
+27-May-22 16:37:57	root	INFO	BIO-API iniciado
+27-May-22 16:37:57	werkzeug	WARNING	 * Debugger is active!
+27-May-22 16:37:57	werkzeug	INFO	 * Debugger PIN: 473-322-052
+27-May-22 16:38:01	werkzeug	INFO	127.0.0.1 - - [27/May/2022 16:38:01] "[31m[1mGET /genes_of_the_same_family?gene_id=BRCA1 HTTP/1.1[0m" 400 -
+27-May-22 16:38:49	werkzeug	INFO	 * Detected change in '/home/mauri/Documentos/Multiomix/BioAPI/bio-api/bioapi.py', reloading
+27-May-22 16:38:49	werkzeug	INFO	 * Restarting with stat
+27-May-22 16:38:50	root	INFO	BIO-API iniciado
+27-May-22 16:38:50	werkzeug	WARNING	 * Debugger is active!
+27-May-22 16:38:50	werkzeug	INFO	 * Debugger PIN: 473-322-052
+27-May-22 16:38:53	root	INFO	BIO-API iniciado
+27-May-22 16:38:53	werkzeug	INFO	 * Running on http://localhost:8088 (Press CTRL+C to quit)
+27-May-22 16:38:53	werkzeug	INFO	 * Restarting with stat
+27-May-22 16:38:53	root	INFO	BIO-API iniciado
+27-May-22 16:38:53	werkzeug	WARNING	 * Debugger is active!
+27-May-22 16:38:53	werkzeug	INFO	 * Debugger PIN: 473-322-052
+27-May-22 16:38:56	werkzeug	INFO	127.0.0.1 - - [27/May/2022 16:38:56] "[31m[1mGET /genes_of_the_same_family?gene_id=BRCA1 HTTP/1.1[0m" 400 -
+27-May-22 16:40:42	werkzeug	INFO	 * Detected change in '/home/mauri/Documentos/Multiomix/BioAPI/bio-api/bioapi.py', reloading
+27-May-22 16:40:43	werkzeug	INFO	 * Restarting with stat
+27-May-22 16:40:43	root	INFO	BIO-API iniciado
+27-May-22 16:40:43	werkzeug	WARNING	 * Debugger is active!
+27-May-22 16:40:43	werkzeug	INFO	 * Debugger PIN: 473-322-052
+27-May-22 16:40:51	root	INFO	BIO-API iniciado
+27-May-22 16:40:51	werkzeug	INFO	 * Running on http://localhost:8088 (Press CTRL+C to quit)
+27-May-22 16:40:51	werkzeug	INFO	 * Restarting with stat
+27-May-22 16:40:51	root	INFO	BIO-API iniciado
+27-May-22 16:40:51	werkzeug	WARNING	 * Debugger is active!
+27-May-22 16:40:51	werkzeug	INFO	 * Debugger PIN: 473-322-052
+27-May-22 16:40:54	werkzeug	INFO	127.0.0.1 - - [27/May/2022 16:40:54] "[31m[1mGET /genes_of_the_same_family?gene_id=BRCA1 HTTP/1.1[0m" 400 -
+27-May-22 16:41:20	werkzeug	INFO	 * Detected change in '/home/mauri/Documentos/Multiomix/BioAPI/bio-api/bioapi.py', reloading
+27-May-22 16:41:21	werkzeug	INFO	 * Restarting with stat
+27-May-22 16:41:21	root	INFO	BIO-API iniciado
+27-May-22 16:41:21	werkzeug	WARNING	 * Debugger is active!
+27-May-22 16:41:21	werkzeug	INFO	 * Debugger PIN: 473-322-052
+27-May-22 16:41:25	root	INFO	BIO-API iniciado
+27-May-22 16:41:25	werkzeug	INFO	 * Running on http://localhost:8088 (Press CTRL+C to quit)
+27-May-22 16:41:25	werkzeug	INFO	 * Restarting with stat
+27-May-22 16:41:25	root	INFO	BIO-API iniciado
+27-May-22 16:41:25	werkzeug	WARNING	 * Debugger is active!
+27-May-22 16:41:25	werkzeug	INFO	 * Debugger PIN: 473-322-052
+27-May-22 16:41:29	root	INFO	BIO-API iniciado
+27-May-22 16:41:29	werkzeug	INFO	 * Running on http://localhost:8088 (Press CTRL+C to quit)
+27-May-22 16:41:29	werkzeug	INFO	 * Restarting with stat
+27-May-22 16:41:29	root	INFO	BIO-API iniciado
+27-May-22 16:41:29	werkzeug	WARNING	 * Debugger is active!
+27-May-22 16:41:29	werkzeug	INFO	 * Debugger PIN: 473-322-052
+27-May-22 16:41:32	werkzeug	INFO	127.0.0.1 - - [27/May/2022 16:41:32] "GET /genes_of_the_same_family?gene_id=BRCA1 HTTP/1.1" 200 -
+27-May-22 16:41:44	werkzeug	INFO	127.0.0.1 - - [27/May/2022 16:41:44] "GET /genes_of_the_same_family?gene_id=BRCA1 HTTP/1.1" 200 -
+27-May-22 16:41:44	werkzeug	INFO	127.0.0.1 - - [27/May/2022 16:41:44] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+27-May-22 16:42:37	werkzeug	INFO	127.0.0.1 - - [27/May/2022 16:42:37] "[31m[1mGET /genes_of_the_same_family?gene_id=BRCC1 HTTP/1.1[0m" 400 -
+27-May-22 16:42:56	werkzeug	INFO	127.0.0.1 - - [27/May/2022 16:42:56] "[31m[1mGET /genes_of_the_same_family?gene_id=buTTo HTTP/1.1[0m" 400 -
+27-May-22 16:43:04	werkzeug	INFO	127.0.0.1 - - [27/May/2022 16:43:04] "GET /genes_of_the_same_family?gene_id=EGFR HTTP/1.1" 200 -
+27-May-22 16:43:47	werkzeug	INFO	127.0.0.1 - - [27/May/2022 16:43:47] "[31m[1mGET /genes_of_the_same_family?gene_id=BRCC1 HTTP/1.1[0m" 400 -
+27-May-22 16:44:07	werkzeug	INFO	127.0.0.1 - - [27/May/2022 16:44:07] "[31m[1mGET /genes_of_the_same_family?gene_id=buTTi HTTP/1.1[0m" 400 -
+27-May-22 16:44:31	werkzeug	INFO	127.0.0.1 - - [27/May/2022 16:44:31] "GET /genes_of_the_same_family?gene_id=EGFR HTTP/1.1" 200 -
+27-May-22 16:45:51	werkzeug	INFO	127.0.0.1 - - [27/May/2022 16:45:51] "[31m[1mGET /genes_of_the_same_family?gene_id=AADACP1 HTTP/1.1[0m" 400 -
+27-May-22 16:48:22	werkzeug	INFO	 * Detected change in '/home/mauri/Documentos/Multiomix/BioAPI/bio-api/bioapi.py', reloading
+27-May-22 16:48:22	werkzeug	INFO	 * Restarting with stat
+27-May-22 16:48:22	root	INFO	BIO-API iniciado
+27-May-22 16:48:22	werkzeug	WARNING	 * Debugger is active!
+27-May-22 16:48:22	werkzeug	INFO	 * Debugger PIN: 473-322-052
+29-May-22 10:47:27	root	INFO	BIO-API iniciado
+29-May-22 10:47:27	werkzeug	INFO	 * Running on http://localhost:8088 (Press CTRL+C to quit)
+29-May-22 10:47:27	werkzeug	INFO	 * Restarting with stat
+29-May-22 10:47:27	root	INFO	BIO-API iniciado
+29-May-22 10:47:27	werkzeug	WARNING	 * Debugger is active!
+29-May-22 10:47:27	werkzeug	INFO	 * Debugger PIN: 223-266-732
+29-May-22 10:47:34	werkzeug	INFO	127.0.0.1 - - [29/May/2022 10:47:34] "[31m[1mGET /genes_of_the_same_family?gene_id=AADACP1 HTTP/1.1[0m" 400 -
+29-May-22 10:48:57	werkzeug	INFO	127.0.0.1 - - [29/May/2022 10:48:57] "GET /genes_of_the_same_family?gene_id=egfr HTTP/1.1" 200 -
+29-May-22 10:53:45	werkzeug	INFO	 * Detected change in '/home/mauri/Documentos/Multiomix/BioAPI/bio-api/bioapi.py', reloading
+29-May-22 10:53:45	werkzeug	INFO	 * Restarting with stat
+29-May-22 10:53:45	root	INFO	BIO-API iniciado
+29-May-22 10:53:45	werkzeug	WARNING	 * Debugger is active!
+29-May-22 10:53:45	werkzeug	INFO	 * Debugger PIN: 223-266-732
+29-May-22 10:58:06	werkzeug	INFO	 * Detected change in '/home/mauri/Documentos/Multiomix/BioAPI/bio-api/bioapi.py', reloading
+29-May-22 10:58:06	werkzeug	INFO	 * Restarting with stat
+29-May-22 10:58:07	root	INFO	BIO-API iniciado
+29-May-22 10:58:07	werkzeug	WARNING	 * Debugger is active!
+29-May-22 10:58:07	werkzeug	INFO	 * Debugger PIN: 223-266-732
+29-May-22 10:59:35	root	INFO	BIO-API iniciado
+29-May-22 10:59:35	werkzeug	INFO	 * Running on http://localhost:8088 (Press CTRL+C to quit)
+29-May-22 10:59:35	werkzeug	INFO	 * Restarting with stat
+29-May-22 10:59:35	root	INFO	BIO-API iniciado
+29-May-22 10:59:35	werkzeug	WARNING	 * Debugger is active!
+29-May-22 10:59:35	werkzeug	INFO	 * Debugger PIN: 223-266-732
+29-May-22 10:59:44	werkzeug	INFO	127.0.0.1 - - [29/May/2022 10:59:44] "GET /genes_of_the_same_family?gene_id=AADACP1 HTTP/1.1" 200 -
+29-May-22 10:59:52	werkzeug	INFO	127.0.0.1 - - [29/May/2022 10:59:52] "GET /genes_of_the_same_family?gene_id=egfr HTTP/1.1" 200 -
+29-May-22 11:00:16	werkzeug	INFO	127.0.0.1 - - [29/May/2022 11:00:16] "GET /genes_of_the_same_family?gene_id=AADACP1 HTTP/1.1" 200 -
+29-May-22 11:03:09	werkzeug	INFO	 * Detected change in '/home/mauri/Documentos/Multiomix/BioAPI/bio-api/bioapi.py', reloading
+29-May-22 11:03:10	werkzeug	INFO	 * Restarting with stat
+29-May-22 11:03:10	root	INFO	BIO-API iniciado
+29-May-22 11:03:10	werkzeug	WARNING	 * Debugger is active!
+29-May-22 11:03:10	werkzeug	INFO	 * Debugger PIN: 223-266-732
+29-May-22 11:03:14	root	INFO	BIO-API iniciado
+29-May-22 11:03:14	werkzeug	INFO	 * Running on http://localhost:8088 (Press CTRL+C to quit)
+29-May-22 11:03:14	werkzeug	INFO	 * Restarting with stat
+29-May-22 11:03:14	root	INFO	BIO-API iniciado
+29-May-22 11:03:14	werkzeug	WARNING	 * Debugger is active!
+29-May-22 11:03:14	werkzeug	INFO	 * Debugger PIN: 223-266-732
+29-May-22 11:03:19	werkzeug	INFO	127.0.0.1 - - [29/May/2022 11:03:19] "GET /genes_of_the_same_family?gene_id=AADACP1 HTTP/1.1" 200 -
+29-May-22 11:03:36	werkzeug	INFO	127.0.0.1 - - [29/May/2022 11:03:36] "GET /genes_of_the_same_family?gene_id=BRCA1 HTTP/1.1" 200 -
+29-May-22 11:04:25	werkzeug	INFO	127.0.0.1 - - [29/May/2022 11:04:25] "[31m[1mGET /genes_of_the_same_family?gene_id=BRCC1 HTTP/1.1[0m" 400 -
+29-May-22 11:04:53	werkzeug	INFO	127.0.0.1 - - [29/May/2022 11:04:53] "[31m[1mGET /genes_of_the_same_family?gene_id=buTTi HTTP/1.1[0m" 400 -
+29-May-22 11:05:02	werkzeug	INFO	127.0.0.1 - - [29/May/2022 11:05:02] "GET /genes_of_the_same_family?gene_id=egfr HTTP/1.1" 200 -
+29-May-22 11:05:16	werkzeug	INFO	127.0.0.1 - - [29/May/2022 11:05:16] "GET /genes_of_the_same_family?gene_id=AADACP1 HTTP/1.1" 200 -
+29-May-22 11:10:19	werkzeug	INFO	 * Detected change in '/home/mauri/Documentos/Multiomix/BioAPI/bio-api/bioapi.py', reloading
+29-May-22 11:10:19	werkzeug	INFO	 * Restarting with stat
+29-May-22 11:10:20	root	INFO	BIO-API iniciado
+29-May-22 11:10:20	werkzeug	WARNING	 * Debugger is active!
+29-May-22 11:10:20	werkzeug	INFO	 * Debugger PIN: 223-266-732
+29-May-22 11:10:24	root	INFO	BIO-API iniciado
+29-May-22 11:10:24	werkzeug	INFO	 * Running on http://localhost:8088 (Press CTRL+C to quit)
+29-May-22 11:10:24	werkzeug	INFO	 * Restarting with stat
+29-May-22 11:10:25	root	INFO	BIO-API iniciado
+29-May-22 11:10:25	werkzeug	WARNING	 * Debugger is active!
+29-May-22 11:10:25	werkzeug	INFO	 * Debugger PIN: 223-266-732
+29-May-22 11:10:29	werkzeug	INFO	127.0.0.1 - - [29/May/2022 11:10:29] "GET /genes_of_the_same_family?gene_id=AADACP1 HTTP/1.1" 200 -
+29-May-22 11:10:35	werkzeug	INFO	127.0.0.1 - - [29/May/2022 11:10:35] "[31m[1mGET /genes_of_the_same_family?gene_id=BRCA HTTP/1.1[0m" 400 -
+29-May-22 11:10:40	werkzeug	INFO	127.0.0.1 - - [29/May/2022 11:10:40] "GET /genes_of_the_same_family?gene_id=BRCA1 HTTP/1.1" 200 -
+29-May-22 11:10:52	werkzeug	INFO	127.0.0.1 - - [29/May/2022 11:10:52] "[31m[1mGET /genes_of_the_same_family?gene_id=buTTi HTTP/1.1[0m" 400 -
+29-May-22 11:10:58	werkzeug	INFO	127.0.0.1 - - [29/May/2022 11:10:58] "GET /genes_of_the_same_family?gene_id=egfr HTTP/1.1" 200 -
+29-May-22 11:11:13	werkzeug	INFO	127.0.0.1 - - [29/May/2022 11:11:13] "GET /genes_of_the_same_family?gene_id=AADACP1 HTTP/1.1" 200 -
+30-May-22 16:57:38	root	INFO	BIO-API iniciado
+30-May-22 16:57:38	werkzeug	INFO	 * Running on http://localhost:8088 (Press CTRL+C to quit)
+30-May-22 16:57:38	werkzeug	INFO	 * Restarting with stat
+30-May-22 16:57:38	root	INFO	BIO-API iniciado
+30-May-22 16:57:38	werkzeug	WARNING	 * Debugger is active!
+30-May-22 16:57:38	werkzeug	INFO	 * Debugger PIN: 114-046-908
+30-May-22 16:58:05	werkzeug	INFO	127.0.0.1 - - [30/May/2022 16:58:05] "GET /genes_of_the_same_family?gene_id=AADACP1 HTTP/1.1" 200 -
+30-May-22 16:58:15	werkzeug	INFO	127.0.0.1 - - [30/May/2022 16:58:15] "GET /genes_of_the_same_family?gene_id=brca1 HTTP/1.1" 200 -
+30-May-22 17:10:21	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:10:21] "GET /genSymbol?gene_id=HGNC:1100 HTTP/1.1" 200 -
+30-May-22 17:10:42	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:10:42] "GET /genSymbol?gene_id=FANCS HTTP/1.1" 200 -
+30-May-22 17:13:05	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:13:05] "GET /genes_of_the_same_family?gene_id=brca1 HTTP/1.1" 200 -
+30-May-22 17:13:17	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:13:17] "GET /genes_of_the_same_family?gene_id=egfr HTTP/1.1" 200 -
+30-May-22 17:15:23	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:15:23] "GET /genes_of_the_same_family?gene_id=AADACP1 HTTP/1.1" 200 -
+30-May-22 17:16:36	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:16:36] "GET /genSymbol?gene_id=FANCS HTTP/1.1" 200 -
+30-May-22 17:20:41	werkzeug	INFO	 * Detected change in '/home/mauri/Documentos/Multiomix/BioAPI/bio-api/testing/bioapi_test.py', reloading
+30-May-22 17:20:41	werkzeug	INFO	 * Restarting with stat
+30-May-22 17:20:42	root	INFO	BIO-API iniciado
+30-May-22 17:20:42	werkzeug	WARNING	 * Debugger is active!
+30-May-22 17:20:42	werkzeug	INFO	 * Debugger PIN: 114-046-908
+30-May-22 17:20:48	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:20:48] "GET /genSymbol?gene_id=HGNC:1100 HTTP/1.1" 200 -
+30-May-22 17:20:48	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:20:48] "GET /genSymbol?gene_id=HGNC:26927 HTTP/1.1" 200 -
+30-May-22 17:20:49	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:20:49] "GET /genSymbol?gene_id=HGNC:20105 HTTP/1.1" 200 -
+30-May-22 17:20:49	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:20:49] "GET /genSymbol?gene_id=NCRNA00181 HTTP/1.1" 200 -
+30-May-22 17:20:50	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:20:50] "GET /genSymbol?gene_id=ABC3 HTTP/1.1" 200 -
+30-May-22 17:20:50	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:20:50] "GET /genSymbol?gene_id=STGD HTTP/1.1" 200 -
+30-May-22 17:20:51	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:20:51] "GET /genSymbol?gene_id=BM-009 HTTP/1.1" 200 -
+30-May-22 17:20:51	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:20:51] "GET /genSymbol?gene_id=P450RAI-2 HTTP/1.1" 200 -
+30-May-22 17:20:52	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:20:52] "GET /genSymbol?gene_id=HRES-1/p28 HTTP/1.1" 200 -
+30-May-22 17:20:52	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:20:52] "GET /genSymbol?gene_id=29974 HTTP/1.1" 200 -
+30-May-22 17:20:52	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:20:52] "GET /genSymbol?gene_id=2 HTTP/1.1" 200 -
+30-May-22 17:20:53	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:20:53] "GET /genSymbol?gene_id=106480683 HTTP/1.1" 200 -
+30-May-22 17:20:53	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:20:53] "GET /genSymbol?gene_id=ENSG00000253889 HTTP/1.1" 200 -
+30-May-22 17:20:54	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:20:54] "GET /genSymbol?gene_id=ENSG00000221510 HTTP/1.1" 200 -
+30-May-22 17:20:54	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:20:54] "GET /genSymbol?gene_id=ENSG00000280634 HTTP/1.1" 200 -
+30-May-22 17:20:55	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:20:55] "GET /genSymbol?gene_id=OTTHUMG00000169548 HTTP/1.1" 200 -
+30-May-22 17:20:55	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:20:55] "GET /genSymbol?gene_id=OTTHUMG00000004276 HTTP/1.1" 200 -
+30-May-22 17:20:56	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:20:56] "GET /genSymbol?gene_id=OTTHUMG00000133126 HTTP/1.1" 200 -
+30-May-22 17:20:56	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:20:56] "GET /genSymbol?gene_id=BC140924 HTTP/1.1" 200 -
+30-May-22 17:20:57	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:20:57] "GET /genSymbol?gene_id=U60519 HTTP/1.1" 200 -
+30-May-22 17:20:57	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:20:57] "GET /genSymbol?gene_id=AK023964 HTTP/1.1" 200 -
+30-May-22 17:20:57	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:20:57] "GET /genSymbol?gene_id=uc004eus.4 HTTP/1.1" 200 -
+30-May-22 17:20:58	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:20:58] "GET /genSymbol?gene_id=uc001zwm.2 HTTP/1.1" 200 -
+30-May-22 17:20:58	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:20:58] "GET /genSymbol?gene_id=uc001jfa.2 HTTP/1.1" 200 -
+30-May-22 17:20:59	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:20:59] "GET /genSymbol?gene_id=XR_940049 HTTP/1.1" 200 -
+30-May-22 17:20:59	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:20:59] "GET /genSymbol?gene_id=NG_053071 HTTP/1.1" 200 -
+30-May-22 17:21:00	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:00] "GET /genSymbol?gene_id=NM_001348364 HTTP/1.1" 200 -
+30-May-22 17:21:00	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:00] "GET /genSymbol?gene_id=RBM5-AS1 HTTP/1.1" 200 -
+30-May-22 17:21:01	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:01] "GET /genSymbol?gene_id=TUB-AS1 HTTP/1.1" 200 -
+30-May-22 17:21:01	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:01] "GET /genSymbol?gene_id=ZNF649-AS1 HTTP/1.1" 200 -
+30-May-22 17:21:01	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:01] "GET /genSymbol?gene_id=CCDS73439 HTTP/1.1" 200 -
+30-May-22 17:21:02	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:02] "GET /genSymbol?gene_id=CCDS9766 HTTP/1.1" 200 -
+30-May-22 17:21:02	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:02] "GET /genSymbol?gene_id=CCDS58030 HTTP/1.1" 200 -
+30-May-22 17:21:03	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:03] "GET /genSymbol?gene_id=Q9NVM9 HTTP/1.1" 200 -
+30-May-22 17:21:03	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:03] "GET /genSymbol?gene_id=Q96QZ0 HTTP/1.1" 200 -
+30-May-22 17:21:04	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:04] "GET /genSymbol?gene_id=P62424 HTTP/1.1" 200 -
+30-May-22 17:21:04	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:04] "GET /genSymbol?gene_id=HSP90AA1 HTTP/1.1" 200 -
+30-May-22 17:21:05	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:05] "GET /genSymbol?gene_id=IDH2 HTTP/1.1" 200 -
+30-May-22 17:21:05	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:05] "GET /genSymbol?gene_id=IKZF3 HTTP/1.1" 200 -
+30-May-22 17:21:06	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:06] "GET /genSymbol?gene_id=604230 HTTP/1.1" 200 -
+30-May-22 17:21:06	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:06] "GET /genSymbol?gene_id=618860 HTTP/1.1" 200 -
+30-May-22 17:21:07	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:07] "GET /genSymbol?gene_id=609619 HTTP/1.1" 200 -
+30-May-22 17:21:07	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:07] "GET /genSymbol?gene_id=MI0016796 HTTP/1.1" 200 -
+30-May-22 17:21:07	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:07] "GET /genSymbol?gene_id=MI0000437 HTTP/1.1" 200 -
+30-May-22 17:21:08	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:08] "GET /genSymbol?gene_id=MI0000063 HTTP/1.1" 200 -
+30-May-22 17:21:08	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:08] "GET /genSymbol?gene_id=8363 HTTP/1.1" 200 -
+30-May-22 17:21:09	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:09] "GET /genSymbol?gene_id=8623 HTTP/1.1" 200 -
+30-May-22 17:21:09	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:09] "GET /genSymbol?gene_id=8492 HTTP/1.1" 200 -
+30-May-22 17:21:10	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:10] "GET /genSymbol?gene_id=SR0000311 HTTP/1.1" 200 -
+30-May-22 17:21:10	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:10] "GET /genSymbol?gene_id=SR0000013 HTTP/1.1" 200 -
+30-May-22 17:21:11	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:11] "GET /genSymbol?gene_id=SR0000370 HTTP/1.1" 200 -
+30-May-22 17:21:11	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:11] "GET /genSymbol?gene_id=SLC49A2 HTTP/1.1" 200 -
+30-May-22 17:21:12	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:12] "GET /genSymbol?gene_id=SLC23A4P HTTP/1.1" 200 -
+30-May-22 17:21:12	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:12] "GET /genSymbol?gene_id=SLC25A7 HTTP/1.1" 200 -
+30-May-22 17:21:13	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:13] "GET /genSymbol?gene_id=119066 HTTP/1.1" 200 -
+30-May-22 17:21:13	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:13] "GET /genSymbol?gene_id=470368 HTTP/1.1" 200 -
+30-May-22 17:21:13	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:13] "GET /genSymbol?gene_id=356638 HTTP/1.1" 200 -
+30-May-22 17:21:14	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:14] "GET /genSymbol?gene_id=PGOHUM00000291221 HTTP/1.1" 200 -
+30-May-22 17:21:14	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:14] "GET /genSymbol?gene_id=PGOHUM00000244076 HTTP/1.1" 200 -
+30-May-22 17:21:15	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:15] "GET /genSymbol?gene_id=PGOHUM00000249345 HTTP/1.1" 200 -
+30-May-22 17:21:15	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:15] "GET /genSymbol?gene_id=OR1A2 HTTP/1.1" 200 -
+30-May-22 17:21:16	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:16] "GET /genSymbol?gene_id=OR52E7P HTTP/1.1" 200 -
+30-May-22 17:21:16	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:16] "GET /genSymbol?gene_id=OR56B3P HTTP/1.1" 200 -
+30-May-22 17:21:17	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:17] "GET /genSymbol?gene_id=S09.991 HTTP/1.1" 200 -
+30-May-22 17:21:17	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:17] "GET /genSymbol?gene_id=S01.033 HTTP/1.1" 200 -
+30-May-22 17:21:18	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:18] "GET /genSymbol?gene_id=C01.975 HTTP/1.1" 200 -
+30-May-22 17:21:18	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:18] "GET /genSymbol?gene_id=IGHD1-14 HTTP/1.1" 200 -
+30-May-22 17:21:19	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:19] "GET /genSymbol?gene_id=TRAV8-1 HTTP/1.1" 200 -
+30-May-22 17:21:19	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:19] "GET /genSymbol?gene_id=TRBVA/OR9-2 HTTP/1.1" 200 -
+30-May-22 17:21:20	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:20] "GET /genSymbol?gene_id=objectId:1923 HTTP/1.1" 200 -
+30-May-22 17:21:20	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:20] "GET /genSymbol?gene_id=objectId:40 HTTP/1.1" 200 -
+30-May-22 17:21:20	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:20] "GET /genSymbol?gene_id=ligandId:4961 HTTP/1.1" 200 -
+30-May-22 17:21:21	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:21] "GET /genSymbol?gene_id=15 HTTP/1.1" 200 -
+30-May-22 17:21:21	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:21] "GET /genSymbol?gene_id=25 HTTP/1.1" 200 -
+30-May-22 17:21:22	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:22] "GET /genSymbol?gene_id=18 HTTP/1.1" 200 -
+30-May-22 17:21:22	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:22] "GET /genSymbol?gene_id=CD156B HTTP/1.1" 200 -
+30-May-22 17:21:23	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:23] "GET /genSymbol?gene_id=CDw218b HTTP/1.1" 200 -
+30-May-22 17:21:23	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:23] "GET /genSymbol?gene_id=CD43 HTTP/1.1" 200 -
+30-May-22 17:21:24	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:24] "GET /genSymbol?gene_id=adamts9-as2 HTTP/1.1" 200 -
+30-May-22 17:21:24	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:24] "GET /genSymbol?gene_id=gata3-as1 HTTP/1.1" 200 -
+30-May-22 17:21:25	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:25] "GET /genSymbol?gene_id=Emx2os HTTP/1.1" 200 -
+30-May-22 17:21:25	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:25] "GET /genSymbol?gene_id=2.4.1.40 HTTP/1.1" 200 -
+30-May-22 17:21:26	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:26] "GET /genSymbol?gene_id=1.14.11.- HTTP/1.1" 200 -
+30-May-22 17:21:26	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:26] "GET /genSymbol?gene_id=3.5.1.- HTTP/1.1" 200 -
+30-May-22 17:21:27	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:27] "GET /genSymbol?gene_id=HGNC:6459 HTTP/1.1" 200 -
+30-May-22 17:21:27	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:27] "GET /genSymbol?gene_id=HGNC:9461 HTTP/1.1" 200 -
+30-May-22 17:21:28	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:28] "GET /genSymbol?gene_id=HGNC:6638 HTTP/1.1" 200 -
+30-May-22 17:21:28	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:28] "GET /genSymbol?gene_id=HGNC:28425 HTTP/1.1" 200 -
+30-May-22 17:21:28	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:28] "GET /genSymbol?gene_id=HGNC:16729 HTTP/1.1" 200 -
+30-May-22 17:21:29	werkzeug	INFO	127.0.0.1 - - [30/May/2022 17:21:29] "GET /genSymbol?gene_id=HGNC:4932 HTTP/1.1" 200 -
+30-May-22 17:27:54	werkzeug	INFO	 * Detected change in '/home/mauri/Documentos/Multiomix/BioAPI/bio-api/tests/test_gene_symbol.py', reloading
+30-May-22 17:27:55	werkzeug	INFO	 * Restarting with stat
+30-May-22 17:27:55	root	INFO	BIO-API iniciado
+30-May-22 17:27:55	werkzeug	WARNING	 * Debugger is active!
+30-May-22 17:27:55	werkzeug	INFO	 * Debugger PIN: 114-046-908
+30-May-22 17:50:49	root	INFO	BIO-API iniciado
+30-May-22 17:50:49	werkzeug	INFO	 * Running on http://localhost:8088 (Press CTRL+C to quit)
+30-May-22 17:50:49	werkzeug	INFO	 * Restarting with stat
+30-May-22 17:50:50	root	INFO	BIO-API iniciado
+30-May-22 17:50:50	werkzeug	WARNING	 * Debugger is active!
+30-May-22 17:50:50	werkzeug	INFO	 * Debugger PIN: 114-046-908
+30-May-22 17:51:20	werkzeug	INFO	 * Detected change in '/home/mauri/Documentos/Multiomix/BioAPI/bio-api/flaskr/__init__.py', reloading
+30-May-22 17:51:20	werkzeug	INFO	 * Restarting with stat
+30-May-22 17:51:20	root	INFO	BIO-API iniciado
+30-May-22 17:51:20	werkzeug	WARNING	 * Debugger is active!
+30-May-22 17:51:20	werkzeug	INFO	 * Debugger PIN: 114-046-908
+30-May-22 21:11:46	root	INFO	BIO-API iniciado
+30-May-22 21:21:41	root	INFO	BIO-API iniciado
+30-May-22 21:23:41	root	INFO	BIO-API iniciado

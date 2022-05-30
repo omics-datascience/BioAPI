@@ -8,3 +8,4 @@ RUN pip3  install 'flask-cors==3.0.10' --force-reinstall
 RUN pip3  install 'gunicorn==20.1.0' --force-reinstall
 RUN pip3  install 'requests==2.26.0' --force-reinstall
 RUN pip3  install 'ConfigParser==5.2.0' --force-reinstall
+RUN pip3  install pytest coverage

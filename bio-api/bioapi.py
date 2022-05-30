@@ -71,6 +71,36 @@ def mapear_gen(gen):
 		results.append(doc["symbol"])
 	return results
 
+def buscar_grupo_gen(gen): 	#AGREGAR LO QUE PASA SI NO PERTENECE A NINGUN gene_group_id (EJ gen:AADACP1)
+	results = { 'locus_group':None , 'locus_type':None, 'gene_group':None, 'gene_group_id':None }
+	mycol_hgnc = mydb["hgnc"]		#coneccion a coleccion hgnc
+	query = { "symbol": gen, "status":"Approved"}
+	#hago consulta a la db
+	mydocs = mycol_hgnc.find(query)
+	if mydocs.count() == 1:
+		results['locus_group'] = mydocs[0]['locus_group']
+		results['locus_type'] = mydocs[0]['locus_type']
+		if "gene_group" in list(mydocs[0].keys()):
+			if type(mydocs[0]['gene_group']) == list:
+				results['gene_group'] = mydocs[0]['gene_group']
+				results['gene_group_id'] = mydocs[0]['gene_group_id']
+			else:
+				results['gene_group'] = [mydocs[0]['gene_group']]
+				results['gene_group_id'] = [mydocs[0]['gene_group_id']]
+		 
+	return results
+
+def buscar_genes_mismo_grupo(id_grupo): 	
+	mycol_hgnc = mydb["hgnc"]		#coneccion a coleccion hgnc
+	query = { 'gene_group_id': id_grupo}
+	proyection = { '_id': 0, 'symbol':1 }
+	#hago consulta a la db
+	mydocs = mycol_hgnc.find(query, proyection)
+	results = []
+	for doc in mydocs:
+		results.append(doc["symbol"])
+	return results
+
 #############   Definicion de endpoints #############
 @app.route("/")				#Pantalla de inicio
 def inicio():
@@ -91,7 +121,7 @@ def list_routes():
         output["endpoints"].append(line)
     return make_response(output,200,headers)
 
-@app.route("/genSymbol")			
+@app.route("/gene-symbol")			
 #recibe un ID del gen en cualquier estandard y devuelve el ID del Gen estandarizado. En caso de que no se encuentre debe retornar null en el valor.
 def genSymbol():
 	respuesta = { "gene" : None}
@@ -109,11 +139,9 @@ def genSymbol():
 		abort(400,e)
 	except KeyError as e:
 		abort(400,e)
-
 	return make_response(respuesta,200,headers)
 
-@app.route("/genSymbols")			
-#recibe un ID del gen en cualquier estandard y devuelve el ID del Gen estandarizado. En caso de que no se encuentre debe retornar null en el valor.
+@app.route("/genes-symbols")			
 def genSymbols():
 	respuesta = { "genes" : []}
 	try:
@@ -135,8 +163,47 @@ def genSymbols():
 		abort(400,e)
 	except KeyError as e:
 		abort(400,e)
-
 	return make_response(respuesta,200,headers)
+
+@app.route("/genes-same-family")			
+def genes_of_the_same_family():
+	respuesta = { "gene_id" : None, "groups": [], "locus_group": None, "locus_type": None}
+	try:
+		#Controlo parametros
+		args = request.args
+		if "gene_id" not in args:
+			abort(400, "gene_id is mandatory.")
+		approved_symbol = None
+		mapped_gene = mapear_gen(args.get("gene_id"))
+		if len(mapped_gene) == 0:
+			abort(400,"invalid gene identifier")
+		elif len(mapped_gene) >= 2:
+			abort(400,"ambiguous gene identifier. The identifier may refer to more than one HGNC-approved gene ("+",".join(mapped_gene)+")")
+		else:
+			approved_symbol = mapped_gene[0]
+			respuesta["gene_id"] = approved_symbol
+		gene_group = buscar_grupo_gen(approved_symbol)
+		respuesta['locus_group'] = gene_group['locus_group']
+		respuesta['locus_type'] = gene_group['locus_type']
+		if gene_group['gene_group_id'] != None:
+			respuesta["groups"] = []
+			for i in range(0, len(gene_group['gene_group_id'])):
+				g = {}
+				g["gene_group_id"] = gene_group['gene_group_id'][i]
+				g["gene_group"] = gene_group['gene_group'][i]
+				g["genes"] = buscar_genes_mismo_grupo(gene_group['gene_group_id'][i])
+				respuesta["groups"].append(g)
+			
+	
+	except TypeError as e:
+		abort(400,e)
+	except ValueError as e:
+		abort(400,e)
+	except KeyError as e:
+		abort(400,e)
+	return make_response(respuesta,200,headers)
+
+
 
 #Manejo de errores
 @app.errorhandler(400)
