@@ -1,0 +1,35 @@
+version: '3.7'
+services:
+    # MongoDB Server
+    mongo:
+        image: mongo:4.2
+        container_name: bio_api_mongo_db
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: root
+            MONGO_INITDB_ROOT_PASSWORD: root
+            MONGO_INITDB_DATABASE: bio_api
+        ports:
+            - 27017:27017
+        volumes:
+            # Mounts initialize script as read-only
+            - mongo_data:/data/db
+            - mongo_data:/data/configdb
+
+    # Mongo express
+    mongo-express:
+        image: mongo-express:0.54.0
+        container_name: bio_api_dev_mongo_express
+        restart: always
+        ports:
+            - 8081:8081
+        environment:
+            ME_CONFIG_MONGODB_ADMINUSERNAME: root
+            ME_CONFIG_MONGODB_ADMINPASSWORD: root
+
+volumes:
+    mongo_data:
+        external:
+            name: 'bio_api_mongo_data'
+    mongo_config:
+        external:
+            name: 'bio_api_mongo_config'
