@@ -1,11 +1,12 @@
 [flask]
-port:8088
+port: 8000
 
 [mongodb]
-host: 192.168.1.11
+host: 127.0.0.1
 port: 27017
-user: multiomix_bioapi_user
-pass: multiomix_bioapi_pass
+user: root
+pass: root
+db_name: bio_api
 
 [log]
 file: bioapi.log
