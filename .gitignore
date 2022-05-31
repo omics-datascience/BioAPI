@@ -9,3 +9,5 @@ bio-api/db.sqlite3
 docker-compose.yml
 bio-api/secretkey.txt
 *.log
+databases/hgnc/hgnc_output.json
+databases/hgnc/hgnc_dataset.tsv
