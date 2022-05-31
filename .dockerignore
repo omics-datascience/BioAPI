@@ -1,11 +1,9 @@
 *.pyc
 .idea
 .vscode
+.mypy_cache
 venv
 bio-api/static
+bio-api/uploads
 bio-api/media
-.mypy_cache
 bio-api/db.sqlite3
-docker-compose.yml
-bio-api/secretkey.txt
-*.log
