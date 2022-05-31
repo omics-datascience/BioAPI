@@ -1,8 +1,11 @@
 #!/bin/bash
 
-############# EDITAR ##################
+############# EDIT ##################
 ip_mongo=localhost
 port_mongo=27017
+user=root
+password=root
+db=bio_api
 #######################################
 
 date
@@ -15,11 +18,11 @@ python3 hgnc_tsv2json.py --input hgnc_dataset.tsv --output hgnc_output.json
 echo "INFO	OK."
 date
 echo "INFO	Importando a MongoDB..."
-mongoimport  --verbose=1 --host $ip_mongo --port $port_mongo  --drop --stopOnError --db genomics_dbs --collection hgnc --jsonArray hgnc_output.json
+cat hgnc_output.json | docker container exec -i bio_api_mongo_db mongoimport --verbose=1 --host $ip_mongo --port $port_mongo --username $user --password $password --drop --stopOnError --db $db --collection hgnc --authenticationDatabase admin --jsonArray
 echo "INFO	OK."
 date
 echo "INFO	Creando indices..."
-mongo --quiet --host $ip_mongo --port $port_mongo createIndex_hgnc.js
+cat createIndex_hgnc.js | docker container exec -i bio_api_mongo_db mongo --quiet --host $ip_mongo --port $port_mongo --username $user --password $password
 echo "INFO	OK"
 date
 echo "INFO	Eliminando archivos intermedios..."
