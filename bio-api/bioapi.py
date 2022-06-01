@@ -10,10 +10,9 @@ import re
 import os
 import configparser
 import logging
-
-# Gets production flag
 from pymongo.database import Database
 
+# Gets production flag
 IS_DEBUG: bool = os.environ.get('DEBUG', 'true') == 'true'
 
 # Levanto configuracion
@@ -124,41 +123,28 @@ def buscar_genes_mismo_grupo(id_grupo):
 
 def create_app(test_config=None):
     # create and configure the app
-    app = Flask(__name__, instance_relative_config=True)
-
-    if test_config is None:
-        # load the instance config, if it exists, when not testing
-        app.config.from_pyfile('config.py', silent=True)
-    else:
-        # load the test config if passed in
-        app.config.from_mapping(test_config)
-
-    # ensure the instance folder exists
-    try:
-        os.makedirs(app.instance_path)
-    except OSError:
-        pass
+    flask_app = Flask(__name__, instance_relative_config=True)
 
     # Endpoints
-    @app.route("/")  # Pantalla de inicio
+    @flask_app.route("/")  # Pantalla de inicio
     def inicio():
         return render_template('homePage.html')
 
-    @app.route("/ping")  # Para chequear que este levantada la bioapi
+    @flask_app.route("/ping")  # Para chequear que este levantada la bioapi
     def ping_ok():
         output = "ok"
         return make_response(output, 200, headers)
 
-    @app.route("/bioapi-map")  # Lista todos los endpoint de bioapi
+    @flask_app.route("/bioapi-map")  # Lista todos los endpoint de bioapi
     def list_routes():
         output = {"endpoints": []}
-        for rule in app.url_map.iter_rules():
+        for rule in flask_app.url_map.iter_rules():
             methods = ','.join(rule.methods)
             line = urllib.parse.unquote("{:50s} {:20s} {}".format(rule.endpoint, methods, rule))
             output["endpoints"].append(line)
         return make_response(output, 200, headers)
 
-    @app.route("/gene-symbol")
+    @flask_app.route("/gene-symbol")
     def genSymbol():
         """Recibe un ID del gen en cualquier estandard y devuelve el ID del Gen estandarizado. En caso de que no se
         encuentre debe retornar null en el valor."""
@@ -179,7 +165,7 @@ def create_app(test_config=None):
             abort(400, e)
         return make_response(respuesta, 200, headers)
 
-    @app.route("/genes-symbols")
+    @flask_app.route("/genes-symbols")
     def genSymbols():
         respuesta = {"genes": []}
         try:
@@ -203,7 +189,7 @@ def create_app(test_config=None):
             abort(400, e)
         return make_response(respuesta, 200, headers)
 
-    @app.route("/genes-same-family")
+    @flask_app.route("/genes-same-family")
     def genes_of_the_same_family():
         respuesta = {"gene_id": None, "groups": [], "locus_group": None, "locus_type": None}
         try:
@@ -243,30 +229,32 @@ def create_app(test_config=None):
         return make_response(respuesta, 200, headers)
 
     # Manejo de errores
-    @app.errorhandler(400)
+    @flask_app.errorhandler(400)
     def resource_not_found(e):
         return jsonify(error=str(e)), 400
 
-    @app.errorhandler(405)
+    @flask_app.errorhandler(405)
     def resource_not_found(e):
         return jsonify(error=str(e)), 405
 
-    @app.errorhandler(404)
+    @flask_app.errorhandler(404)
     def resource_not_found(e):
         return jsonify(error=str(e)), 404
 
-    @app.errorhandler(409)
+    @flask_app.errorhandler(409)
     def resource_not_found(e):
         return jsonify(error=str(e)), 409
 
-    @app.errorhandler(500)
+    @flask_app.errorhandler(500)
     def resource_not_found(e):
         return jsonify(error=str(e)), 500
 
-    return app
+    return flask_app
 
+
+app = create_app()
 
 if __name__ == "__main__":
     port_str = os.environ.get('PORT', Config.get('flask', 'port'))
     port = int(port_str)
-    create_app().run(host='localhost', port=port, debug=IS_DEBUG)
+    app.run(host='localhost', port=port, debug=IS_DEBUG)
