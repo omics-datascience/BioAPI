@@ -40,7 +40,7 @@ With the Python environment activated (see instructions above), follow the next 
 
 1. Run Bio-API in Docker:
     1. Make a copy of `docker-compose_dist.yml` named `docker-compose.yml` and modified the required fields.
-    1. Use docker compose to get the API up: `docker-compose up -d`. By default, BioAPI runs on `localhost:8000`. Edit the `docker-compose.yml` file to modify these values.
+    1. Use docker compose to get the API up: `docker-compose up -d`. By default, BioAPI runs on `localhost:8000`.
 
 
 ## Endpoints:

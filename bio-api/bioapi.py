@@ -121,7 +121,7 @@ def buscar_genes_mismo_grupo(id_grupo):
     return results
 
 
-def create_app(test_config=None):
+def create_app():
     # create and configure the app
     flask_app = Flask(__name__, instance_relative_config=True)
 
