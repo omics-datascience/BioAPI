@@ -1,7 +1,7 @@
 FROM python:3.8
 
 # Installs Python requirements
-RUN pip install --upgrade pip && mkdir /config
+RUN pip install --upgrade pip
 ADD ./config/requirements.txt /config/requirements.txt
 RUN pip install -r /config/requirements.txt
 
