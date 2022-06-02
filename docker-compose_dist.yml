@@ -3,6 +3,7 @@ services:
     # MongoDB Server
     mongo:
         image: mongo:4.2
+        container_name: bio_api_mongo_db
         ports:
             - 27017:27017
         volumes:
