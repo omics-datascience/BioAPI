@@ -90,7 +90,7 @@ It is mandatory that the body of the request the list of genes be sent with the 
 
 ```json
 {    
-    "genes_ids" : ["gen_1","gen_2", ... , "gen_N"]    
+    "genes_ids" : ["gen_1","gen_2", "gen_N"]    
 }
 ```
 
