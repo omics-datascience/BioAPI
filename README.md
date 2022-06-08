@@ -45,15 +45,13 @@ With the Python environment activated (see instructions above), follow the next 
 
 ## Endpoints:
 
-### /gene-symbol
+### **GET**  /gene-symbol/<*gene_id*>
 
 Gets the identifier of a gene from different genomic databases and returns the approved symbol according to HGNC.
 
-**Parameters:**
+*gene_id*: Identifier of the gene for any database
 
-- gene_id \<string\>: Identifier of the gene for any database
-
-Example: http://localhost:8000/gene-symbol?gene_id=A1BG-AS 
+Example: http://localhost:8000/gene-symbol/A1BG-AS 
 
 **Response format:**
 
@@ -61,7 +59,7 @@ If the gene_id has an approved symbol:
 
 ```json
 {
-    "gene": [
+    "A1BG-AS": [
         "A1BG-AS1"
     ]
 }
@@ -71,53 +69,107 @@ If the gene_id does not have an approved symbol:
 
 ```json
 {
-    "gene": null
+    "A1BG-AS": []
 }
 ```
 
-If an error occurs (400):
+If an error occurs (400, 404):
 
 ```json
 {
-    "error": "gene_id is mandatory."
+    "error": "error description."
 }
 ```
 
 
-### /genes-symbols
+### **POST**  /genes-symbols
 
-Get a list of gene IDs in any standard and return a list with the same amount of elements with the symbols approved according to HGNC. In case an ID is invalid, `null` must go in its position.
+Gets the identifiers of a list of genes from different genomic databases and returns the HGNC-approved symbols.
 
-**Parameters:**
+It is mandatory that the body of the request the list of genes be sent with the following Json format:  
 
-- genes_ids \<string\>[]: List of gene identifiers from any database separated by commas.
+```json
+{    
+    "genes_ids" : ["gen_1","gen_2", ... , "gen_N"]    
+}
+```
 
-Example: http://localhost:8000/genes-symbols?genes_ids=A1BG-AS,BRCC1,buTTi,ENSG00000280634
+Example: http://localhost:8000/genes-symbols  
+body:
+> ```json
+> {    
+>     "genes_ids" : ["NAP1","xyz", "FANCS"]    
+> }
+> ```
 
 Correct answer:
 
 ```json
 {
-    "genes": [
-        [
-            "A1BG-AS1"
-        ],
-        [
-            "BRCA1",
-            "ICE2"
-        ],
-        null,
-        [
-            "THRIL"
-        ]
-      ]
+    "BRCC1": [
+        "BRCA1",
+        "ICE2"
+    ],
+    "FANCS": [
+        "BRCA1"
+    ],
+    "NAP1": [
+        "ACOT8",
+        "AZI2",
+        "CXCL8",
+        "NAP1L1",
+        "NAPSA",
+        "NCKAP1"
+    ],
+    "xyz": []
 }
 ```
 
-If an error occurs (400):
+If an error occurs (400, 404):
 
 ```json
 {
-    "error": "genes_ids is mandatory."
+    "error": "error description."
+}
+```
+
+
+### **GET**  /genes-same-group/<*gene_id*>
+
+Gets the identifier of a gene, validates it and then returns the validated gene, the group of genes to which it belongs according to HGNC, and all the other genes that belong to the same group.
+
+*gene_id*: Identifier of the gene for any database
+
+Example: http://localhost:8000/genes-same-group/ENSG00000146648
+
+**Response format:**
+
+If the gene_id has an approved symbol:
+
+```json
+{
+    "gene_id": "EGFR",
+    "groups": [
+        {
+            "gene_group": "Erb-b2 receptor tyrosine kinases",
+            "gene_group_id": "1096",
+            "genes": [
+                "EGFR",
+                "ERBB3",
+                "ERBB2",
+                "ERBB4"
+            ]
+        }
+    ],
+    "locus_group": "protein-coding gene",
+    "locus_type": "gene with protein product"
+}
+```
+
+If an error occurs (400, 404):
+
+```json
+{
+    "error": "error description."
 }
 ```
