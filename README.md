@@ -17,7 +17,7 @@ The following steps are required for both development and production sections.
 1. Create a Python virtual environment to install some dependencies:
     1. `python3 -m venv venv`
     1. `source venv/bin/activate` (run only when you need to work)
-    1. `pip install -r requirements.txt`
+    1. `pip install -r config/requirements.txt`
 1. Create MongoDB Docker volumes (just the first time):
     1. `docker volume create --name=bio_api_mongo_data`
     1. `docker volume create --name=bio_api_mongo_config`
