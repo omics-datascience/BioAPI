@@ -144,70 +144,48 @@ def create_app():
             output["endpoints"].append(line)
         return make_response(output, 200, headers)
 
-    @flask_app.route("/gene-symbol")
-    def genSymbol():
-        """Recibe un ID del gen en cualquier estandard y devuelve el ID del Gen estandarizado. En caso de que no se
-        encuentre debe retornar null en el valor."""
-        respuesta = {"gene": None}
+    @flask_app.route("/gene-symbol/<gene_id>")
+    def genSymbol(gene_id):
+        """Recibe un ID del gen en cualquier estandar y devuelve el ID del Gen estandarizado. En caso de que no se
+        encuentre debe retornar [ ] en el valor."""
+        respuesta = {gene_id: []}
         try:
-            # Controlo parametros
-            args = request.args
-            if "gene_id" not in args:
-                abort(400, "gene_id is mandatory.")
-            gv = mapear_gen(args.get("gene_id"))
-            if len(gv) > 0:
-                respuesta["gene"] = gv
-        except TypeError as e:
-            abort(400, e)
-        except ValueError as e:
-            abort(400, e)
-        except KeyError as e:
+            gv = mapear_gen(gene_id)
+            respuesta[gene_id] = gv
+        except Exception as e:
             abort(400, e)
         return make_response(respuesta, 200, headers)
 
-    @flask_app.route("/genes-symbols")
+    @flask_app.route("/genes-symbols", methods = ['POST'])
     def genSymbols():
-        respuesta = {"genes": []}
-        try:
-            # Controlo parametros
-            args = request.args
-            if "genes_ids" not in args:
-                abort(400, "genes_ids is mandatory.")
-
-            genes = args.get("genes_ids").split(",")
-            for gene in genes:
-                gv = mapear_gen(gene)
-                if len(gv) > 0:
-                    respuesta["genes"].append(gv)
-                else:
-                    respuesta["genes"].append(None)
-        except TypeError as e:
-            abort(400, e)
-        except ValueError as e:
-            abort(400, e)
-        except KeyError as e:
-            abort(400, e)
+        if(request.method == 'POST'):
+            body = request.get_json()
+            if "genes_ids" not in list(body.keys()):
+                abort(400, "genes_ids is mandatory")
+            genes_ids = body['genes_ids']
+            if type(genes_ids) != list:
+                abort(400, "genes_ids must be a list")
+            respuesta = {}
+            try:
+                for gene in genes_ids:
+                    gv = mapear_gen(gene)
+                    respuesta[gene] = gv
+            except Exception as e:
+                abort(400, e)
         return make_response(respuesta, 200, headers)
 
-    @flask_app.route("/genes-same-family")
-    def genes_of_the_same_family():
+    @flask_app.route("/genes-same-group/<gene_id>")
+    def genes_of_the_same_family(gene_id):
         respuesta = {"gene_id": None, "groups": [], "locus_group": None, "locus_type": None}
         try:
-            # Controlo parametros
-            args = request.args
-            if "gene_id" not in args:
-                abort(400, "gene_id is mandatory.")
-            approved_symbol = None
-            mapped_gene = mapear_gen(args.get("gene_id"))
+            
+            mapped_gene = mapear_gen(gene_id)
             if len(mapped_gene) == 0:
                 abort(400, "invalid gene identifier")
             elif len(mapped_gene) >= 2:
-                abort(400,
-                      "ambiguous gene identifier. The identifier may refer to more than one HGNC-approved gene (" + ",".join(
-                          mapped_gene) + ")")
-            else:
-                approved_symbol = mapped_gene[0]
-                respuesta["gene_id"] = approved_symbol
+                abort(400, "ambiguous gene identifier. The identifier may refer to more than one HGNC-approved gene (" + ",".join(mapped_gene) + ")")
+            approved_symbol = mapped_gene[0]
+            respuesta["gene_id"] = approved_symbol
             gene_group = buscar_grupo_gen(approved_symbol)
             respuesta['locus_group'] = gene_group['locus_group']
             respuesta['locus_type'] = gene_group['locus_type']

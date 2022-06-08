@@ -1,4 +1,4 @@
-db_name = 'genomics_dbs';
+db_name = 'bio_api';
 db = db.getSiblingDB(db_name);
 db.hgnc.createIndex( { 'symbol': 1 } );
 db.hgnc.createIndex( { 'alias_symbol': 1 } );
