@@ -11,3 +11,4 @@ bio-api/secretkey.txt
 *.log
 databases/hgnc/hgnc_output.json
 databases/hgnc/hgnc_dataset.tsv
+databases/cpdb/

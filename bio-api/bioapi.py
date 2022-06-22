@@ -6,11 +6,12 @@ from flask import render_template
 from flask import request
 import urllib.parse
 import pymongo
+from pymongo.database import Database
 import re
 import os
 import configparser
 import logging
-from pymongo.database import Database
+
 
 # Gets production flag
 IS_DEBUG: bool = os.environ.get('DEBUG', 'true') == 'true'
@@ -60,7 +61,7 @@ def get_mongo_connection() -> Database:
         mongo_client = pymongo.MongoClient(f"mongodb://{user}:{password}@{host}:{port}/?authSource=admin")
         return mongo_client[db]
     except Exception as e:
-        logging.error("BioAPI no se pudo conectar a la base de datos MongoDB configurada." + str(e), exc_info=True)
+        logging.error("Database connection error." + str(e), exc_info=True)
         exit(-1)
 
 
@@ -151,8 +152,14 @@ def create_app():
         respuesta = {gene_id: []}
         try:
             gv = mapear_gen(gene_id)
+            if len(gv) == 0:
+                abort(404, "invalid gene identifier")
             respuesta[gene_id] = gv
-        except Exception as e:
+        except TypeError as e:
+            abort(400, e)
+        except ValueError as e:
+            abort(400, e)
+        except KeyError as e:
             abort(400, e)
         return make_response(respuesta, 200, headers)
 
@@ -178,10 +185,9 @@ def create_app():
     def genes_of_the_same_family(gene_id):
         respuesta = {"gene_id": None, "groups": [], "locus_group": None, "locus_type": None}
         try:
-            
             mapped_gene = mapear_gen(gene_id)
             if len(mapped_gene) == 0:
-                abort(400, "invalid gene identifier")
+                abort(404, "invalid gene identifier")
             elif len(mapped_gene) >= 2:
                 abort(400, "ambiguous gene identifier. The identifier may refer to more than one HGNC-approved gene (" + ",".join(mapped_gene) + ")")
             approved_symbol = mapped_gene[0]
@@ -208,24 +214,12 @@ def create_app():
 
     # Manejo de errores
     @flask_app.errorhandler(400)
-    def resource_not_found(e):
+    def bad_request(e):
         return jsonify(error=str(e)), 400
 
-    @flask_app.errorhandler(405)
-    def resource_not_found(e):
-        return jsonify(error=str(e)), 405
-
     @flask_app.errorhandler(404)
-    def resource_not_found(e):
+    def not_found(e):
         return jsonify(error=str(e)), 404
-
-    @flask_app.errorhandler(409)
-    def resource_not_found(e):
-        return jsonify(error=str(e)), 409
-
-    @flask_app.errorhandler(500)
-    def resource_not_found(e):
-        return jsonify(error=str(e)), 500
 
     return flask_app
 

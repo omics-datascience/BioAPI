@@ -8,7 +8,6 @@ def test_gene_id_valid(client):
     response = client.get(f'{URL_BASE}/{valid_id}')
     res = json.loads(response.data)
     assert response.status_code == 200
-    assert valid_id in list(res.keys())
     assert type(res[valid_id]) == list
     assert "TP53" in res[valid_id]
 
@@ -18,7 +17,6 @@ def test_gene_alias_two_genes(client):
     response = client.get(f'{URL_BASE}/{alias_id}')
     res = json.loads(response.data)
     assert response.status_code == 200
-    assert alias_id in list(res.keys())
     assert type(res[alias_id]) == list
     assert "BRCA1" in res[alias_id]
     assert "ICE2" in res[alias_id]
@@ -29,10 +27,8 @@ def test_gene_id_invalid(client):
     invalid_id="XXX" #Invalid id
     response = client.get(f'{URL_BASE}/{invalid_id}')
     res = json.loads(response.data)
-    assert response.status_code == 200
-    assert invalid_id in list(res.keys())
-    assert type(res[invalid_id]) == list
-    assert res[invalid_id] == []
+    assert response.status_code == 404
+    assert "error" in list(res.keys())
 
 def test_missing_gene_id_param(client):
     """Tests missing mandatory parameter"""
@@ -40,4 +36,3 @@ def test_missing_gene_id_param(client):
     res = json.loads(response.data)
     assert response.status_code == 404
     assert "error" in list(res.keys())
-    assert type(res["error"]) == str
