@@ -121,6 +121,17 @@ def buscar_genes_mismo_grupo(id_grupo):
         results.append(doc["symbol"])
     return results
 
+def get_gene_pathways(gene):
+    mycol_cpdb = mydb["cpdb"]  # coneccion a coleccion cpdb
+    query = {'hgnc_symbol_ids': gene}
+    proyection = {'_id': 0, 'pathway': 1, 'external_id': 1, 'source': 1}
+    # hago consulta a la db
+    mydocs = mycol_cpdb.find(query, proyection)
+    results = []
+    for doc in mydocs:
+        results.append(doc["pathway"])
+    return results
+
 
 def create_app():
     # create and configure the app
@@ -211,6 +222,22 @@ def create_app():
         except KeyError as e:
             abort(400, e)
         return make_response(respuesta, 200, headers)
+
+    @flask_app.route("/genes-pathways", methods = ['POST'])
+    def genesPathways():
+        if(request.method == 'POST'):
+            body = request.get_json()
+            if "genes_ids" not in list(body.keys()):
+                abort(400, "genes_ids is mandatory")
+            genes_ids = body['genes_ids']
+            if type(genes_ids) != list:
+                abort(400, "genes_ids must be a list")
+            tmp_pw = []
+            for gene in genes_ids:
+                tmp_pw.append(get_gene_pathways(gene))
+            respuesta = { "pathways": list(set.intersection(*map(set,tmp_pw))) }
+        return make_response(respuesta, 200, headers)
+
 
     # Manejo de errores
     @flask_app.errorhandler(400)
