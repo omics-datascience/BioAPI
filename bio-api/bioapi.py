@@ -1,3 +1,4 @@
+import json
 from flask import Flask
 from flask import jsonify
 from flask import make_response
@@ -121,7 +122,18 @@ def buscar_genes_mismo_grupo(id_grupo):
         results.append(doc["symbol"])
     return results
 
-def get_gene_pathways(gene):
+def get_genes_of_pathway(pathway_id, pathway_source):
+    mycol_cpdb = mydb["cpdb"]  # coneccion a coleccion cpdb
+    ps = re.compile("^" + pathway_source + "$", re.IGNORECASE)
+    query = {'external_id': str(pathway_id), "source": {"$regex": ps}}
+    # hago consulta a la db
+    mydoc = mycol_cpdb.find_one(query)
+    genes = []
+    if mydoc is not None:
+        genes = mydoc["hgnc_symbol_ids"]
+    return genes
+
+def get_pathways_of_gene(gene):
     mycol_cpdb = mydb["cpdb"]  # coneccion a coleccion cpdb
     query = {'hgnc_symbol_ids': gene}
     proyection = {'_id': 0, 'pathway': 1, 'external_id': 1, 'source': 1}
@@ -129,7 +141,7 @@ def get_gene_pathways(gene):
     mydocs = mycol_cpdb.find(query, proyection)
     results = []
     for doc in mydocs:
-        results.append(doc["pathway"])
+        results.append(str(doc))
     return results
 
 
@@ -223,8 +235,13 @@ def create_app():
             abort(400, e)
         return make_response(respuesta, 200, headers)
 
+    @flask_app.route("/genes-pathways/<pathway_id>/<pathway_source>", methods = ['GET'])
+    def pathwaysOfGenes(pathway_id, pathway_source):
+        respuesta = { "genes" : get_genes_of_pathway(pathway_id, pathway_source) }
+        return make_response(respuesta, 200, headers)
+
     @flask_app.route("/genes-pathways", methods = ['POST'])
-    def genesPathways():
+    def genesOfPathways():
         if(request.method == 'POST'):
             body = request.get_json()
             if "genes_ids" not in list(body.keys()):
@@ -232,13 +249,20 @@ def create_app():
             genes_ids = body['genes_ids']
             if type(genes_ids) != list:
                 abort(400, "genes_ids must be a list")
-            tmp_pw = []
+            if len(genes_ids)==0:
+                abort(400, "genes_ids must contain at least one gene symbol")
+            pathways_tmp = []
             for gene in genes_ids:
-                tmp_pw.append(get_gene_pathways(gene))
-            respuesta = { "pathways": list(set.intersection(*map(set,tmp_pw))) }
-        return make_response(respuesta, 200, headers)
+                pathways_tmp.append(get_pathways_of_gene(gene))
 
-
+            pathways_intersection = list(set.intersection(*map(set,pathways_tmp)))
+            respuesta = { "pathways": [] }
+            for e in pathways_intersection:
+                r = json.loads(e.replace("\'", "\""))
+                respuesta["pathways"].append(r)
+            return make_response(respuesta, 200, headers)
+        
+    
     # Manejo de errores
     @flask_app.errorhandler(400)
     def bad_request(e):
