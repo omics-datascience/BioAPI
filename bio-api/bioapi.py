@@ -235,12 +235,12 @@ def create_app():
             abort(400, e)
         return make_response(respuesta, 200, headers)
 
-    @flask_app.route("/genes-pathways/<pathway_id>/<pathway_source>", methods = ['GET'])
-    def pathwaysOfGenes(pathway_id, pathway_source):
+    @flask_app.route("/genes-pathways/<pathway_source>/<pathway_id>", methods = ['GET'])
+    def pathwaysOfGenes(pathway_source, pathway_id):
         respuesta = { "genes" : get_genes_of_pathway(pathway_id, pathway_source) }
         return make_response(respuesta, 200, headers)
 
-    @flask_app.route("/genes-pathways", methods = ['POST'])
+    @flask_app.route("/genes-pathways-intersection", methods = ['POST'])
     def genesOfPathways():
         if(request.method == 'POST'):
             body = request.get_json()

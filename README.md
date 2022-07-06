@@ -133,7 +133,6 @@ If an error occurs (400, 404):
 }
 ```
 
-
 ### **GET**  /genes-same-group/<*gene_id*>
 
 Gets the identifier of a gene, validates it and then returns the validated gene, the group of genes to which it belongs according to HGNC, and all the other genes that belong to the same group.
@@ -167,6 +166,82 @@ If the gene_id has an approved symbol:
 ```
 
 If an error occurs (400, 404):
+
+```json
+{
+    "error": "error description."
+}
+```
+
+### **GET**  genes-pathways/<*source*>/<*external_id*>
+
+Get the list of genes that are involved in a pathway for a given database.  
+
+*source*: Database to query. Valid options: "BioCarta", "EHMN", "HumanCyc", "INOH", "KEGG", "NetPath", "PID", "Reactome", "SMPDB", "Signalink" and "Wikipathways". Using an invalid option returns an empty list of genes.      
+
+*external_id*: Pathway identifier in the source database.
+
+Example: http://localhost:8080/genes-pathways/KEGG/path:hsa00740 
+
+**Response format:**
+
+```json
+{
+    "genes": [
+        "ACP5",
+        "ACP1",
+        "ACP2",
+        "FLAD1",
+        "ENPP3",
+        "ENPP1",
+        "RFK",
+        "BLVRB"
+    ]
+}
+```  
+
+if the source or external id is not valid, or if no results are found in the query:  
+```json
+{
+    "genes": []
+}
+```  
+
+### **POST**  /genes-pathways-intersection  
+
+Gets the common pathways for a list of genes.
+
+It is mandatory that the body of the request the list of genes be sent with the following Json format:  
+
+```json
+{    
+    "genes_ids" : ["gen_1","gen_2", "gen_N"]    
+}
+```  
+
+Example: http://localhost:8000/genes-pathways-intersection  
+body:  
+```json
+{    
+    "genes_ids" : ["HLA-B" , "BRAF"]
+}
+```
+
+Correct answer:
+
+```json
+{
+    "pathways": [
+        {
+            "external_id": "path:hsa04650",
+            "pathway": "Natural killer cell mediated cytotoxicity",
+            "source": "KEGG"
+        }
+    ]
+}
+```
+
+If an error occurs (400):
 
 ```json
 {

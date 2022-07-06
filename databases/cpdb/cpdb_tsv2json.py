@@ -41,7 +41,9 @@ if __name__ == '__main__':
             if i == 0:
                 json_file[headers[i]] = registro[i].split(" - Homo sapiens (human)")[0]
             elif i == 1:
-                if registro[i] != "None":
+                if registro[i] == "None" and registro[2] in ["Signalink", "INOH"]:
+                    json_file[headers[i]] = json_file[headers[0]] #pongo mismo nombre que el pathway
+                else:
                     json_file[headers[i]] = registro[i]
             elif i == 3:
                 v = splitear_string(registro[i], ",")
