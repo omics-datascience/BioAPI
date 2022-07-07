@@ -10,3 +10,6 @@ ADD ./bio-api /app
 
 # Needed to make docker-compose `command` work
 WORKDIR /app
+
+# Runs Gunicorn
+ENTRYPOINT ["gunicorn", "--bind", "0.0.0.0:8000", "bioapi:app", "--timeout", "60"]
