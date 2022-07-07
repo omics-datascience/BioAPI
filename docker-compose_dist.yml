@@ -29,6 +29,7 @@ services:
 
     # NGINX server
     nginx:
+        image: nginx:1.19.3
         ports:
             - 80:8000
         depends_on:
