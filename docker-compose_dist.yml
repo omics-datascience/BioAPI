@@ -16,8 +16,7 @@ services:
 
     # Flask server
     web:
-        image: omicsdatascience/bio-api:0.1
-        command: gunicorn --bind 0.0.0.0:8000 bioapi:app --timeout 60
+        image: omicsdatascience/bio-api:0.1.0
         environment:
             DEBUG: 'false'
 
@@ -30,6 +29,7 @@ services:
 
     # NGINX server
     nginx:
+        image: nginx:1.19.3
         ports:
             - 80:8000
         depends_on:
