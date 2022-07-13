@@ -38,14 +38,17 @@ if __name__ == '__main__':
     for registro in tqdm(contenido, desc = 'Reformateando'):
         json_file = {}
         for i in range(0, len(headers)):
-            if i == 0:
+            if i == 0: #Pathway
                 json_file[headers[i]] = registro[i].split(" - Homo sapiens (human)")[0]
-            elif i == 1:
+            elif i == 1: #external_id
                 if registro[i] == "None" and registro[2] in ["Signalink", "INOH"]:
                     json_file[headers[i]] = json_file[headers[0]] #pongo mismo nombre que el pathway
                 else:
-                    json_file[headers[i]] = registro[i]
-            elif i == 3:
+                    if registro[i].startswith("path:"):
+                        json_file[headers[i]] = registro[i].split(":")[1]
+                    else:
+                        json_file[headers[i]] = registro[i]
+            elif i == 3: #hgnc_symbol_ids
                 v = splitear_string(registro[i], ",")
                 if v != "":
                     json_file[headers[i]] = v

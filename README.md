@@ -29,7 +29,7 @@ The following steps are required for both development and production sections.
 
 With the Python environment activated (see instructions above), follow the next steps:
 
-1. Start up MongoDB running `docker-compose -f docker-compose.dev.yml up -d`. `docker-compose -f docker-compose.dev.yml down` to stop.
+1. Start up MongoDB running `docker-compose -f docker-compose.dev.yml up -d`. Use `docker-compose -f docker-compose.dev.yml down` to stop.
 1. Run Flask app:
     1. Go inside `bio-api` folder.
     1. Run `python3 bioapi.py`
@@ -47,7 +47,7 @@ With the Python environment activated (see instructions above), follow the next 
 
 ### **GET**  /gene-symbol/<*gene_id*>
 
-Gets the identifier of a gene from different genomic databases and returns the approved symbol according to HGNC.
+Searches the identifier of a gene of different genomic databases and returns the approved symbol according to HGNC..
 
 *gene_id*: Identifier of the gene for any database
 
@@ -106,10 +106,6 @@ Correct answer:
 
 ```json
 {
-    "BRCC1": [
-        "BRCA1",
-        "ICE2"
-    ],
     "FANCS": [
         "BRCA1"
     ],
@@ -177,7 +173,20 @@ If an error occurs (400, 404):
 
 Get the list of genes that are involved in a pathway for a given database.  
 
-*source*: Database to query. Valid options: "BioCarta", "EHMN", "HumanCyc", "INOH", "KEGG", "NetPath", "PID", "Reactome", "SMPDB", "Signalink" and "Wikipathways". Using an invalid option returns an empty list of genes.      
+*source*: Database to query. Valid options: 
+ - BioCarta
+ - EHMN
+ - HumanCyc
+ - INOH
+ - KEGG
+ - NetPath
+ - PID
+ - Reactome
+ - SMPDB
+ - Signalink
+ - Wikipathways  
+
+*Using an invalid option returns an empty list of genes.      
 
 *external_id*: Pathway identifier in the source database.
 

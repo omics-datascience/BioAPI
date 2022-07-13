@@ -16,7 +16,7 @@ def test_valid_genes_ids(client):
     assert response.status_code == 200
     assert type(res["pathways"]) == list
     assert len(res["pathways"]) == 1
-    assert res["pathways"][0]["external_id"] == "path:hsa04650"
+    assert res["pathways"][0]["external_id"] == "hsa04650"
     assert res["pathways"][0]["pathway"] == "Natural killer cell mediated cytotoxicity"
     assert res["pathways"][0]["source"] == "KEGG"
 
