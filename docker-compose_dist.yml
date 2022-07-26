@@ -4,11 +4,13 @@ services:
     mongo:
         image: mongo:4.2
         container_name: bio_api_mongo_db
+        command: --config /etc/mongo/mongod.conf
         ports:
             - 27017:27017
         volumes:
             - mongo_data:/data/db
             - mongo_data:/data/configdb
+            - ./config/mongo/mongod.conf:/etc/mongo/mongod.conf
         environment:
             MONGO_INITDB_ROOT_USERNAME: '' # Complete
             MONGO_INITDB_ROOT_PASSWORD: '' # Complete
