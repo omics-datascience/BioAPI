@@ -1,15 +1,18 @@
 import pandas as pd
 
-# Esto en realidad lo levantarias con pd.read_csv(path, chunksize=un_chunksize)
+# Esto en realidad lo levantarias con pd.read_csv(path, ...)
 # Aca tambien omiti todos los otros campos
-df1 = pd.DataFrame({
+df_expressions = pd.DataFrame({
     'tissue':     ['Lung', 'Lung', 'Breast', 'Breast', 'Brain'],
     'expression':     [12.3, 0.1, 9.212, 8.0, 0.11],
 })
 
-# Esto lo harias dentro de un for chunk in df1. Aca te dejo el codigo que deberia hacer por cada chunk
-# df1_grouped = chunk.groupby('tissue')
-df1_grouped = df1.groupby('tissue')  # Agrupa por tissue, ya no hace falta ponerse a chequear en un diccionario ni ir insertando en una lista
+df_annotations = None
+
+# Leer https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.join.html
+joined = df_expressions.join(df_annotations, on='columna que comparten')
+
+df1_grouped = joined.groupby('tissue')  # Agrupa por tissue, ya no hace falta ponerse a chequear en un diccionario ni ir insertando en una lista
 
 # iterate over each group
 for tissue_name, all_tissue_values in df1_grouped:

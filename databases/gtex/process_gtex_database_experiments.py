@@ -1,7 +1,9 @@
 import csv
+import os
 import time
 from typing import List
 import numpy as np
+import psutil as psutil
 from tqdm import tqdm
 import argparse
 from pymongo import MongoClient
@@ -92,6 +94,11 @@ if __name__ == '__main__':
                         start_time = time.time()
                         writemongodb(documents, tissue, db)
                         insert_time = time.time() - start_time
+
+                        process = psutil.Process(os.getpid())
+                        used_memory = process.memory_info().rss
+                        print(f'Chunk of {n_rows} inserted in {insert_time} seconds')
+                        print(f'Current Python memory usage {used_memory * (1024 ** 2)}mb')
                         times.append(insert_time)
 
                         chunks_inserted += 1
