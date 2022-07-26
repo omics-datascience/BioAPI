@@ -35,6 +35,11 @@ def get_atributes_of_samples(file_path: str) -> object:
     return respuesta
 
 
+def get_mem_usage():
+    process = psutil.Process(os.getpid())
+    return process.memory_info().rss
+
+
 if __name__ == '__main__':
     c = C()
     parser = argparse.ArgumentParser(
@@ -57,6 +62,9 @@ if __name__ == '__main__':
     mongoClient = MongoClient(database_mongo_ip + ":" + database_mongo_port)
 
     for n_rows in [100_000, 200_000, 500_000, 1_000_000, 2_000_000, 3_000_000]:
+        used_memory = get_mem_usage()
+        print(f'Python memory usage on first iteration of {n_rows} is {used_memory * (1024 ** 2)}mb')
+
         times: List[float] = []
         chunks_inserted = 1
 
@@ -95,8 +103,7 @@ if __name__ == '__main__':
                         writemongodb(documents, tissue, db)
                         insert_time = time.time() - start_time
 
-                        process = psutil.Process(os.getpid())
-                        used_memory = process.memory_info().rss
+                        used_memory = get_mem_usage()
                         print(f'Chunk of {n_rows} inserted in {insert_time} seconds')
                         print(f'Current Python memory usage {used_memory * (1024 ** 2)}mb')
                         times.append(insert_time)
