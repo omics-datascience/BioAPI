@@ -1,4 +1,5 @@
 import json
+from typing import Dict, List
 from flask import Flask
 from flask import jsonify
 from flask import make_response
@@ -144,6 +145,22 @@ def get_pathways_of_gene(gene):
         results.append(str(doc))
     return results
 
+def get_expression_from_gtex(tissue: str, genes: List) -> List:
+    mycol = mydb["gtex_"+tissue]  # coneccion a coleccion 
+    query = { 'gene': { '$in': genes } }
+    proyection = {'_id': 0, 'expression': 1, 'gene': 1, 'sample_id':1}
+    # hago consulta a la db
+    mydocs = mycol.find(query, proyection)
+    temp = {}
+    for doc in mydocs:
+        if doc["sample_id"] not in list(temp.keys()):
+            temp[doc["sample_id"]] = []
+        temp[doc["sample_id"]].append({"gene":doc["gene"], "expression": doc["expression"] })
+    results=[]
+    for sample in list(temp.keys()):
+        results.append(temp[sample])
+    return results
+
 
 def create_app():
     # create and configure the app
@@ -262,7 +279,25 @@ def create_app():
                 respuesta["pathways"].append(r)
             return make_response(respuesta, 200, headers)
         
-    
+    @flask_app.route("/genes-expression", methods = ['POST'])
+    def expressionDataFromGTEx():
+        if(request.method == 'POST'):
+            body = request.get_json()
+            if "genes_ids" not in list(body.keys()):
+                abort(400, "genes_ids is mandatory")
+            genes_ids = body['genes_ids']
+            if type(genes_ids) != list:
+                abort(400, "genes_ids must be a list")
+            if len(genes_ids)==0:
+                abort(400, "genes_ids must contain at least one gene symbol")
+            if "tissue" not in list(body.keys()):
+                abort(400, "tissue is mandatory")
+            tissue = body['tissue']
+            
+            expression_data = get_expression_from_gtex(tissue, genes_ids)
+            return jsonify(expression_data)
+            #return make_response(r, 200, headers)
+
     # Manejo de errores
     @flask_app.errorhandler(400)
     def bad_request(e):

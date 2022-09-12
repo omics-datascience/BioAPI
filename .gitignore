@@ -3,7 +3,10 @@
 .vscode
 venv
 bio-api/static
+bio-api/__pycache__
+bio-api/.pytest_cache
 bio-api/media
+bio-api/tests/__pycache__
 .mypy_cache
 bio-api/db.sqlite3
 docker-compose.yml
@@ -11,3 +14,6 @@ bio-api/secretkey.txt
 *.log
 databases/hgnc/hgnc_output.json
 databases/hgnc/hgnc_dataset.tsv
+databases/gtex/GTEx_transposed.csv
+databases/gtex/pruebas/gtex_genes.txt
+databases/gtex/pruebas

@@ -15,6 +15,10 @@ services:
             MONGO_INITDB_ROOT_USERNAME: '' # Complete
             MONGO_INITDB_ROOT_PASSWORD: '' # Complete
             MONGO_INITDB_DATABASE: bio_api # Change if needed
+        deploy:
+            resources:
+                limits:
+                    memory: 3g
 
     # Flask server
     web:
