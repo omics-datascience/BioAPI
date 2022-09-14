@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 import csv
 from tqdm import tqdm
-import re
 import argparse
 
 class C:

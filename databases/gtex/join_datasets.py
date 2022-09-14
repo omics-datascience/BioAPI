@@ -1,4 +1,3 @@
-import sys
 import argparse
 # import dask.dataframe as dd
 import pandas as pd

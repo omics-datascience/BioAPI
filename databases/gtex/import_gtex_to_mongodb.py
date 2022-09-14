@@ -9,7 +9,7 @@ import os
 class C:
     pass
 
-DOCUMENTOS_X_INSERCION = 150000
+DOCUMENTOS_X_INSERCION = 100000
 
 def writemongodb(data, tissue, mongo_db):
     try:
@@ -56,6 +56,9 @@ if __name__ == '__main__':
                         required=True)
     parser.add_argument('--mongodb_ip', help='IP de la base de datos MongoDB', default="localhost", required=False)
     parser.add_argument('--mongodb_port', help='Puerto de la base de datos MongoDB', default="27017", required=False)
+    parser.add_argument('--mongo_user', help='Usuario para MongoDB', default="root", required=False)
+    parser.add_argument('--mongo_pass', help='Password para MongoDB', default="root", required=False)
+    parser.add_argument('--bioapi_db', help='Base de datos para BioAPI', default="bio_api", required=False)
     parser.add_argument('--rm_tmp', help='Elimina archivos temporales correspondientes a los valores de expresiones de cada tejido', default=1, choices=[0, 1], required=False)
 
 
@@ -64,18 +67,21 @@ if __name__ == '__main__':
     archivo_original_gtex = c.original_gtex
     database_mongo_ip = c.mongodb_ip
     database_mongo_port = c.mongodb_port
+    mongo_user = c.mongo_user
+    mongo_pass = c.mongo_pass
+    mongo_database = c.bioapi_db
     remove_tmp_files = c.rm_tmp
 
     # Conexión a MongoDB
     # Conexión a MongoDB
     mongoClient = MongoClient(database_mongo_ip + ":" + database_mongo_port,
-                                username='root',
-                                password='root',
+                                username=mongo_user,
+                                password=mongo_pass,
                                 authSource='admin',
                                 authMechanism='SCRAM-SHA-1')
 
     # Conexión a la base de datos GTEx
-    db = mongoClient["bio_api"]
+    db = mongoClient[mongo_database]
 
     # Obtengo los diferentes tejidos
     tissues = get_unique_tissues(archivo_original_gtex)

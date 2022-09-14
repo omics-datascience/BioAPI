@@ -2,7 +2,7 @@ FROM python:3.8
 
 # Installs Python requirements
 RUN pip install --upgrade pip
-ADD ./config/requirements.txt /config/requirements.txt
+ADD ./config/bioapi_conf/requirements.txt /config/requirements.txt
 RUN pip install -r /config/requirements.txt
 
 # Flask app
@@ -12,4 +12,4 @@ ADD ./bio-api /app
 WORKDIR /app
 
 # Runs Gunicorn
-ENTRYPOINT ["gunicorn", "--bind", "0.0.0.0:8000", "bioapi:app", "--timeout", "60"]
+ENTRYPOINT ["gunicorn", "--bind", "0.0.0.0:8000", "bioapi:app", "--timeout", "3600"]

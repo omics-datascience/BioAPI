@@ -1,4 +1,13 @@
 #!/bin/bash
+
+############# MongoDB Conf ############
+ip_mongo=localhost
+port_mongo=27017
+user=
+password=
+db=bio_api
+#######################################
+
 expression_file="GTEx_Analysis_2017-06-05_v8_RNASeQCv1.1.9_gene_tpm.gct"
 annotation_file="GTEx_Analysis_v8_Annotations_SampleAttributesDS.txt"
 date
@@ -62,7 +71,7 @@ python3 split_dataset_by_tissue.py --transposed_gtex_file GTEx_full_dataset.csv
 
 date
 echo "Importando a MongoDB..."
-python3 import_gtex_to_mongodb.py --original_gtex GTEx_full_dataset.csv
+python3 import_gtex_to_mongodb.py --original_gtex GTEx_full_dataset.csv --mongodb_ip $ip_mongo --mongodb_port $port_mongo --mongo_user $user --mongo_pass $password --bioapi_db $db
 rm GTEx_full_dataset.csv
 rm $annotation_file 
 
