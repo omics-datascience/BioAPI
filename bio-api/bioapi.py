@@ -14,13 +14,12 @@ import os
 import configparser
 import logging
 
-
 # Gets production flag
 IS_DEBUG: bool = os.environ.get('DEBUG', 'true') == 'true'
 
 # Levanto configuracion
 Config = configparser.ConfigParser()
-Config.read("config.txt")
+Config.read("config/bioapi_conf/config.txt")
 
 # configuracion log
 logging.getLogger("urllib3").setLevel(logging.DEBUG)
@@ -153,12 +152,10 @@ def get_expression_from_gtex(tissue: str, genes: List) -> List:
     mydocs = mycol.find(query, proyection)
     temp = {}
     for doc in mydocs:
-        if doc["sample_id"] not in list(temp.keys()):
+        if doc["sample_id"] not in temp:
             temp[doc["sample_id"]] = []
         temp[doc["sample_id"]].append({"gene":doc["gene"], "expression": doc["expression"] })
-    results=[]
-    for sample in list(temp.keys()):
-        results.append(temp[sample])
+    results = [temp[sample] for sample in temp.keys()]
     return results
 
 
@@ -293,7 +290,6 @@ def create_app():
             if "tissue" not in list(body.keys()):
                 abort(400, "tissue is mandatory")
             tissue = body['tissue']
-            
             expression_data = get_expression_from_gtex(tissue, genes_ids)
             return jsonify(expression_data)
             #return make_response(r, 200, headers)

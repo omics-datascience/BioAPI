@@ -8,7 +8,7 @@ services:
             - 27017:27017
         volumes:
             - mongo_data:/data/db
-            - mongo_data:/data/configdb
+            - mongo_config:/data/configdb
         environment:
             MONGO_INITDB_ROOT_USERNAME: '' # Complete
             MONGO_INITDB_ROOT_PASSWORD: '' # Complete
@@ -16,9 +16,9 @@ services:
         deploy:
             resources:
                 limits:
-                    memory: 3g
+                    memory: 12g
 
-    # Flask server
+    # BioAPI server
     web:
         image: omicsdatascience/bio-api:0.1.0
         environment:

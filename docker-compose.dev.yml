@@ -13,11 +13,11 @@ services:
         volumes:
             # Mounts initialize script as read-only
             - mongo_data:/data/db
-            - mongo_data:/data/configdb
+            - mongo_config:/data/configdb
         deploy:
             resources:
                 limits:
-                    memory: 3g
+                    memory: 6g
 
     # Mongo express
     mongo-express:
