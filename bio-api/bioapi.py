@@ -19,7 +19,7 @@ IS_DEBUG: bool = os.environ.get('DEBUG', 'true') == 'true'
 
 # Levanto configuracion
 Config = configparser.ConfigParser()
-Config.read("config/bioapi_conf/config.txt")
+Config.read("config.txt")
 
 # configuracion log
 logging.getLogger("urllib3").setLevel(logging.DEBUG)
@@ -65,9 +65,7 @@ def get_mongo_connection() -> Database:
         logging.error("Database connection error." + str(e), exc_info=True)
         exit(-1)
 
-
 mydb = get_mongo_connection()
-
 
 def mapear_gen(gen):
     er = re.compile("^" + re.escape(gen) + "$", re.IGNORECASE)
@@ -90,7 +88,6 @@ def mapear_gen(gen):
         results.append(doc["symbol"])
     return results
 
-
 def buscar_grupo_gen(gen):  # AGREGAR LO QUE PASA SI NO PERTENECE A NINGUN gene_group_id (EJ gen:AADACP1)
     results = {'locus_group': None, 'locus_type': None, 'gene_group': None, 'gene_group_id': None}
     mycol_hgnc = mydb["hgnc"]  # coneccion a coleccion hgnc
@@ -109,7 +106,6 @@ def buscar_grupo_gen(gen):  # AGREGAR LO QUE PASA SI NO PERTENECE A NINGUN gene_
                 results['gene_group_id'] = [mydocs[0]['gene_group_id']]
 
     return results
-
 
 def buscar_genes_mismo_grupo(id_grupo):
     mycol_hgnc = mydb["hgnc"]  # coneccion a coleccion hgnc
@@ -292,7 +288,6 @@ def create_app():
             tissue = body['tissue']
             expression_data = get_expression_from_gtex(tissue, genes_ids)
             return jsonify(expression_data)
-            #return make_response(r, 200, headers)
 
     # Manejo de errores
     @flask_app.errorhandler(400)

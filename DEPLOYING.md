@@ -22,8 +22,7 @@ BioAPI deployment was configured to be simple from the Docker Compose tool. So y
         - `deploy.resources.limits.memory`: By default, 12GB of memory is allocated for MongoDB. Modify this value if you need it.  
     - BioAPI Server:
         - `MONGO_USER` and `MONGO_PASSWORD`: These variables are the username and password for BioAPI to access MongoDB. These credentials must be the same ones that were set for the MongoDB server.
-3. Edit the BioAPI configuration file. It is found in *config/bioapi_conf/config.txt*. As in the previous step, set the MongoDB credentials in the corresponding variables.  
-4. Import genomics databases. BioAPI uses three genomic databases for its operation. These databases must be loaded in MongoDB. To import all databases in MongoDB:
+3. Import genomics databases. BioAPI uses three genomic databases for its operation. These databases must be loaded in MongoDB. To import all databases in MongoDB:
     1. Download this file: **LINK**
     1. Use Mongorestore to import into MongoDB:
    ```
