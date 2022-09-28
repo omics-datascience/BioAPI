@@ -26,10 +26,10 @@ BioAPI deployment was configured to be simple from the Docker Compose tool. So y
 4. Import genomics databases. BioAPI uses three genomic databases for its operation. These databases must be loaded in MongoDB. To import all databases in MongoDB:
     1. Download this file: **LINK**
     1. Use Mongorestore to import into MongoDB:
+   ```
+   docker container exec -i bio_api_mongo_db mongorestore --username <user> --password <pass> --authenticationDatabase admin --host <url> --port <port> --gzip <path_to_folder>
     ```
-    mongorestore --username <user> --password <pass> --authenticationDatabase admin --host <url> --port <port> --gzip <path_to_dump>
-    ```
-    Where *\<user\>*, *\<pass\>*, *\<url\>* and *\<port\>* are the preconfigured credentials to MongoDB. *\<path_to_dump\>* is the path to the folder downloaded in the first step.
+    Where *\<user\>*, *\<pass\>*, *\<url\>* and *\<port\>* are the preconfigured credentials to MongoDB. *\<path_to_folder\>* is the path to the folder downloaded in the previous step.
 
     Alternatively (but not recommended due to high computational demands) you can run a separate ETL process to download, process and import the databases into MongoDB. The ETL process is simplified for the user in a single bash script for each database and is shown below:  
 
