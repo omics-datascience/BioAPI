@@ -30,7 +30,7 @@ Below are the steps to perform a production deploy of BioAPI.
     1. Use Mongorestore to import it into MongoDB:
    ```
    mongorestore --username <user> --password <pass> --authenticationDatabase admin --host <url> --port <port> --gzip --archive=bioapi_db.gz
-    ```
+    ``` 
     Where *\<user\>*, *\<pass\>*, *\<url\>* and *\<port\>* are the preconfigured credentials to MongoDB. *bioapi_db.gz* is the file downloaded in the previous step. Keep in mind that this loading process will import approximately *45 GB* of information into MongoDB, so it may take a while.
 
     Alternatively (but **not recommended** due to high computational demands) you can run a separate ETL process to download from source, process and import the databases into MongoDB. The ETL process is programmed in a single bash script for each database and is shown below:  

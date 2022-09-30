@@ -18,3 +18,4 @@ databases/hgnc/hgnc_dataset.tsv
 databases/gtex/GTEx_transposed.csv
 databases/gtex/pruebas/gtex_genes.txt
 databases/gtex/pruebas
+databases/bioapi_db.gz

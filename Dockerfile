@@ -12,4 +12,4 @@ ADD ./bio-api /app
 WORKDIR /app
 
 # Runs Gunicorn
-ENTRYPOINT ["gunicorn", "--bind", "0.0.0.0:8000", "bioapi:app", "--timeout", "7200"]
+ENTRYPOINT ["gunicorn", "--bind", "0.0.0.0:8000", "bioapi:app", "--timeout", "3600"]

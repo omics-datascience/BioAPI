@@ -12,7 +12,7 @@ services:
         environment:
             MONGO_INITDB_ROOT_USERNAME: '' # Complete
             MONGO_INITDB_ROOT_PASSWORD: '' # Complete
-            MONGO_INITDB_DATABASE: bio_api # Change if needed
+            MONGO_INITDB_DATABASE: bio_api # Don't change this value!
         deploy:
             resources:
                 limits:
@@ -29,7 +29,7 @@ services:
             MONGO_PORT: '27017' # Change if needed
             MONGO_USER: '' # Complete
             MONGO_PASSWORD: '' # Complete
-            MONGO_DB: bio_api # Change if needed
+            MONGO_DB: bio_api # Don't change this value!
 
     # NGINX server
     nginx:
