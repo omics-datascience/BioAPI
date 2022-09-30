@@ -28,7 +28,7 @@ Below are the steps to perform a production deploy of BioAPI.
 3. Import genomics databases. BioAPI uses three genomic databases for its operation. These databases must be loaded in MongoDB. To import all databases in MongoDB:
     1. Download the "bioapi_db.gz" from **[here](https://ipfs.io/ipfs/QmaDAw6tD1BWGoMXPBRNTYWmRPYPq9QMebaLCC4uCECA4k?filename=bioapi_db.gz)**
     1. Use Mongorestore to import it into MongoDB:
-   ```bash
+   ```
    mongorestore --username <user> --password <pass> --authenticationDatabase admin --host <url> --port <port> --gzip --archive=bioapi_db.gz
     ``` 
     Where *\<user\>*, *\<pass\>*, *\<url\>* and *\<port\>* are the preconfigured credentials to MongoDB. *bioapi_db.gz* is the file downloaded in the previous step. Keep in mind that this loading process will import approximately *45 GB* of information into MongoDB, so it may take a while.
@@ -75,7 +75,7 @@ docker-compose down
 ### See container status
 
 To check the different services' status you can run:
-```bash
+```
 docker-compose logs <service>
 ```
 
