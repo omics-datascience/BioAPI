@@ -23,7 +23,6 @@ services:
         image: omicsdatascience/bio-api:0.1.0
         environment:
             DEBUG: 'false'
-
             # MongoDB's credentials must be the same as 'mongo' service above
             MONGO_HOST: 'mongo' # Change if needed
             MONGO_PORT: '27017' # Change if needed
