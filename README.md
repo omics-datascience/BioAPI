@@ -250,7 +250,9 @@ This service gets gene expression in healthy tissue
                 ]
             ]
             ```  
-            *As an example only three samples are shown. Note that in the GTEx database there may be more than 2500 samples for a given healthy tissue.
+            keep in mind:
+            - As an example only three samples are shown. Note that in the GTEx database there may be more than 2500 samples for a given healthy tissue.
+            - If one of the genes entered as a parameter corresponds to an invalid symbol, the response will omit the values for that gene. It is recommended to use the *"Genes symbols validator"* service to validate your genes before using this functionality.
 
 ## Error Responses  
 The possible error codes are 400, 404 and 500. The content of each of them is a Json with a unique key called "error" where its value is a description of the problem that produces the error. For example:  
