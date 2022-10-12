@@ -1,267 +1,253 @@
 # BioAPI
 
-A powerful abstraction of gene databases.
+A powerful abstraction of genomics databases. Bioapi is a REST API that provides data related to gene nomenclature, gene expression, and metabolic pathways.   
+All services are available through a web API accessible from a browser or any other web client. All the responses are in JSON format.
+
+## Services
+
+### Gene symbol validator
+Searches the identifier of a gene of **different genomic databases** and returns the approved symbol according to HGNC.  
+
+- URL: /gene-symbol/<*gene_id*>
+    - <*gene_id*> is the identifier from which you want to obtain the symbol in HGNC nomenclature  
+
+- Method: GET  
+
+- Required query params: -  
+
+- Success Response:
+    - Code: 200
+    - Content:
+        - `<gene_id>`: list of valid identifiers for the gene_id
+    - Example:
+        - URL: http://localhost:8000/gene-symbol/A1BG-AS
+        - Response:
+            ```json
+            {
+                "A1BG-AS": [
+                    "A1BG-AS1"
+                ]
+            }
+            ```
 
 
-## Requirements
+### Genes symbols validator
+Searches the identifier of a list of genes of **differents genomics databases** and returns the approved symbols according to HGNC nomenclature.  
 
-- Python >= 3.6 (tested with Python 3.8). **Python 3.10 currently has an issue with PyMongo**
-- MongoDB
-- Docker and Docker Compose
+- URL: /genes-symbols
 
+- Method: POST  
 
-## Preparation:
+- Required query params: A body in Json format with the following content
+    -  `genes_ids` : list of identifiers that you want to get your approved symbols  
 
-The following steps are required for both development and production sections.
+- Success Response:
+    - Code: 200
+    - Content:
+        - `<genes_ids>`: Returns a Json with as many keys as there are genes in the body. For each gene, the value is a list with the valid symbols.  
+    - Example:
+        - URL: http://localhost:8000/genes-symbols
+        - body: 
+        `{    "genes_ids" : ["BRCA1","F1-CAR", "BRCC1", "FANCS"]    }`
+        - Response:
+            ```json
+            {
+                "BRCA1": [
+                    "BRCA1"
+                ],
+                "BRCC1": [
+                    "BRCA1",
+                    "ICE2"
+                ],
+                "F1-CAR": [],
+                "FANCS": [
+                    "BRCA1"
+                ]
+            }
+            ```  
 
-1. Create a Python virtual environment to install some dependencies:
-    1. `python3 -m venv venv`
-    1. `source venv/bin/activate` (run only when you need to work)
-    1. `pip install -r config/requirements.txt`
-1. Create MongoDB Docker volumes (just the first time):
-    1. `docker volume create --name=bio_api_mongo_data`
-    1. `docker volume create --name=bio_api_mongo_config`
-1. Import the HGNC database into MongoDB:
-    1. Run the file `importacion_hgnc2mongodb.sh` that is inside the directory "BioAPI/databases/hgnc". You can edit the the file in case you want to use a different url and port for MongoDB (default: localhost:27017).
+### Gene Groups
+Gets the identifier of a gene, validates it and then returns the group of genes to which it belongs according to HGNC, and all the other genes that belong to the same group.  
 
+- URL: /genes-same-group/<*gene_id*>
+    - <*gene_id*> is the dentifier of the gene for any database  
 
-## Development
+- Method: GET  
 
-With the Python environment activated (see instructions above), follow the next steps:
+- Required query params: -  
 
-1. Start up MongoDB running `docker-compose -f docker-compose.dev.yml up -d`. Use `docker-compose -f docker-compose.dev.yml down` to stop.
-1. Run Flask app:
-    1. Go inside `bio-api` folder.
-    1. Run `python3 bioapi.py`
-    1. To test changes, run `pytest` command. 
-    
+- Success Response:
+    - Code: 200
+    - Content:
+        - `gene_id`: HGNC approved gene symbol.  
+        - `locus_group`:
+        - `locus_type`:
+        - `groups`:
+            - `gene_group`:
+            - `gene_group_id`:
+            - `genes`:
+            
+    - Example:
+        - URL: http://localhost:8000/genes-same-group/ENSG00000146648
+        - Response:
+            ```json
+            {
+                "gene_id": "EGFR",
+                "groups": [
+                    {
+                        "gene_group": "Erb-b2 receptor tyrosine kinases",
+                        "gene_group_id": "1096",
+                        "genes": [
+                            "EGFR",
+                            "ERBB3",
+                            "ERBB4",
+                            "ERBB2"
+                        ]
+                    }
+                ],
+                "locus_group": "protein-coding gene",
+                "locus_type": "gene with protein product"
+            }
+            ```  
 
-## Production
+### Genes of a metabolic pathway
+Get the list of genes that are involved in a pathway for a given database.
 
-1. Run Bio-API in Docker:
-    1. Make a copy of `docker-compose_dist.yml` named `docker-compose.yml` and modified the required fields.
-    1. To build the Docker image use:
-    ```
-    docker image build -t omicsdatascience/bio-api:0.1.0 .
-    ```
-    1. Use docker compose to get the API up:
-    ```
-    docker-compose up -d
-    ```
-    By default, BioAPI runs on `localhost:8000`.
+- URL: /genes-pathways/<*source*>/<*external_id*>
+    - <*source*>: Database to query. Valid options:  
+       - KEGG
+       - BioCarta
+       - EHMN
+       - HumanCyc
+       - INOH
+       - NetPath
+       - PID
+       - Reactome
+       - SMPDB
+       - Signalink
+       - Wikipathways  
+        Using an invalid option returns an empty list of genes.
+    - <*external_id*>: Pathway identifier in the source database.
 
+- Method: GET  
 
-## Endpoints:
+- Required query params: -  
 
-### **GET**  /gene-symbol/<*gene_id*>
+- Success Response:
+    - Code: 200
+    - Content:
+        - `genes`: a list of genes involved in the metabolic pathway.  
+            
+    - Example:
+        - URL: http://localhost:8000/genes-pathways/KEGG/hsa00740
+        - Response:
+            ```json
+            {
+                "genes": [
+                    "ACP5",
+                    "ACP1",
+                    "ACP2",
+                    "FLAD1",
+                    "ENPP3",
+                    "ENPP1",
+                    "RFK",
+                    "BLVRB"
+                ]
+            }
+            ```  
 
-Searches the identifier of a gene of different genomic databases and returns the approved symbol according to HGNC..
-
-*gene_id*: Identifier of the gene for any database
-
-Example: http://localhost:8000/gene-symbol/A1BG-AS 
-
-**Response format:**
-
-If the gene_id has an approved symbol:
-
-```json
-{
-    "A1BG-AS": [
-        "A1BG-AS1"
-    ]
-}
-```
-
-If the gene_id does not have an approved symbol:
-
-```json
-{
-    "A1BG-AS": []
-}
-```
-
-If an error occurs (400, 404):
-
-```json
-{
-    "error": "error description."
-}
-```
-
-
-### **POST**  /genes-symbols
-
-Gets the identifiers of a list of genes from different genomic databases and returns the HGNC-approved symbols.
-
-It is mandatory that the body of the request the list of genes be sent with the following Json format:  
-
-```json
-{    
-    "genes_ids" : ["gen_1","gen_2", "gen_N"]    
-}
-```
-
-Example: http://localhost:8000/genes-symbols  
-body:
-> ```json
-> {    
->     "genes_ids" : ["NAP1","xyz", "FANCS"]    
-> }
-> ```
-
-Correct answer:
-
-```json
-{
-    "FANCS": [
-        "BRCA1"
-    ],
-    "NAP1": [
-        "ACOT8",
-        "AZI2",
-        "CXCL8",
-        "NAP1L1",
-        "NAPSA",
-        "NCKAP1"
-    ],
-    "xyz": []
-}
-```
-
-If an error occurs (400, 404):
-
-```json
-{
-    "error": "error description."
-}
-```
-
-### **GET**  /genes-same-group/<*gene_id*>
-
-Gets the identifier of a gene, validates it and then returns the validated gene, the group of genes to which it belongs according to HGNC, and all the other genes that belong to the same group.
-
-*gene_id*: Identifier of the gene for any database
-
-Example: http://localhost:8000/genes-same-group/ENSG00000146648
-
-**Response format:**
-
-If the gene_id has an approved symbol:
-
-```json
-{
-    "gene_id": "EGFR",
-    "groups": [
-        {
-            "gene_group": "Erb-b2 receptor tyrosine kinases",
-            "gene_group_id": "1096",
-            "genes": [
-                "EGFR",
-                "ERBB3",
-                "ERBB2",
-                "ERBB4"
-            ]
-        }
-    ],
-    "locus_group": "protein-coding gene",
-    "locus_type": "gene with protein product"
-}
-```
-
-If an error occurs (400, 404):
-
-```json
-{
-    "error": "error description."
-}
-```
-
-### **GET**  genes-pathways/<*source*>/<*external_id*>
-
-Get the list of genes that are involved in a pathway for a given database.  
-
-*source*: Database to query. Valid options: 
- - BioCarta
- - EHMN
- - HumanCyc
- - INOH
- - KEGG
- - NetPath
- - PID
- - Reactome
- - SMPDB
- - Signalink
- - Wikipathways  
-
-*Using an invalid option returns an empty list of genes.      
-
-*external_id*: Pathway identifier in the source database.
-
-Example: http://localhost:8080/genes-pathways/KEGG/path:hsa00740 
-
-**Response format:**
-
-```json
-{
-    "genes": [
-        "ACP5",
-        "ACP1",
-        "ACP2",
-        "FLAD1",
-        "ENPP3",
-        "ENPP1",
-        "RFK",
-        "BLVRB"
-    ]
-}
-```  
-
-if the source or external id is not valid, or if no results are found in the query:  
-```json
-{
-    "genes": []
-}
-```  
-
-### **POST**  /genes-pathways-intersection  
-
+### Metabolic pathways from different genes  
 Gets the common pathways for a list of genes.
 
-It is mandatory that the body of the request the list of genes be sent with the following Json format:  
+- URL: /genes-pathways-intersection
+    
+- Method: POST  
 
-```json
-{    
-    "genes_ids" : ["gen_1","gen_2", "gen_N"]    
-}
-```  
+- Required query params: A body in Json format with the following content
+    -  `genes_ids`: list of genes for which you want to get the common metabolic pathways  
 
-Example: http://localhost:8000/genes-pathways-intersection  
-body:  
-```json
-{    
-    "genes_ids" : ["HLA-B" , "BRAF"]
-}
-```
+- Success Response:
+    - Code: 200
+    - Content:
+        - `pathways`: list of elements of type Json. Each element corresponds to a different metabolic pathway.  
+            - `source`: database of the metabolic pathway found.
+            - `external_id`: pathway identifier in the source.    
+            - `pathway`: name of the pathway.
 
-Correct answer:
+    - Example:
+        - URL: http://localhost:8000/genes-pathways-intersection
+        - body: 
+        `{    "genes_ids" : ["HLA-B" , "BRAF"]    }`
+        - Response:
+            ```json
+            {
+                "pathways": [
+                    {
+                        "external_id": "hsa04650",
+                        "pathway": "Natural killer cell mediated cytotoxicity",
+                        "source": "KEGG"
+                    }
+                ]
+            }
+            ```  
 
+### Gene expression  
+This service gets gene expression in healthy tissue
+
+- URL: /genes-expression
+    
+- Method: POST  
+
+- Required query params: A body in Json format with the following content
+    -  `genes_ids`: list of genes for which you want to get the expression.  
+    -  `tissue`: healthy tissue from which you want to get the expression values.  
+
+- Success Response:
+    - Code: 200
+    - Content:
+        The response you get is a list. Each element of the list is a new list containing the expression values for each gene in the same sample from the GTEx database.
+        - `<gene_id>`: expression value for the gene_id.
+
+    - Example:
+        - URL: http://localhost:8000/genes-expression
+        - body: 
+        `{    "tissue": "Skin",    "genes_ids": ["BRCA1", "BRCA2"]  }`
+        - Response:
+            ```json
+            [
+                [
+                    {
+                        "BRCA1": 1.627,
+                    },
+                    {
+                        "BRCA2": 0.2182,
+                    }
+                ],
+                [
+                    {
+                        "BRCA1": 1.27,
+                    },
+                    {
+                        "BRCA2": 0.4777,
+                    }
+                ],
+                ...  
+                [
+                    {
+                        "BRCA1": 1.462,
+                    },
+                    {
+                        "BRCA2": 0.4883,
+                    }
+                ]
+            ]
+            ```  
+            *As an example only three samples are shown. Note that in the GTEx database there may be more than 2500 samples for a given healthy tissue.
+
+## Error Responses  
+The possible error codes are 400, 404 and 500. The content of each of them is a Json with a unique key called "error" where its value is a description of the problem that produces the error. For example:  
 ```json
 {
-    "pathways": [
-        {
-            "external_id": "path:hsa04650",
-            "pathway": "Natural killer cell mediated cytotoxicity",
-            "source": "KEGG"
-        }
-    ]
-}
-```
-
-If an error occurs (400):
-
-```json
-{
-    "error": "error description."
+    "error": "404 Not Found: invalid gene identifier"
 }
 ```

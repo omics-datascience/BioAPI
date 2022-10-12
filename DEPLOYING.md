@@ -8,10 +8,10 @@ Below are the steps to perform a production deploy of BioAPI.
 - BioAPI deployment was configured to be simple from the Docker Compose tool. So you need to install:
     - [docker](https://docs.docker.com/desktop/#download-and-install)
     - [docker-compose](https://docs.docker.com/compose/install/)
-- To incorporate the genomic databases that BioAPI needs, the mongodb tools are required. Install them using:
-    ```
-    apt-get install mongodb-org-tools
-    ```
+- To incorporate the genomic databases that BioAPI needs, the mongodb tools are required. Download and install the tools from the official MongoDB website:
+    - [mongo tools](https://www.mongodb.com/try/download/database-tools)  
+
+
 ## Instructions
 
 1. Create MongoDB Docker volumes:
