@@ -3,10 +3,19 @@
 A powerful abstraction of genomics databases. Bioapi is a REST API that provides data related to gene nomenclature, gene expression, and metabolic pathways.   
 All services are available through a web API accessible from a browser or any other web client. All the responses are in JSON format.
 
-## Services
+## Integrated databases
+BioAPI obtains information from different bioinformatic databases. These databases were installed locally to reduce data search time. The databases currently integrated to BioAPI are:
+1. Gene nomenclature: [HUGO Gene Nomenclature Committee](https://www.genenames.org/).  
+HGNC is the resource for approved human gene nomenclature.
+1. Metabolic pathways: [ConsensusPathDB](http://cpdb.molgen.mpg.de/).  
+ConsensusPathDB-human integrates interaction networks in Homo sapiens including binary and complex protein-protein, genetic, metabolic, signaling, gene regulatory and drug-target interactions, as well as biochemical pathways. Data originate from currently 31 public resources for interactions (listed below) and interactions that we have curated from the literature. The interaction data are integrated in a complementary manner (avoiding redundancies), resulting in a seamless interaction network containing different types of interactions.         
+1. Gene expression: [Genotype-Tissue Expression (GTEx)](https://gtexportal.org/home/).  
+The Genotype-Tissue Expression (GTEx) project is an ongoing effort to build a comprehensive public resource to study tissue-specific gene expression and regulation. Samples were collected from 54 non-diseased tissue sites across nearly 1000 individuals, primarily for molecular assays including WGS, WES, and RNA-Seq. 
+
+## Services included in BioAPI
 
 ### Gene symbol validator
-Searches the identifier of a gene of **different genomic databases** and returns the approved symbol according to HGNC.  
+Searches the identifier of a gene of different genomic databases and returns the approved symbol according to HGNC.  
 
 - URL: /gene-symbol/<*gene_id*>
     - <*gene_id*> is the identifier from which you want to obtain the symbol in HGNC nomenclature  
@@ -32,7 +41,7 @@ Searches the identifier of a gene of **different genomic databases** and returns
 
 
 ### Genes symbols validator
-Searches the identifier of a list of genes of **differents genomics databases** and returns the approved symbols according to HGNC nomenclature.  
+Searches the identifier of a list of genes of differents genomics databases and returns the approved symbols according to HGNC nomenclature.  
 
 - URL: /genes-symbols
 
