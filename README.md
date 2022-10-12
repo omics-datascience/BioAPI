@@ -231,7 +231,6 @@ This service gets gene expression in healthy tissue
                         "BRCA2": 0.4777,
                     }
                 ],
-                ...  
                 [
                     {
                         "BRCA1": 1.462,
