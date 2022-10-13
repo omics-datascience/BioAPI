@@ -149,8 +149,8 @@ def get_expression_from_gtex(tissue: str, genes: List) -> List:
     temp = {}
     for doc in mydocs:
         if doc["sample_id"] not in temp:
-            temp[doc["sample_id"]] = []
-        temp[doc["sample_id"]].append({"gene":doc["gene"], "expression": doc["expression"] })
+            temp[doc["sample_id"]] = {}
+        temp[doc["sample_id"]][doc["gene"]] = doc["expression"] 
     results = [temp[sample] for sample in temp.keys()]
     return results
 

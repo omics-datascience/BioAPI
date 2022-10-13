@@ -26,7 +26,7 @@ Below are the steps to perform a production deploy of BioAPI.
     - BioAPI Server:
         - `MONGO_USER` and `MONGO_PASSWORD`: These variables are the username and password for BioAPI to access MongoDB. These credentials must be the same ones that were set for the MongoDB server.
 3. Import genomics databases. BioAPI uses three genomic databases for its operation. These databases must be loaded in MongoDB. To import all databases in MongoDB:
-    1. Download the "bioapi_db.gz" from **[here](https://mega.nz/file/xB5H2ZQb#OCrvVxcLLSMP4MrChUK8n_HZ5-nE326dovs7JFePL3Az)**
+    1. Download the "bioapi_db.gz" from **[here](https://drive.google.com/file/d/1lI3A98N-GhnffkSOWjB_gx_ieq3pEjFP/view?usp=sharing)**
     1. Use Mongorestore to import it into MongoDB:
    ```
    mongorestore --username <user> --password <pass> --authenticationDatabase admin --host <url> --port <port> --gzip --archive=bioapi_db.gz
