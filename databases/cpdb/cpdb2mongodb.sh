@@ -22,7 +22,7 @@ cat cpdb_output.json | docker container exec -i bio_api_mongo_db mongoimport --v
 echo "INFO	OK."
 date
 echo "INFO	Creating indexes..."
-cat createIndex_cpdb.js | docker container exec -i bio_api_mongo_db mongo --quiet --host $ip_mongo --port $port_mongo --username $user --password $password
+cat createIndex_cpdb.js | docker container exec -i bio_api_mongo_db mongosh --quiet --host $ip_mongo --port $port_mongo --username $user --password $password
 echo "INFO	OK"
 date
 echo "INFO	Removing intermediate files..."

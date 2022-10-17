@@ -18,10 +18,7 @@ def test_valid_response_format(client):
     res = json.loads(response.data)
     assert response.status_code == 200
     assert type(res) == list
-    assert type(res[0]) == list
-    assert type(res[0][0]) == dict
-    claves = res[0][0]
-    assert "expression" in claves and "gene" in claves
+    assert type(res[0]) == dict
 
 def test_invalid_body_format(client):
     """Tests invalid body format"""
