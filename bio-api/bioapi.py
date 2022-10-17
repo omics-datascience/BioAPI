@@ -13,6 +13,7 @@ import re
 import os
 import configparser
 import logging
+import gzip
 
 # Gets production flag
 IS_DEBUG: bool = os.environ.get('DEBUG', 'true') == 'true'
@@ -286,7 +287,22 @@ def create_app():
             if "tissue" not in list(body.keys()):
                 abort(400, "tissue is mandatory")
             tissue = body['tissue']
+            if "type" in list(body.keys()):
+                if body['type'] not in ["gzip", "json"]:
+                    abort(400, "allowed values for the 'type' parameter are 'json' or 'gzip'")
+                else:
+                    type_response = body['type']
+            else:
+                type_response = 'json'
+                    
             expression_data = get_expression_from_gtex(tissue, genes_ids)
+
+            if type_response == "gzip":
+                content = gzip.compress(json.dumps(expression_data).encode('utf8'), 5)
+                response = make_response(content)
+                response.headers['Content-length'] = len(content)
+                response.headers['Content-Encoding'] = 'gzip'
+                return response
             return jsonify(expression_data)
 
     # Manejo de errores
