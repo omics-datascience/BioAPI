@@ -10,9 +10,9 @@ This document is focused on the **development** of the system. If you are lookin
 BioAPI obtains information from different bioinformatic databases. These databases were installed locally to reduce data search time. The databases currently integrated to BioAPI are:
 1. Gene nomenclature: [HUGO Gene Nomenclature Committee](https://www.genenames.org/).  
 HGNC is the resource for approved human gene nomenclature.
-1. Gene information: [ENSEMBL](http://www.ensembl.org/biomart/martview).  
+2. Gene information: [ENSEMBL](http://www.ensembl.org/biomart/martview).  
 BioMart data mining tool was used to obtain a gene-related dataset from Ensembl. Ensembl is a genome browser for vertebrate genomes that supports research in comparative genomics, evolution, sequence variation and transcriptional regulation. Ensembl annotate genes, computes multiple alignments, predicts regulatory function and collects disease data.
-1. Metabolic pathways: [ConsensusPathDB](http://cpdb.molgen.mpg.de/).  
+3. Metabolic pathways: [ConsensusPathDB](http://cpdb.molgen.mpg.de/).  
 ConsensusPathDB-human integrates interaction networks in Homo sapiens including binary and complex protein-protein, genetic, metabolic, signaling, gene regulatory and drug-target interactions, as well as biochemical pathways. Data originate from currently 31 public resources for interactions (listed below) and interactions that we have curated from the literature. The interaction data are integrated in a complementary manner (avoiding redundancies), resulting in a seamless interaction network containing different types of interactions.         
 4. Gene expression: [Genotype-Tissue Expression (GTEx)](https://gtexportal.org/home/).  
 The Genotype-Tissue Expression (GTEx) project is an ongoing effort to build a comprehensive public resource to study tissue-specific gene expression and regulation. Samples were collected from 54 non-diseased tissue sites across nearly 1000 individuals, primarily for molecular assays including WGS, WES, and RNA-Seq. 
@@ -27,11 +27,8 @@ Searches the identifier of a gene of different genomic databases and returns the
 
 - URL: /gene-symbol/<*gene_id*>
     - <*gene_id*> is the identifier from which you want to obtain the symbol in HGNC nomenclature  
-
 - Method: GET  
-
 - Params: -  
-
 - Success Response:
     - Code: 200
     - Content:
@@ -53,12 +50,9 @@ Searches the identifier of a gene of different genomic databases and returns the
 Searches the identifier of a list of genes of different genomics databases and returns the approved symbols according to HGNC nomenclature.  
 
 - URL: /genes-symbols
-
 - Method: POST  
-
 - Params: A body in Json format with the following content
     -  `genes_ids` : list of identifiers that you want to get your approved symbols  
-
 - Success Response:
     - Code: 200
     - Content:
@@ -84,17 +78,16 @@ Searches the identifier of a list of genes of different genomics databases and r
             }
             ```  
 
+
 ### Genes symbols finder
+
 Service that takes a string of any length and returns a list of genes that contain that search criteria.  
 
 - URL: /genes-symbols-finder
-
 - Method: GET  
-
 - Params: 
     - `query` : gene search string
     - `limit`: number of elements returned by the service. Default 50.
-
 - Success Response:
     - Code: 200
     - Content:
@@ -118,17 +111,16 @@ Service that takes a string of any length and returns a list of genes that conta
             }
             ```  
 
+
 ### Genes symbols finder
+
 Service that takes a string of any length and returns a list of genes that contain that search criteria.  
 
 - URL: /genes-symbols-finder
-
 - Method: GET  
-
 - Params: 
     - `query` : gene search string
     - `limit`: number of elements returned by the service. Default 50.
-
 - Success Response:
     - Code: 200
     - Content:
@@ -151,6 +143,7 @@ Service that takes a string of any length and returns a list of genes that conta
                 ]
             }
             ```  
+
 
 ### Gene Groups
 
@@ -158,11 +151,8 @@ Gets the identifier of a gene, validates it and then returns the group of genes 
 
 - URL: /genes-same-group/<*gene_id*>
     - <*gene_id*> is the identifier of the gene for any database  
-
 - Method: GET  
-
 - Params: -  
-
 - Success Response:
     - Code: 200
     - Content:
@@ -173,7 +163,6 @@ Gets the identifier of a gene, validates it and then returns the group of genes 
             - `gene_group`:
             - `gene_group_id`:
             - `genes`:
-            
     - Example:
         - URL: http://localhost:8000/genes-same-group/ENSG00000146648
         - Response:
@@ -195,10 +184,11 @@ Gets the identifier of a gene, validates it and then returns the group of genes 
                 "locus_group": "protein-coding gene",
                 "locus_type": "gene with protein product"
             }
-            ```  
+            ```
 
 
 ### Genes of a metabolic pathway
+
 Get the list of genes that are involved in a pathway for a given database.
 
 - URL: /genes-pathways/<*source*>/<*external_id*>
@@ -216,16 +206,12 @@ Get the list of genes that are involved in a pathway for a given database.
        - Wikipathways  
         Using an invalid option returns an empty list of genes.
     - <*external_id*>: Pathway identifier in the source database.
-
 - Method: GET  
-
 - Params: -  
-
 - Success Response:
     - Code: 200
     - Content:
         - `genes`: a list of genes involved in the metabolic pathway.  
-            
     - Example:
         - URL: http://localhost:8000/genes-pathways/KEGG/hsa00740
         - Response:
@@ -242,7 +228,7 @@ Get the list of genes that are involved in a pathway for a given database.
                     "BLVRB"
                 ]
             }
-            ```  
+            ```
 
 
 ### Metabolic pathways from different genes
@@ -250,12 +236,9 @@ Get the list of genes that are involved in a pathway for a given database.
 Gets the common pathways for a list of genes.
 
 - URL: /genes-pathways-intersection
-    
 - Method: POST  
-
 - Params: A body in Json format with the following content
-    -  `genes_ids`: list of genes for which you want to get the common metabolic pathways  
-
+    -  `genes_ids`: list of genes for which you want to get the common metabolic pathways
 - Success Response:
     - Code: 200
     - Content:
@@ -263,7 +246,6 @@ Gets the common pathways for a list of genes.
             - `source`: database of the metabolic pathway found.
             - `external_id`: pathway identifier in the source.    
             - `pathway`: name of the pathway.
-
     - Example:
         - URL: http://localhost:8000/genes-pathways-intersection
         - body: 
@@ -282,27 +264,23 @@ Gets the common pathways for a list of genes.
             ```  
 
 
-### Gene expression  
+### Gene expression
+
 This service gets gene expression in healthy tissue
 
 - URL: /genes-expression
-    
 - Method: POST  
-
 - Params: A body in Json format with the following content
     -  `genes_ids`: list of genes for which you want to get the expression.  
     -  `tissue`: healthy tissue from which you want to get the expression values.  
-
 - Success Response:
     - Code: 200
     - Content:
         The response you get is a list. Each element of the list is a new list containing the expression values for each gene in the same sample from the GTEx database.
         - `<gene_id>`: expression value for the gene_id.
-
     - Example:
         - URL: http://localhost:8000/genes-expression
-        - body: 
-        `{    "tissue": "Skin",    "genes_ids": ["BRCA1", "BRCA2"]  }`
+        - body: `{ "tissue": "Skin",    "genes_ids": ["BRCA1", "BRCA2"] }`
         - Response:
             ```json
             [

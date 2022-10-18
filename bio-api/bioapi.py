@@ -1,28 +1,23 @@
-import json
-from typing import List
-from flask import Flask
-from flask import jsonify
-from flask import make_response
-from flask import abort
-from flask import render_template
-from flask import request
-import urllib.parse
-import pymongo
-from pymongo.database import Database
 import re
 import os
-import configparser
-import logging
+import json
 import gzip
+import logging
+import pymongo
+import configparser
+import urllib.parse
+from typing import List
+from flask import Flask, jsonify, make_response, abort, render_template, request
+from pymongo.database import Database
 
 # Gets production flag
 IS_DEBUG: bool = os.environ.get('DEBUG', 'true') == 'true'
 
-# Levanto configuracion
+# Gets configuration
 Config = configparser.ConfigParser()
 Config.read("config.txt")
 
-# configuracion log
+# Sets logging level
 logging.getLogger("urllib3").setLevel(logging.DEBUG)
 
 # In development logs in console, in production logs in file
@@ -30,9 +25,9 @@ if not IS_DEBUG:
     logging.basicConfig(filename=Config.get('log', 'file'), filemode='a',
                         format='%(asctime)s\t%(name)s\t%(levelname)s\t%(message)s', datefmt='%d-%b-%y %H:%M:%S',
                         level=logging.DEBUG)
-logging.info('BIO-API iniciado')
+logging.info('BioAPI is up and running')
 
-# Defino header de respuestas (puede que este al pedo)
+# Common response header
 headers = {"Content-Type": "application/json"}
 
 
@@ -70,113 +65,102 @@ def get_mongo_connection() -> Database:
 mydb = get_mongo_connection()
 
 
-def mapear_gen(gen):
-    er = re.compile("^" + re.escape(gen) + "$", re.IGNORECASE)
-    mycol_hgnc = mydb["hgnc"]  # coneccion a coleccion hgnc
+def map_gene(gene: str) -> List[str]:
+    """
+    Gets all the aliases for a specific gene
+    :return List of aliases
+    """
+    er = re.compile("^" + re.escape(gene) + "$", re.IGNORECASE)
+    collection_hgnc = mydb["hgnc"]  # HGNC collection
     dbs = ["hgnc_id", "symbol", "status", "alias_symbol", "prev_symbol", "entrez_id", "ensembl_gene_id", "vega_id",
            "ucsc_id", "ena", "refseq_accession", "ccds_id", "uniprot_ids", "cosmic", "omim_id", "mirbase", "homeodb",
            "snornabase", "bioparadigms_slc", "orphanet", "pseudogene", "horde_id", "merops", "imgt", "iuphar",
            "kznf_gene_catalog", "mamit-trnadb", "cd", "lncrnadb", "enzyme_id", "intermediate_filament_db", "agr"]
-    # armo query
-    or_search = []
-    for db in dbs:
-        q = {db: {"$regex": er}}
-        or_search.append(q)
+
+    # Generates query
+    or_search = [{db: {"$regex": er}} for db in dbs]
     query = {'$or': or_search, "status": "Approved"}
-    proyection = {'_id': 0, 'symbol': 1}
-    # hago consulta a la db
-    mydocs = mycol_hgnc.find(query, proyection)
-    results = []
-    for doc in mydocs:
-        results.append(doc["symbol"])
-    return results
+    projection = {'_id': 0, 'symbol': 1}
+    docs = collection_hgnc.find(query, projection)
+    return [doc["symbol"] for doc in docs]
+
 
 def get_potential_gene_symbols(query_string, limit_elements):
     er = re.compile(re.escape(query_string), re.IGNORECASE)
-    mycol_hgnc = mydb["hgnc"]  # coneccion a coleccion hgnc
+    collection_hgnc = mydb["hgnc"]  # HGNC collection
     dbs = ["hgnc_id", "symbol", "entrez_id", "ensembl_gene_id", "vega_id",
            "ucsc_id", "ena", "refseq_accession", "ccds_id", "uniprot_ids", "cosmic", "omim_id", "mirbase", "homeodb",
            "snornabase", "bioparadigms_slc", "orphanet", "pseudogene", "horde_id", "merops", "imgt", "iuphar",
            "kznf_gene_catalog", "mamit-trnadb", "cd", "lncrnadb", "enzyme_id", "intermediate_filament_db", "agr"]
-    
+
     res = []
     for db in dbs:
         query = {db: {"$regex": er}, "status": "Approved"}
-        proyection = {'_id': 0, db: 1}
-        mydocs = mycol_hgnc.find(query, proyection)
-        for doc in mydocs:
+        projection = {'_id': 0, db: 1}
+        docs = collection_hgnc.find(query, projection)
+        for doc in docs:
             if len(res) < limit_elements:
                 res.append(doc[db])
-                res = list(dict.fromkeys(res)) #elimina duplicados (posibles DB distintas con mismo simbolo de gen)
+                # Removes duplicated (it's possible that different DBs have the same gene symbol)
+                res = list(dict.fromkeys(res))
             else:
                 break
     return res
 
-def buscar_grupo_gen(gen):  # AGREGAR LO QUE PASA SI NO PERTENECE A NINGUN gene_group_id (EJ gen:AADACP1)
+
+def search_gene_group(gen):  # AGREGAR LO QUE PASA SI NO PERTENECE A NINGUN gene_group_id (EJ gen:AADACP1)
     results = {'locus_group': None, 'locus_type': None, 'gene_group': None, 'gene_group_id': None}
-    mycol_hgnc = mydb["hgnc"]  # coneccion a coleccion hgnc
+    collection_hgnc = mydb["hgnc"]  # HGNC collection
     query = {"symbol": gen, "status": "Approved"}
-    # hago consulta a la db
-    mydocs = mycol_hgnc.find(query)
-    mydocs = list(mydocs)
-    if len(mydocs) == 1:
-        results['locus_group'] = mydocs[0]['locus_group']
-        results['locus_type'] = mydocs[0]['locus_type']
-        if "gene_group" in list(mydocs[0].keys()):
-            if type(mydocs[0]['gene_group']) == list:
-                results['gene_group'] = mydocs[0]['gene_group']
-                results['gene_group_id'] = mydocs[0]['gene_group_id']
+
+    # Makes the query to the DB
+    docs_cursor = collection_hgnc.find(query)
+    docs: List = list(docs_cursor)
+    if len(docs) == 1:
+        results['locus_group'] = docs[0]['locus_group']
+        results['locus_type'] = docs[0]['locus_type']
+        if "gene_group" in list(docs[0].keys()):
+            if type(docs[0]['gene_group']) == list:
+                results['gene_group'] = docs[0]['gene_group']
+                results['gene_group_id'] = docs[0]['gene_group_id']
             else:
-                results['gene_group'] = [mydocs[0]['gene_group']]
-                results['gene_group_id'] = [mydocs[0]['gene_group_id']]
+                results['gene_group'] = [docs[0]['gene_group']]
+                results['gene_group_id'] = [docs[0]['gene_group_id']]
 
     return results
 
 
-def buscar_genes_mismo_grupo(id_grupo):
-    mycol_hgnc = mydb["hgnc"]  # coneccion a coleccion hgnc
-    query = {'gene_group_id': id_grupo}
-    proyection = {'_id': 0, 'symbol': 1}
-    # hago consulta a la db
-    mydocs = mycol_hgnc.find(query, proyection)
-    results = []
-    for doc in mydocs:
-        results.append(doc["symbol"])
-    return results
+def search_genes_in_same_group(group_id: int):
+    collection_hgnc = mydb["hgnc"]  # HGNC collection
+    query = {'gene_group_id': group_id}
+    projection = {'_id': 0, 'symbol': 1}
+    docs = collection_hgnc.find(query, projection)
+    return [doc["symbol"] for doc in docs]
 
 
 def get_genes_of_pathway(pathway_id, pathway_source):
-    mycol_cpdb = mydb["cpdb"]  # coneccion a coleccion cpdb
+    collection_cpdb = mydb["cpdb"]  # CPDB collection
     ps = re.compile("^" + pathway_source + "$", re.IGNORECASE)
     query = {'external_id': str(pathway_id), "source": {"$regex": ps}}
-    # hago consulta a la db
-    mydoc = mycol_cpdb.find_one(query)
-    genes = []
-    if mydoc is not None:
-        genes = mydoc["hgnc_symbol_ids"]
-    return genes
+    doc = collection_cpdb.find_one(query)
+    return doc["hgnc_symbol_ids"] if doc is not None else []
 
 
 def get_pathways_of_gene(gene):
-    mycol_cpdb = mydb["cpdb"]  # coneccion a coleccion cpdb
+    collection_cpdb = mydb["cpdb"]  # CPDB collection
     query = {'hgnc_symbol_ids': gene}
-    proyection = {'_id': 0, 'pathway': 1, 'external_id': 1, 'source': 1}
-    # hago consulta a la db
-    mydocs = mycol_cpdb.find(query, proyection)
-    results = []
-    for doc in mydocs:
-        results.append(str(doc))
-    return results
+    projection = {'_id': 0, 'pathway': 1, 'external_id': 1, 'source': 1}
+    docs = collection_cpdb.find(query, projection)
+    return [str(doc) for doc in docs]
 
 
 def get_expression_from_gtex(tissue: str, genes: List) -> List:
-    mycol = mydb["gtex_" + tissue]  # coneccion a coleccion
+    collection = mydb["gtex_" + tissue]  # Connects to specific tissue's collection
     query = {'gene': {'$in': genes}}
-    proyection = {'_id': 0, 'expression': 1, 'gene': 1, 'sample_id': 1}
-    # hago consulta a la db
-    mydocs = mycol.find(query, proyection)
+    projection = {'_id': 0, 'expression': 1, 'gene': 1, 'sample_id': 1}
+    docs = collection.find(query, projection)
     temp = {}
-    for doc in mydocs:
+    for doc in docs:
         if doc["sample_id"] not in temp:
             temp[doc["sample_id"]] = {}
         temp[doc["sample_id"]][doc["gene"]] = doc["expression"]
@@ -185,21 +169,23 @@ def get_expression_from_gtex(tissue: str, genes: List) -> List:
 
 
 def create_app():
-    # create and configure the app
+    # Creates and configures the app
     flask_app = Flask(__name__, instance_relative_config=True)
 
     # Endpoints
-    @flask_app.route("/")  # Pantalla de inicio
-    def inicio():
+    @flask_app.route("/")
+    def homepage():
         return render_template('homePage.html')
 
-    @flask_app.route("/ping")  # Para chequear que este levantada la bioapi
+    @flask_app.route("/ping")
     def ping_ok():
+        """To use as healthcheck by Docker"""
         output = "ok"
         return make_response(output, 200, headers)
 
-    @flask_app.route("/bioapi-map")  # Lista todos los endpoint de bioapi
+    @flask_app.route("/bioapi-map")
     def list_routes():
+        """Lists all BioAPI endpoints"""
         output = {"endpoints": []}
         for rule in flask_app.url_map.iter_rules():
             methods = ','.join(rule.methods)
@@ -207,27 +193,29 @@ def create_app():
             output["endpoints"].append(line)
         return make_response(output, 200, headers)
 
-    @flask_app.route("/gene-symbol/<gene_id>", methods = ['GET'])
-    def gene_symbol(gene_id):
-        """Recibe un ID del gen en cualquier estandar y devuelve el ID del Gen estandarizado. En caso de que no se
-        encuentre debe retornar [ ] en el valor."""
-        respuesta = {gene_id: []}
+    @flask_app.route("/gene-symbol/<gene_id>", methods=['GET'])
+    def gene_symbol(gene_id: str):
+        """Receives a gene ID in any standard and returns the standardized gene ID. In case it is not found it
+        returns an empty list."""
+        response = {gene_id: []}
         try:
-            gv = mapear_gen(gene_id)
+            gv = map_gene(gene_id)
             if len(gv) == 0:
                 abort(404, "invalid gene identifier")
-            respuesta[gene_id] = gv
+            response[gene_id] = gv
         except TypeError as e:
             abort(400, e)
         except ValueError as e:
             abort(400, e)
         except KeyError as e:
             abort(400, e)
-        return make_response(respuesta, 200, headers)
+        return make_response(response, 200, headers)
 
     @flask_app.route("/genes-symbols", methods=['POST'])
     def gene_symbols():
-        respuesta = {}
+        """Receives a list of genes IDs in any standard and returns the standardized corresponding genes IDs.
+        In case it is not found it returns an empty list for the specific not found gene."""
+        response = {}
         if request.method == 'POST':
             body = request.get_json()
             if "genes_ids" not in list(body.keys()):
@@ -239,15 +227,16 @@ def create_app():
 
             try:
                 for gene in genes_ids:
-                    gv = mapear_gen(gene)
-                    respuesta[gene] = gv
+                    gv = map_gene(gene)
+                    response[gene] = gv
             except Exception as e:
                 abort(400, e)
-        return make_response(respuesta, 200, headers)
+        return make_response(response, 200, headers)
 
-    @flask_app.route("/genes-symbols-finder", methods = ['GET'])
-    def genSymbolFinder():
-        """takes a string of any length and returns a list of genes that contain that search criteria."""
+    @flask_app.route("/genes-symbols-finder", methods=['GET'])
+    def gen_symbol_finder():
+        """Takes a string of any length and returns a list of genes that contain that search criteria."""
+        query = None  # To prevent MyPy warning
         if "query" not in request.args:
             abort(400, "'query' parameter is mandatory")
         else:
@@ -259,22 +248,24 @@ def create_app():
                 limit = int(request.args.get('limit'))
             else:
                 abort(400, "'limit' parameter must be a numeric value")
+
+        response = {}  # To prevent MyPy warning
         try:
-            possibles_symbols = get_potential_gene_symbols(query, limit)  
-            respuesta = { "potential_gene_symbols" : possibles_symbols }     
+            possibles_symbols = get_potential_gene_symbols(query, limit)
+            response = {"potential_gene_symbols": possibles_symbols}
         except TypeError as e:
             abort(400, e)
         except ValueError as e:
             abort(400, e)
         except KeyError as e:
             abort(400, e)
-        return make_response(respuesta, 200, headers)
+        return make_response(response, 200, headers)
 
-    @flask_app.route("/genes-same-group/<gene_id>", methods = ['GET'])
+    @flask_app.route("/genes-same-group/<gene_id>", methods=['GET'])
     def genes_of_the_same_family(gene_id):
-        respuesta = {"gene_id": None, "groups": [], "locus_group": None, "locus_type": None}
+        response = {"gene_id": None, "groups": [], "locus_group": None, "locus_type": None}
         try:
-            mapped_gene = mapear_gen(gene_id)
+            mapped_gene = map_gene(gene_id)
             if len(mapped_gene) == 0:
                 abort(404, "invalid gene identifier")
             elif len(mapped_gene) >= 2:
@@ -285,19 +276,19 @@ def create_app():
                     f"The identifier may refer to more than one HGNC-approved gene ({joined})"
                 )
             approved_symbol = mapped_gene[0]
-            respuesta["gene_id"] = approved_symbol
-            gene_group = buscar_grupo_gen(approved_symbol)
-            respuesta['locus_group'] = gene_group['locus_group']
-            respuesta['locus_type'] = gene_group['locus_type']
+            response["gene_id"] = approved_symbol
+            gene_group = search_gene_group(approved_symbol)
+            response['locus_group'] = gene_group['locus_group']
+            response['locus_type'] = gene_group['locus_type']
             if gene_group['gene_group_id'] is not None:
-                respuesta["groups"] = []
+                response["groups"] = []
                 for i in range(0, len(gene_group['gene_group_id'])):
                     g = {
                         "gene_group_id": gene_group['gene_group_id'][i],
                         "gene_group": gene_group['gene_group'][i],
-                        "genes": buscar_genes_mismo_grupo(gene_group['gene_group_id'][i])
+                        "genes": search_genes_in_same_group(gene_group['gene_group_id'][i])
                     }
-                    respuesta["groups"].append(g)
+                    response["groups"].append(g)
 
         except TypeError as e:
             abort(400, e)
@@ -305,12 +296,12 @@ def create_app():
             abort(400, e)
         except KeyError as e:
             abort(400, e)
-        return make_response(respuesta, 200, headers)
+        return make_response(response, 200, headers)
 
     @flask_app.route("/genes-pathways/<pathway_source>/<pathway_id>", methods=['GET'])
     def pathways_of_genes(pathway_source, pathway_id):
-        respuesta = {"genes": get_genes_of_pathway(pathway_id, pathway_source)}
-        return make_response(respuesta, 200, headers)
+        response = {"genes": get_genes_of_pathway(pathway_id, pathway_source)}
+        return make_response(response, 200, headers)
 
     @flask_app.route("/genes-pathways-intersection", methods=['POST'])
     def genes_of_pathways():
@@ -323,32 +314,35 @@ def create_app():
                 abort(400, "genes_ids must be a list")
             if len(genes_ids) == 0:
                 abort(400, "genes_ids must contain at least one gene symbol")
-            pathways_tmp = []
-            for gene in genes_ids:
-                pathways_tmp.append(get_pathways_of_gene(gene))
 
+            pathways_tmp = [get_pathways_of_gene(gene) for gene in genes_ids]
             pathways_intersection = list(set.intersection(*map(set, pathways_tmp)))
-            respuesta = {"pathways": []}
+            response = {"pathways": []}
             for e in pathways_intersection:
                 r = json.loads(e.replace("\'", "\""))
-                respuesta["pathways"].append(r)
-            return make_response(respuesta, 200, headers)
+                response["pathways"].append(r)
+            return make_response(response, 200, headers)
 
     @flask_app.route("/genes-expression", methods=['POST'])
     def expression_data_from_gtex():
         if request.method == 'POST':
             body = request.get_json()
-            if "genes_ids" not in list(body.keys()):
+            body_keys = list(body.keys())
+
+            if "genes_ids" not in body_keys:
                 abort(400, "genes_ids is mandatory")
+
             genes_ids = body['genes_ids']
             if type(genes_ids) != list:
                 abort(400, "genes_ids must be a list")
             if len(genes_ids) == 0:
                 abort(400, "genes_ids must contain at least one gene symbol")
-            if "tissue" not in list(body.keys()):
+            if "tissue" not in body_keys:
                 abort(400, "tissue is mandatory")
+
             tissue = body['tissue']
-            if "type" in list(body.keys()):
+            type_response = None  # To prevent MyPy warning
+            if "type" in body_keys:
                 if body['type'] not in ["gzip", "json"]:
                     abort(400, "allowed values for the 'type' key are 'json' or 'gzip'")
                 else:
@@ -366,7 +360,7 @@ def create_app():
                 return response
             return jsonify(expression_data)
 
-    # Manejo de errores
+    # Error handling
     @flask_app.errorhandler(400)
     def bad_request(e):
         return jsonify(error=str(e)), 400
