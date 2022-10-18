@@ -8,8 +8,6 @@ Below are the steps to perform a production deploy of BioAPI.
 - BioAPI deployment was configured to be simple from the Docker Compose tool. So you need to install:
     - [docker](https://docs.docker.com/desktop/#download-and-install)
     - [docker-compose](https://docs.docker.com/compose/install/)
-- To incorporate the genomic databases that BioAPI needs, the mongodb tools are required. Download and install the tools from the official MongoDB website:
-    - [mongo tools](https://www.mongodb.com/try/download/database-tools)  
 
 
 ## Instructions
@@ -25,57 +23,94 @@ Below are the steps to perform a production deploy of BioAPI.
         - `deploy.resources.limits.memory`: By default, 12GB of memory is allocated for MongoDB. Modify this value if you need it.  
     - BioAPI Server:
         - `MONGO_USER` and `MONGO_PASSWORD`: These variables are the username and password for BioAPI to access MongoDB. These credentials must be the same ones that were set for the MongoDB server.
-3. Import genomics databases. BioAPI uses three genomic databases for its operation. These databases must be loaded in MongoDB. To import all databases in MongoDB:
-    1. Download the "bioapi_db.gz" from **[here](https://drive.google.com/file/d/1lI3A98N-GhnffkSOWjB_gx_ieq3pEjFP/view?usp=sharing)**
-    1. Use Mongorestore to import it into MongoDB:
+3. Start up all the services with Docker Compose running `docker compose up -d` to check that It's all working, and read the instructions in the following section to import the genomics databases.
+
+
+## Importing genomic data
+
+BioAPI uses three genomic databases for its operation. These databases must be loaded in MongoDB. You can import all the databases in two ways:
+
+
+### Import using public DB backup (recommended)
+
+To import all databases in MongoDB:
+ 
+1. Download the "bioapi_db.gz" from **[here](https://drive.google.com/file/d/1lI3A98N-GhnffkSOWjB_gx_ieq3pEjFP/view?usp=sharing)**
+2. Shutdown all the services running `docker compose down`
+3. Edit the `docker-compose.yml` file to include the downloaded file inside the container:
+    ```yml
+    # ...
+        mongo:
+            image: mongo:6.0.2
+            # ...
+            volumes:
+                # ...
+                - /path/to/bioapi_db.gz:/bioapi_db.gz
+    # ...
+    ```
+4. Start up the services again running `docker compose up -d`
+5. Go inside the container `docker container exec -it bio_api_mongo_db bash`
+6. Use Mongorestore to import it into MongoDB:
+    ```bash
+    mongorestore --username <user> --password <pass> --authenticationDatabase admin --gzip --archive=/bioapi_db.gz
+    ```
+   Where *\<user\>*, *\<pass\>* are the preconfigured credentials to MongoDB in the `docker-compose.yml` file. *bioapi_db.gz* is the file downloaded in the previous step. **Keep in mind that this loading process will import approximately *45 GB* of information into MongoDB, so it may take a while**.
+7. Rollup the changes in `docker-compose.yml` file to remove the backup file from the `volumes` section. Restart all the services again.
+
+
+### Manually import the different databases
+
+Alternatively (but **not recommended** due to high computational demands) you can run a separate ETL process to download from source, process and import the databases into MongoDB. The ETL process is programmed in a single bash script for each database and is shown below:  
+
+First, you must install the necessary requirements. They can be installed using
+```bash
+pip install -r config/genomic_db_conf/requirements.txt
+```
+
+1. Metabolic pathways: [ConsensusPathDB](http://cpdb.molgen.mpg.de/)  
+    - Go to the path "databases/cpdb"
+    - Edit the empty variables `user` and `password` with the credentials configured in step 2. 
+   - Run the bash script:  
+   ```bash
+   ./cpdb2mongodb.sh
    ```
-   mongorestore --username <user> --password <pass> --authenticationDatabase admin --host <url> --port <port> --gzip --archive=bioapi_db.gz
-    ``` 
-    Where *\<user\>*, *\<pass\>*, *\<url\>* and *\<port\>* are the preconfigured credentials to MongoDB. *bioapi_db.gz* is the file downloaded in the previous step. Keep in mind that this loading process will import approximately *45 GB* of information into MongoDB, so it may take a while.
-
-    Alternatively (but **not recommended** due to high computational demands) you can run a separate ETL process to download from source, process and import the databases into MongoDB. The ETL process is programmed in a single bash script for each database and is shown below:  
-
-    First, you must install the necessary requirements. They can be installed using
-    ```python
-    pip install -r config/genomic_db_conf/requirements.txt
+2. Gene nomenclature: [HUGO Gene Nomenclature Committee](https://www.genenames.org/)
+    - Go to the path "databases/hgnc"
+    - Edit the empty variables `user` and `password` with the credentials configured in step 2. 
+    - Run the bash script:  
+    ```bash
+    ./hgnc2mongodb.sh
+    ```
+3. Gene expression: [Genotype-Tissue Expression (GTEx)](https://gtexportal.org/home/)
+    - Go to the path "databases/gtex"
+    - Edit the empty variables `user` and `password` with the credentials configured in step 2. 
+    - Run the bash script:  
+    ```bash
+    ./gtex2mongodb.sh
     ```
 
-    1. Metabolic pathways: [ConsensusPathDB](http://cpdb.molgen.mpg.de/)  
-        - Go to the path "databases/cpdb"
-        - Edit the empty variables `user` and `password` with the credentials configured in step 2. 
-        - Run the bash script:  
-            ```
-            bash cpdb2mongodb.sh
-            ```
-    2. Gene nomenclature: [HUGO Gene Nomenclature Committee](https://www.genenames.org/)
-        - Go to the path "databases/hgnc"
-        - Edit the empty variables `user` and `password` with the credentials configured in step 2. 
-        - Run the bash script:  
-            ```
-            bash hgnc2mongodb.sh
-            ```             
-    3. Gene expression: [Genotype-Tissue Expression (GTEx)](https://gtexportal.org/home/)
-        - Go to the path "databases/gtex"
-        - Edit the empty variables `user` and `password` with the credentials configured in step 2. 
-        - Run the bash script:  
-            ```
-            bash gtex2mongodb.sh
-            ```
+
 ## Run BioAPI
-Use docker compose to get the BioAPI up: 
-```
+Use docker compose to get the BioAPI up:
+
+```bash
 docker-compose up -d
-```  
+```
+
 By default, BioAPI runs on `localhost:8000`.  
 
 If you want to stop all services, you can execute:
-```
+
+```bash
 docker-compose down
 ```
+
+
 ### See container status
 
 To check the different services' status you can run:
-```
+
+```bash
 docker-compose logs <service>
 ```
 
