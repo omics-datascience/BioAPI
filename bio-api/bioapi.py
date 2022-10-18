@@ -1,5 +1,5 @@
 import json
-from typing import Dict, List
+from typing import List
 from flask import Flask
 from flask import jsonify
 from flask import make_response
@@ -45,28 +45,30 @@ def get_mongo_connection() -> Database:
     try:
         if IS_DEBUG:
             host = Config.get('mongodb', 'host')
-            port = Config.get('mongodb', 'port')
+            mongo_port = Config.get('mongodb', 'port')
             user = Config.get('mongodb', 'user')
             password = Config.get('mongodb', 'pass')
             db = Config.get('mongodb', 'db_name')
         else:
             host = os.environ.get('MONGO_HOST')
-            port = os.environ.get('MONGO_PORT')
+            mongo_port = os.environ.get('MONGO_PORT')
             user = os.environ.get('MONGO_USER')
             password = os.environ.get('MONGO_PASSWORD')
             db = os.environ.get('MONGO_DB')
 
-            if not host or not port or not db:
-                logging.error(f'Host ({host}), port ({port}) or db ({db}) is invalid', exc_info=True)
+            if not host or not mongo_port or not db:
+                logging.error(f'Host ({host}), port ({mongo_port}) or db ({db}) is invalid', exc_info=True)
                 exit(-1)
 
-        mongo_client = pymongo.MongoClient(f"mongodb://{user}:{password}@{host}:{port}/?authSource=admin")
+        mongo_client = pymongo.MongoClient(f"mongodb://{user}:{password}@{host}:{mongo_port}/?authSource=admin")
         return mongo_client[db]
     except Exception as e:
         logging.error("Database connection error." + str(e), exc_info=True)
         exit(-1)
 
+
 mydb = get_mongo_connection()
+
 
 def mapear_gen(gen):
     er = re.compile("^" + re.escape(gen) + "$", re.IGNORECASE)
@@ -89,13 +91,15 @@ def mapear_gen(gen):
         results.append(doc["symbol"])
     return results
 
+
 def buscar_grupo_gen(gen):  # AGREGAR LO QUE PASA SI NO PERTENECE A NINGUN gene_group_id (EJ gen:AADACP1)
     results = {'locus_group': None, 'locus_type': None, 'gene_group': None, 'gene_group_id': None}
     mycol_hgnc = mydb["hgnc"]  # coneccion a coleccion hgnc
     query = {"symbol": gen, "status": "Approved"}
     # hago consulta a la db
     mydocs = mycol_hgnc.find(query)
-    if mydocs.count() == 1:
+    mydocs = list(mydocs)
+    if len(mydocs) == 1:
         results['locus_group'] = mydocs[0]['locus_group']
         results['locus_type'] = mydocs[0]['locus_type']
         if "gene_group" in list(mydocs[0].keys()):
@@ -108,6 +112,7 @@ def buscar_grupo_gen(gen):  # AGREGAR LO QUE PASA SI NO PERTENECE A NINGUN gene_
 
     return results
 
+
 def buscar_genes_mismo_grupo(id_grupo):
     mycol_hgnc = mydb["hgnc"]  # coneccion a coleccion hgnc
     query = {'gene_group_id': id_grupo}
@@ -118,6 +123,7 @@ def buscar_genes_mismo_grupo(id_grupo):
     for doc in mydocs:
         results.append(doc["symbol"])
     return results
+
 
 def get_genes_of_pathway(pathway_id, pathway_source):
     mycol_cpdb = mydb["cpdb"]  # coneccion a coleccion cpdb
@@ -130,6 +136,7 @@ def get_genes_of_pathway(pathway_id, pathway_source):
         genes = mydoc["hgnc_symbol_ids"]
     return genes
 
+
 def get_pathways_of_gene(gene):
     mycol_cpdb = mydb["cpdb"]  # coneccion a coleccion cpdb
     query = {'hgnc_symbol_ids': gene}
@@ -141,17 +148,18 @@ def get_pathways_of_gene(gene):
         results.append(str(doc))
     return results
 
+
 def get_expression_from_gtex(tissue: str, genes: List) -> List:
-    mycol = mydb["gtex_"+tissue]  # coneccion a coleccion 
-    query = { 'gene': { '$in': genes } }
-    proyection = {'_id': 0, 'expression': 1, 'gene': 1, 'sample_id':1}
+    mycol = mydb["gtex_" + tissue]  # coneccion a coleccion
+    query = {'gene': {'$in': genes}}
+    proyection = {'_id': 0, 'expression': 1, 'gene': 1, 'sample_id': 1}
     # hago consulta a la db
     mydocs = mycol.find(query, proyection)
     temp = {}
     for doc in mydocs:
         if doc["sample_id"] not in temp:
             temp[doc["sample_id"]] = {}
-        temp[doc["sample_id"]][doc["gene"]] = doc["expression"] 
+        temp[doc["sample_id"]][doc["gene"]] = doc["expression"]
     results = [temp[sample] for sample in temp.keys()]
     return results
 
@@ -180,7 +188,7 @@ def create_app():
         return make_response(output, 200, headers)
 
     @flask_app.route("/gene-symbol/<gene_id>")
-    def genSymbol(gene_id):
+    def gene_symbol(gene_id):
         """Recibe un ID del gen en cualquier estandar y devuelve el ID del Gen estandarizado. En caso de que no se
         encuentre debe retornar [ ] en el valor."""
         respuesta = {gene_id: []}
@@ -197,16 +205,18 @@ def create_app():
             abort(400, e)
         return make_response(respuesta, 200, headers)
 
-    @flask_app.route("/genes-symbols", methods = ['POST'])
-    def genSymbols():
-        if(request.method == 'POST'):
+    @flask_app.route("/genes-symbols", methods=['POST'])
+    def gene_symbols():
+        respuesta = {}
+        if request.method == 'POST':
             body = request.get_json()
             if "genes_ids" not in list(body.keys()):
                 abort(400, "genes_ids is mandatory")
+
             genes_ids = body['genes_ids']
             if type(genes_ids) != list:
                 abort(400, "genes_ids must be a list")
-            respuesta = {}
+
             try:
                 for gene in genes_ids:
                     gv = mapear_gen(gene)
@@ -223,19 +233,25 @@ def create_app():
             if len(mapped_gene) == 0:
                 abort(404, "invalid gene identifier")
             elif len(mapped_gene) >= 2:
-                abort(400, "ambiguous gene identifier. The identifier may refer to more than one HGNC-approved gene (" + ",".join(mapped_gene) + ")")
+                joined = ",".join(mapped_gene)
+                abort(
+                    400,
+                    f"ambiguous gene identifier. "
+                    f"The identifier may refer to more than one HGNC-approved gene ({joined})"
+                )
             approved_symbol = mapped_gene[0]
             respuesta["gene_id"] = approved_symbol
             gene_group = buscar_grupo_gen(approved_symbol)
             respuesta['locus_group'] = gene_group['locus_group']
             respuesta['locus_type'] = gene_group['locus_type']
-            if gene_group['gene_group_id'] != None:
+            if gene_group['gene_group_id'] is not None:
                 respuesta["groups"] = []
                 for i in range(0, len(gene_group['gene_group_id'])):
-                    g = {}
-                    g["gene_group_id"] = gene_group['gene_group_id'][i]
-                    g["gene_group"] = gene_group['gene_group'][i]
-                    g["genes"] = buscar_genes_mismo_grupo(gene_group['gene_group_id'][i])
+                    g = {
+                        "gene_group_id": gene_group['gene_group_id'][i],
+                        "gene_group": gene_group['gene_group'][i],
+                        "genes": buscar_genes_mismo_grupo(gene_group['gene_group_id'][i])
+                    }
                     respuesta["groups"].append(g)
 
         except TypeError as e:
@@ -246,43 +262,43 @@ def create_app():
             abort(400, e)
         return make_response(respuesta, 200, headers)
 
-    @flask_app.route("/genes-pathways/<pathway_source>/<pathway_id>", methods = ['GET'])
-    def pathwaysOfGenes(pathway_source, pathway_id):
-        respuesta = { "genes" : get_genes_of_pathway(pathway_id, pathway_source) }
+    @flask_app.route("/genes-pathways/<pathway_source>/<pathway_id>", methods=['GET'])
+    def pathways_of_genes(pathway_source, pathway_id):
+        respuesta = {"genes": get_genes_of_pathway(pathway_id, pathway_source)}
         return make_response(respuesta, 200, headers)
 
-    @flask_app.route("/genes-pathways-intersection", methods = ['POST'])
-    def genesOfPathways():
-        if(request.method == 'POST'):
+    @flask_app.route("/genes-pathways-intersection", methods=['POST'])
+    def genes_of_pathways():
+        if request.method == 'POST':
             body = request.get_json()
             if "genes_ids" not in list(body.keys()):
                 abort(400, "genes_ids is mandatory")
             genes_ids = body['genes_ids']
             if type(genes_ids) != list:
                 abort(400, "genes_ids must be a list")
-            if len(genes_ids)==0:
+            if len(genes_ids) == 0:
                 abort(400, "genes_ids must contain at least one gene symbol")
             pathways_tmp = []
             for gene in genes_ids:
                 pathways_tmp.append(get_pathways_of_gene(gene))
 
-            pathways_intersection = list(set.intersection(*map(set,pathways_tmp)))
-            respuesta = { "pathways": [] }
+            pathways_intersection = list(set.intersection(*map(set, pathways_tmp)))
+            respuesta = {"pathways": []}
             for e in pathways_intersection:
                 r = json.loads(e.replace("\'", "\""))
                 respuesta["pathways"].append(r)
             return make_response(respuesta, 200, headers)
-        
-    @flask_app.route("/genes-expression", methods = ['POST'])
-    def expressionDataFromGTEx():
-        if(request.method == 'POST'):
+
+    @flask_app.route("/genes-expression", methods=['POST'])
+    def expression_data_from_gtex():
+        if request.method == 'POST':
             body = request.get_json()
             if "genes_ids" not in list(body.keys()):
                 abort(400, "genes_ids is mandatory")
             genes_ids = body['genes_ids']
             if type(genes_ids) != list:
                 abort(400, "genes_ids must be a list")
-            if len(genes_ids)==0:
+            if len(genes_ids) == 0:
                 abort(400, "genes_ids must contain at least one gene symbol")
             if "tissue" not in list(body.keys()):
                 abort(400, "tissue is mandatory")
@@ -294,7 +310,7 @@ def create_app():
                     type_response = body['type']
             else:
                 type_response = 'json'
-                    
+
             expression_data = get_expression_from_gtex(tissue, genes_ids)
 
             if type_response == "gzip":
