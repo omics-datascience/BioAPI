@@ -4,8 +4,6 @@ services:
     mongo:
         image: mongo:6.0.2
         container_name: bio_api_mongo_db
-        ports:
-            - 27017:27017
         volumes:
             - mongo_data:/data/db
             - mongo_config:/data/configdb
