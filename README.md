@@ -7,6 +7,8 @@ All services are available through a web API accessible from a browser or any ot
 BioAPI obtains information from different bioinformatic databases. These databases were installed locally to reduce data search time. The databases currently integrated to BioAPI are:
 1. Gene nomenclature: [HUGO Gene Nomenclature Committee](https://www.genenames.org/).  
 HGNC is the resource for approved human gene nomenclature.
+1. Gene information: [ENSEMBL](http://www.ensembl.org/biomart/martview).  
+BioMart data mining tool was used to obtain a gene-related dataset from Ensembl. Ensembl is a genome browser for vertebrate genomes that supports research in comparative genomics, evolution, sequence variation and transcriptional regulation. Ensembl annotate genes, computes multiple alignments, predicts regulatory function and collects disease data.
 1. Metabolic pathways: [ConsensusPathDB](http://cpdb.molgen.mpg.de/).  
 ConsensusPathDB-human integrates interaction networks in Homo sapiens including binary and complex protein-protein, genetic, metabolic, signaling, gene regulatory and drug-target interactions, as well as biochemical pathways. Data originate from currently 31 public resources for interactions (listed below) and interactions that we have curated from the literature. The interaction data are integrated in a complementary manner (avoiding redundancies), resulting in a seamless interaction network containing different types of interactions.         
 1. Gene expression: [Genotype-Tissue Expression (GTEx)](https://gtexportal.org/home/).  
@@ -22,7 +24,7 @@ Searches the identifier of a gene of different genomic databases and returns the
 
 - Method: GET  
 
-- Required query params: -  
+- Params: -  
 
 - Success Response:
     - Code: 200
@@ -47,7 +49,7 @@ Searches the identifier of a list of genes of differents genomics databases and 
 
 - Method: POST  
 
-- Required query params: A body in Json format with the following content
+- Params: A body in Json format with the following content
     -  `genes_ids` : list of identifiers that you want to get your approved symbols  
 
 - Success Response:
@@ -75,6 +77,40 @@ Searches the identifier of a list of genes of differents genomics databases and 
             }
             ```  
 
+### Genes symbols finder
+Service that takes a string of any length and returns a list of genes that contain that search criteria.  
+
+- URL: /genes-symbols-finder
+
+- Method: GET  
+
+- Params: 
+    - `query` : gene search string
+    - `limit`: number of elements returned by the service. Default 50.
+
+- Success Response:
+    - Code: 200
+    - Content:
+        - `<potential_gene_symbols>`: a list of gene symbols matching the search criteria.  
+    - Example:
+        - URL: http://localhost:8000/genes-symbols-finder?limit=50&query=BRC
+        - Response:
+            ```json
+            {
+                "potential_gene_symbols": [
+                    "BRCA1",
+                    "BRCA1P1",
+                    "BRCA2",
+                    "BRCC3",
+                    "BRCC3P1",
+                    "uc002brc.2",
+                    "uc003brc.4",
+                    "uc060brc.1",
+                    "Q9BRC7"
+                ]
+            }
+            ```  
+
 ### Gene Groups
 Gets the identifier of a gene, validates it and then returns the group of genes to which it belongs according to HGNC, and all the other genes that belong to the same group.  
 
@@ -83,7 +119,7 @@ Gets the identifier of a gene, validates it and then returns the group of genes 
 
 - Method: GET  
 
-- Required query params: -  
+- Params: -  
 
 - Success Response:
     - Code: 200
@@ -140,7 +176,7 @@ Get the list of genes that are involved in a pathway for a given database.
 
 - Method: GET  
 
-- Required query params: -  
+- Params: -  
 
 - Success Response:
     - Code: 200
@@ -172,7 +208,7 @@ Gets the common pathways for a list of genes.
     
 - Method: POST  
 
-- Required query params: A body in Json format with the following content
+- Params: A body in Json format with the following content
     -  `genes_ids`: list of genes for which you want to get the common metabolic pathways  
 
 - Success Response:
@@ -207,7 +243,7 @@ This service gets gene expression in healthy tissue
     
 - Method: POST  
 
-- Required query params: A body in Json format with the following content
+- Params: A body in Json format with the following content
     -  `genes_ids`: list of genes for which you want to get the expression.  
     -  `tissue`: healthy tissue from which you want to get the expression values.  
 

@@ -89,6 +89,27 @@ def mapear_gen(gen):
         results.append(doc["symbol"])
     return results
 
+def get_potential_gene_symbols(query_string, limit_elements):
+    er = re.compile(re.escape(query_string), re.IGNORECASE)
+    mycol_hgnc = mydb["hgnc"]  # coneccion a coleccion hgnc
+    dbs = ["hgnc_id", "symbol", "entrez_id", "ensembl_gene_id", "vega_id",
+           "ucsc_id", "ena", "refseq_accession", "ccds_id", "uniprot_ids", "cosmic", "omim_id", "mirbase", "homeodb",
+           "snornabase", "bioparadigms_slc", "orphanet", "pseudogene", "horde_id", "merops", "imgt", "iuphar",
+           "kznf_gene_catalog", "mamit-trnadb", "cd", "lncrnadb", "enzyme_id", "intermediate_filament_db", "agr"]
+    
+    res = []
+    for db in dbs:
+        query = {db: {"$regex": er}, "status": "Approved"}
+        proyection = {'_id': 0, db: 1}
+        mydocs = mycol_hgnc.find(query, proyection)
+        for doc in mydocs:
+            if len(res) < limit_elements:
+                res.append(doc[db])
+                res = list(dict.fromkeys(res)) #elimina duplicados (posibles DB distintas con mismo simbolo de gen)
+            else:
+                break
+    return res
+
 def buscar_grupo_gen(gen):  # AGREGAR LO QUE PASA SI NO PERTENECE A NINGUN gene_group_id (EJ gen:AADACP1)
     results = {'locus_group': None, 'locus_type': None, 'gene_group': None, 'gene_group_id': None}
     mycol_hgnc = mydb["hgnc"]  # coneccion a coleccion hgnc
@@ -179,7 +200,7 @@ def create_app():
             output["endpoints"].append(line)
         return make_response(output, 200, headers)
 
-    @flask_app.route("/gene-symbol/<gene_id>")
+    @flask_app.route("/gene-symbol/<gene_id>", methods = ['GET'])
     def genSymbol(gene_id):
         """Recibe un ID del gen en cualquier estandar y devuelve el ID del Gen estandarizado. En caso de que no se
         encuentre debe retornar [ ] en el valor."""
@@ -215,7 +236,32 @@ def create_app():
                 abort(400, e)
         return make_response(respuesta, 200, headers)
 
-    @flask_app.route("/genes-same-group/<gene_id>")
+    @flask_app.route("/genes-symbols-finder", methods = ['GET'])
+    def genSymbolFinder():
+        """takes a string of any length and returns a list of genes that contain that search criteria."""
+        if "query" not in request.args:
+            abort(400, "'query' parameter is mandatory")
+        else:
+            query = request.args.get('query')
+
+        limit = 50
+        if "limit" in request.args:
+            if request.args.get('limit').isnumeric():
+                limit = int(request.args.get('limit'))
+            else:
+                abort(400, "'limit' parameter must be a numeric value")
+        try:
+            possibles_symbols = get_potential_gene_symbols(query, limit)  
+            respuesta = { "potential_gene_symbols" : possibles_symbols }     
+        except TypeError as e:
+            abort(400, e)
+        except ValueError as e:
+            abort(400, e)
+        except KeyError as e:
+            abort(400, e)
+        return make_response(respuesta, 200, headers)
+
+    @flask_app.route("/genes-same-group/<gene_id>", methods = ['GET'])
     def genes_of_the_same_family(gene_id):
         respuesta = {"gene_id": None, "groups": [], "locus_group": None, "locus_type": None}
         try:
@@ -289,7 +335,7 @@ def create_app():
             tissue = body['tissue']
             if "type" in list(body.keys()):
                 if body['type'] not in ["gzip", "json"]:
-                    abort(400, "allowed values for the 'type' parameter are 'json' or 'gzip'")
+                    abort(400, "allowed values for the 'type' key are 'json' or 'gzip'")
                 else:
                     type_response = body['type']
             else:
