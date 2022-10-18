@@ -1,9 +1,12 @@
 # BioAPI
 
-A powerful abstraction of genomics databases. Bioapi is a REST API that provides data related to gene nomenclature, gene expression, and metabolic pathways.   
-All services are available through a web API accessible from a browser or any other web client. All the responses are in JSON format.
+A powerful abstraction of genomics databases. Bioapi is a REST API that provides data related to gene nomenclature, gene expression, and metabolic pathways. All services are available through a web API accessible from a browser or any other web client. All the responses are in JSON format.
+
+This document is focused on the **development** of the system. If you are looking for documentation for a production deployment see [DEPLOYING.md](DEPLOYING.md).
+
 
 ## Integrated databases
+
 BioAPI obtains information from different bioinformatic databases. These databases were installed locally to reduce data search time. The databases currently integrated to BioAPI are:
 1. Gene nomenclature: [HUGO Gene Nomenclature Committee](https://www.genenames.org/).  
 HGNC is the resource for approved human gene nomenclature.
@@ -11,12 +14,15 @@ HGNC is the resource for approved human gene nomenclature.
 BioMart data mining tool was used to obtain a gene-related dataset from Ensembl. Ensembl is a genome browser for vertebrate genomes that supports research in comparative genomics, evolution, sequence variation and transcriptional regulation. Ensembl annotate genes, computes multiple alignments, predicts regulatory function and collects disease data.
 1. Metabolic pathways: [ConsensusPathDB](http://cpdb.molgen.mpg.de/).  
 ConsensusPathDB-human integrates interaction networks in Homo sapiens including binary and complex protein-protein, genetic, metabolic, signaling, gene regulatory and drug-target interactions, as well as biochemical pathways. Data originate from currently 31 public resources for interactions (listed below) and interactions that we have curated from the literature. The interaction data are integrated in a complementary manner (avoiding redundancies), resulting in a seamless interaction network containing different types of interactions.         
-1. Gene expression: [Genotype-Tissue Expression (GTEx)](https://gtexportal.org/home/).  
+4. Gene expression: [Genotype-Tissue Expression (GTEx)](https://gtexportal.org/home/).  
 The Genotype-Tissue Expression (GTEx) project is an ongoing effort to build a comprehensive public resource to study tissue-specific gene expression and regulation. Samples were collected from 54 non-diseased tissue sites across nearly 1000 individuals, primarily for molecular assays including WGS, WES, and RNA-Seq. 
+
 
 ## Services included in BioAPI
 
+
 ### Gene symbol validator
+
 Searches the identifier of a gene of different genomic databases and returns the approved symbol according to HGNC.  
 
 - URL: /gene-symbol/<*gene_id*>
@@ -43,7 +49,8 @@ Searches the identifier of a gene of different genomic databases and returns the
 
 
 ### Genes symbols validator
-Searches the identifier of a list of genes of differents genomics databases and returns the approved symbols according to HGNC nomenclature.  
+
+Searches the identifier of a list of genes of different genomics databases and returns the approved symbols according to HGNC nomenclature.  
 
 - URL: /genes-symbols
 
@@ -111,11 +118,46 @@ Service that takes a string of any length and returns a list of genes that conta
             }
             ```  
 
+### Genes symbols finder
+Service that takes a string of any length and returns a list of genes that contain that search criteria.  
+
+- URL: /genes-symbols-finder
+
+- Method: GET  
+
+- Params: 
+    - `query` : gene search string
+    - `limit`: number of elements returned by the service. Default 50.
+
+- Success Response:
+    - Code: 200
+    - Content:
+        - `<potential_gene_symbols>`: a list of gene symbols matching the search criteria.  
+    - Example:
+        - URL: http://localhost:8000/genes-symbols-finder?limit=50&query=BRC
+        - Response:
+            ```json
+            {
+                "potential_gene_symbols": [
+                    "BRCA1",
+                    "BRCA1P1",
+                    "BRCA2",
+                    "BRCC3",
+                    "BRCC3P1",
+                    "uc002brc.2",
+                    "uc003brc.4",
+                    "uc060brc.1",
+                    "Q9BRC7"
+                ]
+            }
+            ```  
+
 ### Gene Groups
+
 Gets the identifier of a gene, validates it and then returns the group of genes to which it belongs according to HGNC, and all the other genes that belong to the same group.  
 
 - URL: /genes-same-group/<*gene_id*>
-    - <*gene_id*> is the dentifier of the gene for any database  
+    - <*gene_id*> is the identifier of the gene for any database  
 
 - Method: GET  
 
@@ -154,6 +196,7 @@ Gets the identifier of a gene, validates it and then returns the group of genes 
                 "locus_type": "gene with protein product"
             }
             ```  
+
 
 ### Genes of a metabolic pathway
 Get the list of genes that are involved in a pathway for a given database.
@@ -201,7 +244,9 @@ Get the list of genes that are involved in a pathway for a given database.
             }
             ```  
 
-### Metabolic pathways from different genes  
+
+### Metabolic pathways from different genes
+
 Gets the common pathways for a list of genes.
 
 - URL: /genes-pathways-intersection
@@ -236,6 +281,7 @@ Gets the common pathways for a list of genes.
             }
             ```  
 
+
 ### Gene expression  
 This service gets gene expression in healthy tissue
 
@@ -262,26 +308,26 @@ This service gets gene expression in healthy tissue
             [
                 [
                     {
-                        "BRCA1": 1.627,
+                        "BRCA1": 1.627
                     },
                     {
-                        "BRCA2": 0.2182,
+                        "BRCA2": 0.2182
                     }
                 ],
                 [
                     {
-                        "BRCA1": 1.27,
+                        "BRCA1": 1.27
                     },
                     {
-                        "BRCA2": 0.4777,
+                        "BRCA2": 0.4777
                     }
                 ],
                 [
                     {
-                        "BRCA1": 1.462,
+                        "BRCA1": 1.462
                     },
                     {
-                        "BRCA2": 0.4883,
+                        "BRCA2": 0.4883
                     }
                 ]
             ]
@@ -290,10 +336,38 @@ This service gets gene expression in healthy tissue
             - As an example only three samples are shown. Note that in the GTEx database there may be more than 2500 samples for a given healthy tissue.
             - If one of the genes entered as a parameter corresponds to an invalid symbol, the response will omit the values for that gene. It is recommended to use the *"Genes symbols validator"* service to validate your genes before using this functionality.
 
-## Error Responses  
+
+## Error Responses
+
 The possible error codes are 400, 404 and 500. The content of each of them is a Json with a unique key called "error" where its value is a description of the problem that produces the error. For example:  
 ```json
 {
     "error": "404 Not Found: invalid gene identifier"
 }
 ```
+
+
+## Contributing
+
+All kind of contribution is welcome! If you want to contribute just:
+
+1. Fork this repository.
+2. Create a new branch and introduce there your new changes.
+3. Make a Pull Request!
+
+
+### Run Flask dev server
+
+1. Start up Docker services like MongoDb: `docker compose -f docker-compose.dev.yml up -d`
+2. Go to the `bioapi` folder.
+3. Run Flask server: `python3 bioapi.py`
+
+**NOTE:** If you are looking for documentation for a production deployment see [DEPLOYING.md](DEPLOYING.md).
+
+
+### Tests
+
+To run all the tests:
+
+1. Go to the `bioapi` folder.
+2. Run the `pytest` command.

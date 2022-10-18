@@ -2,7 +2,7 @@ version: '3.7'
 services:
     # MongoDB Server
     mongo:
-        image: mongo:4.2
+        image: mongo:6.0.2
         container_name: bio_api_mongo_db
         environment:
             MONGO_INITDB_ROOT_USERNAME: root
