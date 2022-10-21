@@ -13,6 +13,7 @@ from multiprocessing import Pool
 
 # Gets production flag
 IS_DEBUG: bool = os.environ.get('DEBUG', 'true') == 'true'
+PROCESS=8
 
 # Gets configuration
 Config = configparser.ConfigParser()
@@ -224,7 +225,7 @@ def create_app():
             def add_result(res):
                 tem_list.append(res)
 
-            buscar_gen = Pool(processes = 8)
+            buscar_gen = Pool(processes = PROCESS)
 
             body = request.get_json()
             if "genes_ids" not in list(body.keys()):
