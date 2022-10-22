@@ -83,8 +83,6 @@ def map_gene(gene: str) -> List[str]:
     # Generates query
     or_search = [{db: {"$regex": er}} for db in dbs]
     query = {'$or': or_search}
-    #projection = {'_id': 0, 'symbol': 1}
-    # docs = collection_hgnc.find(query, projection)
     docs = collection_hgnc.find(query)
     return [doc["symbol"] for doc in docs]
 
@@ -98,6 +96,7 @@ def get_potential_gene_symbols(query_string, limit_elements):
            "kznf_gene_catalog", "mamit-trnadb", "cd", "lncrnadb", "enzyme_id", "intermediate_filament_db", "agr"]
 
     res = []
+    limit_elements_full = False
     for db in dbs:
         query = {db: {"$regex": er}, "status": "Approved"}
         projection = {'_id': 0, db: 1}
@@ -108,7 +107,10 @@ def get_potential_gene_symbols(query_string, limit_elements):
                 # Removes duplicated (it's possible that different DBs have the same gene symbol)
                 res = list(dict.fromkeys(res))
             else:
+                limit_elements_full = True
                 break
+        if limit_elements_full:
+            break
     return res
 
 
