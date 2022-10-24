@@ -9,6 +9,7 @@ import urllib.parse
 from typing import List
 from flask import Flask, jsonify, make_response, abort, render_template, request
 from pymongo.database import Database
+from pymongo.collation import Collation, CollationStrength
 from multiprocessing import Pool
 
 # Gets production flag
@@ -71,9 +72,8 @@ def map_gene(gene: str) -> List[str]:
     Gets all the aliases for a specific gene
     :return List of aliases
     """
-    er = re.compile("^" + re.escape(gene) + "$", re.IGNORECASE)
-    db=get_mongo_connection()
-    collection_hgnc = db["hgnc"]  # HGNC collection
+    #db=get_mongo_connection()
+    collection_hgnc = mydb["hgnc"]  # HGNC collection
 
     dbs = ["hgnc_id", "symbol", "alias_symbol", "prev_symbol", "entrez_id", "ensembl_gene_id", "vega_id",
            "ucsc_id", "ena", "refseq_accession", "ccds_id", "uniprot_ids", "cosmic", "omim_id", "mirbase", "homeodb",
@@ -81,9 +81,10 @@ def map_gene(gene: str) -> List[str]:
            "kznf_gene_catalog", "mamit-trnadb", "cd", "lncrnadb", "enzyme_id", "intermediate_filament_db", "agr"]
 
     # Generates query
-    or_search = [{db: {"$regex": er}} for db in dbs]
+    or_search = [{db: gene} for db in dbs]
     query = {'$or': or_search}
-    docs = collection_hgnc.find(query)
+    coll=Collation(locale='en', strength=CollationStrength.SECONDARY)
+    docs = collection_hgnc.find(query, collation=coll)
     return [doc["symbol"] for doc in docs]
 
 
@@ -98,7 +99,7 @@ def get_potential_gene_symbols(query_string, limit_elements):
     res = []
     limit_elements_full = False
     for db in dbs:
-        query = {db: {"$regex": er}, "status": "Approved"}
+        query = {db: {"$regex": er}}
         projection = {'_id': 0, db: 1}
         docs = collection_hgnc.find(query, projection)
         for doc in docs:
