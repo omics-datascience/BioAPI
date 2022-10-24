@@ -1,7 +1,33 @@
-db_name = 'bio_api';
-db = db.getSiblingDB(db_name);
-db.hgnc.createIndex( { 'symbol': 1 } );
-db.hgnc.createIndex( { 'alias_symbol': 1 } );
-db.hgnc.createIndex( { 'prev_symbol': 1 } );
-db.hgnc.createIndex( { 'entrez_id': 1 } );
-db.hgnc.createIndex( { 'ensembl_gene_id': 1 } );
+db_name='bio_api';
+db=db.getSiblingDB(db_name);
+db.hgnc.createIndex({'symbol': 1}, { collation: { locale: 'en', strength: 2 } })
+db.hgnc.createIndex({'alias_symbol': 1}, { collation: { locale: 'en', strength: 2 } })
+db.hgnc.createIndex({'prev_symbol': 1}, { collation: { locale: 'en', strength: 2 } })
+db.hgnc.createIndex({'entrez_id': 1}, { collation: { locale: 'en', strength: 2 } })
+db.hgnc.createIndex({'ensembl_gene_id': 1}, { collation: { locale: 'en', strength: 2 } })
+db.hgnc.createIndex({"hgnc_id": 1}, { collation: { locale: 'en', strength: 2 } })
+db.hgnc.createIndex({"vega_id": 1}, { collation: { locale: 'en', strength: 2 } })
+db.hgnc.createIndex({"ucsc_id": 1}, { collation: { locale: 'en', strength: 2 } })
+db.hgnc.createIndex({"ena": 1}, { collation: { locale: 'en', strength: 2 } })
+db.hgnc.createIndex({"refseq_accession": 1}, { collation: { locale: 'en', strength: 2 } })
+db.hgnc.createIndex({"ccds_id": 1}, { collation: { locale: 'en', strength: 2 } })
+db.hgnc.createIndex({"uniprot_ids": 1}, { collation: { locale: 'en', strength: 2 } })
+db.hgnc.createIndex({"cosmic": 1}, { collation: { locale: 'en', strength: 2 } })
+db.hgnc.createIndex({"omim_id": 1}, { collation: { locale: 'en', strength: 2 } })
+db.hgnc.createIndex({"mirbase": 1}, { collation: { locale: 'en', strength: 2 } })
+db.hgnc.createIndex({"homeodb": 1}, { collation: { locale: 'en', strength: 2 } })
+db.hgnc.createIndex({"snornabase": 1}, { collation: { locale: 'en', strength: 2 } })
+db.hgnc.createIndex({"bioparadigms_slc": 1}, { collation: { locale: 'en', strength: 2 } })
+db.hgnc.createIndex({"orphanet": 1}, { collation: { locale: 'en', strength: 2 } })
+db.hgnc.createIndex({"pseudogene": 1}, { collation: { locale: 'en', strength: 2 } })
+db.hgnc.createIndex({"horde_id": 1}, { collation: { locale: 'en', strength: 2 } })
+db.hgnc.createIndex({"merops": 1}, { collation: { locale: 'en', strength: 2 } })
+db.hgnc.createIndex({"imgt": 1}, { collation: { locale: 'en', strength: 2 } })
+db.hgnc.createIndex({"iuphar": 1}, { collation: { locale: 'en', strength: 2 } })
+db.hgnc.createIndex({"kznf_gene_catalog": 1}, { collation: { locale: 'en', strength: 2 } })
+db.hgnc.createIndex({"mamit-trnadb": 1}, { collation: { locale: 'en', strength: 2 } })
+db.hgnc.createIndex({"cd": 1}, { collation: { locale: 'en', strength: 2 } })
+db.hgnc.createIndex({"lncrnadb": 1}, { collation: { locale: 'en', strength: 2 } })
+db.hgnc.createIndex({"enzyme_id": 1}, { collation: { locale: 'en', strength: 2 } })
+db.hgnc.createIndex({"intermediate_filament_db": 1}, { collation: { locale: 'en', strength: 2 } })
+db.hgnc.createIndex({"agr": 1}, { collation: { locale: 'en', strength: 2 } })

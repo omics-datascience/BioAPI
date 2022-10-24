@@ -9,9 +9,12 @@ import urllib.parse
 from typing import List
 from flask import Flask, jsonify, make_response, abort, render_template, request
 from pymongo.database import Database
+from pymongo.collation import Collation, CollationStrength
+from multiprocessing import Pool
 
 # Gets production flag
 IS_DEBUG: bool = os.environ.get('DEBUG', 'true') == 'true'
+PROCESS=8
 
 # Gets configuration
 Config = configparser.ConfigParser()
@@ -64,29 +67,29 @@ def get_mongo_connection() -> Database:
 
 mydb = get_mongo_connection()
 
-
 def map_gene(gene: str) -> List[str]:
     """
     Gets all the aliases for a specific gene
     :return List of aliases
     """
-    er = re.compile("^" + re.escape(gene) + "$", re.IGNORECASE)
+    #db=get_mongo_connection()
     collection_hgnc = mydb["hgnc"]  # HGNC collection
-    dbs = ["hgnc_id", "symbol", "status", "alias_symbol", "prev_symbol", "entrez_id", "ensembl_gene_id", "vega_id",
+
+    dbs = ["hgnc_id", "symbol", "alias_symbol", "prev_symbol", "entrez_id", "ensembl_gene_id", "vega_id",
            "ucsc_id", "ena", "refseq_accession", "ccds_id", "uniprot_ids", "cosmic", "omim_id", "mirbase", "homeodb",
            "snornabase", "bioparadigms_slc", "orphanet", "pseudogene", "horde_id", "merops", "imgt", "iuphar",
            "kznf_gene_catalog", "mamit-trnadb", "cd", "lncrnadb", "enzyme_id", "intermediate_filament_db", "agr"]
 
     # Generates query
-    or_search = [{db: {"$regex": er}} for db in dbs]
-    query = {'$or': or_search, "status": "Approved"}
-    projection = {'_id': 0, 'symbol': 1}
-    docs = collection_hgnc.find(query, projection)
+    or_search = [{db: gene} for db in dbs]
+    query = {'$or': or_search}
+    coll=Collation(locale='en', strength=CollationStrength.SECONDARY)
+    docs = collection_hgnc.find(query, collation=coll)
     return [doc["symbol"] for doc in docs]
 
 
 def get_potential_gene_symbols(query_string, limit_elements):
-    er = re.compile(re.escape(query_string), re.IGNORECASE)
+    er = re.compile("^" + re.escape(query_string), re.IGNORECASE)
     collection_hgnc = mydb["hgnc"]  # HGNC collection
     dbs = ["hgnc_id", "symbol", "entrez_id", "ensembl_gene_id", "vega_id",
            "ucsc_id", "ena", "refseq_accession", "ccds_id", "uniprot_ids", "cosmic", "omim_id", "mirbase", "homeodb",
@@ -94,8 +97,9 @@ def get_potential_gene_symbols(query_string, limit_elements):
            "kznf_gene_catalog", "mamit-trnadb", "cd", "lncrnadb", "enzyme_id", "intermediate_filament_db", "agr"]
 
     res = []
+    limit_elements_full = False
     for db in dbs:
-        query = {db: {"$regex": er}, "status": "Approved"}
+        query = {db: {"$regex": er}}
         projection = {'_id': 0, db: 1}
         docs = collection_hgnc.find(query, projection)
         for doc in docs:
@@ -104,7 +108,10 @@ def get_potential_gene_symbols(query_string, limit_elements):
                 # Removes duplicated (it's possible that different DBs have the same gene symbol)
                 res = list(dict.fromkeys(res))
             else:
+                limit_elements_full = True
                 break
+        if limit_elements_full:
+            break
     return res
 
 
@@ -217,6 +224,12 @@ def create_app():
         In case it is not found it returns an empty list for the specific not found gene."""
         response = {}
         if request.method == 'POST':
+            tem_list = []
+            def add_result(res):
+                tem_list.append(res)
+
+            buscar_gen = Pool(processes = PROCESS)
+
             body = request.get_json()
             if "genes_ids" not in list(body.keys()):
                 abort(400, "genes_ids is mandatory")
@@ -226,9 +239,11 @@ def create_app():
                 abort(400, "genes_ids must be a list")
 
             try:
-                for gene in genes_ids:
-                    gv = map_gene(gene)
-                    response[gene] = gv
+                res = [buscar_gen.apply_async(map_gene, args = (gene, ), callback=add_result) for gene in genes_ids]
+                buscar_gen.close()  # close the process pool
+                buscar_gen.join() # wait for all tasks to complete
+                for i in range(0,len(genes_ids)):
+                    response[genes_ids[i]]=res[i].get()
             except Exception as e:
                 abort(400, e)
         return make_response(response, 200, headers)
