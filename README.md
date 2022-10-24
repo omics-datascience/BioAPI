@@ -90,58 +90,18 @@ Service that takes a string of any length and returns a list of genes that conta
     - `limit`: number of elements returned by the service. Default 50.
 - Success Response:
     - Code: 200
-    - Content:
-        - `<potential_gene_symbols>`: a list of gene symbols matching the search criteria.  
+    - Content: a list of gene symbols matching the search criteria.  
     - Example:
-        - URL: http://localhost:8000/genes-symbols-finder?limit=50&query=BRC
+        - URL: http://localhost:8000/genes-symbols-finder/?limit=50&query=BRC
         - Response:
             ```json
-            {
-                "potential_gene_symbols": [
-                    "BRCA1",
-                    "BRCA1P1",
-                    "BRCA2",
-                    "BRCC3",
-                    "BRCC3P1",
-                    "uc002brc.2",
-                    "uc003brc.4",
-                    "uc060brc.1",
-                    "Q9BRC7"
-                ]
-            }
-            ```  
-
-
-### Genes symbols finder
-
-Service that takes a string of any length and returns a list of genes that contain that search criteria.  
-
-- URL: /genes-symbols-finder
-- Method: GET  
-- Params: 
-    - `query` : gene search string
-    - `limit`: number of elements returned by the service. Default 50.
-- Success Response:
-    - Code: 200
-    - Content:
-        - `<potential_gene_symbols>`: a list of gene symbols matching the search criteria.  
-    - Example:
-        - URL: http://localhost:8000/genes-symbols-finder?limit=50&query=BRC
-        - Response:
-            ```json
-            {
-                "potential_gene_symbols": [
-                    "BRCA1",
-                    "BRCA1P1",
-                    "BRCA2",
-                    "BRCC3",
-                    "BRCC3P1",
-                    "uc002brc.2",
-                    "uc003brc.4",
-                    "uc060brc.1",
-                    "Q9BRC7"
-                ]
-            }
+            [
+                "BRCA1",
+                "BRCA1P1",
+                "BRCA2",
+                "BRCC3",
+                "BRCC3P1"
+            ]
             ```  
 
 
