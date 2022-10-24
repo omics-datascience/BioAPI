@@ -212,7 +212,7 @@ def create_app():
         return make_response(response, 200, headers)
 
     @flask_app.route("/genes-symbols", methods=['POST'])
-    def gene_symbols():
+    def genes_symbols():
         """Receives a list of genes IDs in any standard and returns the standardized corresponding genes IDs.
         In case it is not found it returns an empty list for the specific not found gene."""
         response = {}
@@ -234,7 +234,7 @@ def create_app():
         return make_response(response, 200, headers)
 
     @flask_app.route("/genes-symbols-finder", methods=['GET'])
-    def gen_symbol_finder():
+    def genes_symbol_finder():
         """Takes a string of any length and returns a list of genes that contain that search criteria."""
         query = None  # To prevent MyPy warning
         if "query" not in request.args:
