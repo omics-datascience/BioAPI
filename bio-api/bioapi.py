@@ -219,7 +219,7 @@ def create_app():
         return make_response(response, 200, headers)
 
     @flask_app.route("/genes-symbols", methods=['POST'])
-    def gene_symbols():
+    def genes_symbols():
         """Receives a list of genes IDs in any standard and returns the standardized corresponding genes IDs.
         In case it is not found it returns an empty list for the specific not found gene."""
         response = {}
@@ -248,8 +248,8 @@ def create_app():
                 abort(400, e)
         return make_response(response, 200, headers)
 
-    @flask_app.route("/genes-symbols-finder", methods=['GET'])
-    def gen_symbol_finder():
+    @flask_app.route("/genes-symbols-finder/", methods=['GET'])
+    def genes_symbol_finder():
         """Takes a string of any length and returns a list of genes that contain that search criteria."""
         query = None  # To prevent MyPy warning
         if "query" not in request.args:
@@ -259,22 +259,17 @@ def create_app():
 
         limit = 50
         if "limit" in request.args:
-            if request.args.get('limit').isnumeric():
-                limit = int(request.args.get('limit'))
+            limit_arg = request.args.get('limit')
+            if limit_arg.isnumeric():
+                limit = int(limit_arg)
             else:
                 abort(400, "'limit' parameter must be a numeric value")
 
-        response = {}  # To prevent MyPy warning
         try:
-            possibles_symbols = get_potential_gene_symbols(query, limit)
-            response = {"potential_gene_symbols": possibles_symbols}
-        except TypeError as e:
+            response = get_potential_gene_symbols(query, limit)
+            return make_response(json.dumps(response), 200, headers)
+        except (TypeError, ValueError, KeyError) as e:
             abort(400, e)
-        except ValueError as e:
-            abort(400, e)
-        except KeyError as e:
-            abort(400, e)
-        return make_response(response, 200, headers)
 
     @flask_app.route("/genes-same-group/<gene_id>", methods=['GET'])
     def genes_of_the_same_family(gene_id):
