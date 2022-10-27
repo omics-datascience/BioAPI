@@ -20,7 +20,7 @@ Below are the steps to perform a production deploy of BioAPI.
 2. Make a copy of `docker-compose_dist.yml` with the name `docker-compose.yml` and set the environment variables that are empty with data. They are listed below by category:
     - MongoDB Server:
         - `MONGO_INITDB_ROOT_USERNAME` and `MONGO_INITDB_ROOT_PASSWORD`: These variables are the username and password that will be created in MongoDB for the "*admin*" database.  
-        - `deploy.resources.limits.memory`: By default, 12GB of memory is allocated for MongoDB. Modify this value if you need it.  
+        - `deploy.resources.limits.memory`: By default, 6GB of memory is allocated for MongoDB. Modify this value if you need it.  
     - BioAPI Server:
         - `MONGO_USER` and `MONGO_PASSWORD`: These variables are the username and password for BioAPI to access MongoDB. These credentials must be the same ones that were set for the MongoDB server.
 3. (Optional) Optimize Mongo by changing the configuration in the `config/mongo/mongod.conf` file and uncommenting the reference in the `docker-compose.yml` and/or `docker-compose.dev.yml`.

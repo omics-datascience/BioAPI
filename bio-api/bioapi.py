@@ -6,7 +6,7 @@ import logging
 import pymongo
 import configparser
 import urllib.parse
-from typing import List
+from typing import List, Dict
 from flask import Flask, jsonify, make_response, abort, render_template, request
 from pymongo.database import Database
 from pymongo.collation import Collation, CollationStrength
@@ -14,6 +14,7 @@ from multiprocessing import Pool
 
 # Gets production flag
 IS_DEBUG: bool = os.environ.get('DEBUG', 'true') == 'true'
+
 PROCESS=8
 
 # Gets configuration
@@ -161,6 +162,32 @@ def get_pathways_of_gene(gene):
     return [str(doc) for doc in docs]
 
 
+def get_information_of_genes(genes: List[str]) -> Dict:
+    res = {}
+    collection_ensembl_gene_grch37 = mydb["ensembl_gene_grch37"] 
+    collection_ensembl_gene_grch38 = mydb["ensembl_gene_grch38"] 
+
+    # Generates query
+    query = {"hgnc_symbol":{"$in": genes} }
+    projection = {'_id': 0, 'hgnc_symbol': 1, 'gene_biotype': 1, 'chromosome_name': 1, 'start_position': 1, 'end_position': 1}
+    docs_grch37 = collection_ensembl_gene_grch37.find(query, projection)
+    docs_grch38 = collection_ensembl_gene_grch38.find(query, projection)
+
+    for doc_grch38 in docs_grch38:
+        res[doc_grch38["hgnc_symbol"]] = {}
+        res[doc_grch38["hgnc_symbol"]]["type"] = doc_grch38["gene_biotype"]
+        res[doc_grch38["hgnc_symbol"]]["chromosome"] = str(doc_grch38["chromosome_name"])
+        res[doc_grch38["hgnc_symbol"]]["start"] = str(doc_grch38["start_position"])
+        res[doc_grch38["hgnc_symbol"]]["end"] = str(doc_grch38["end_position"])
+    
+    for doc_grch37 in docs_grch37:
+        if doc_grch37["hgnc_symbol"] in res:
+            res[doc_grch37["hgnc_symbol"]]["start_GRCh37"] = str(doc_grch37["start_position"])
+            res[doc_grch37["hgnc_symbol"]]["end_GRCh37"] = str(doc_grch37["end_position"])
+ 
+    return res
+
+
 def get_expression_from_gtex(tissue: str, genes: List) -> List:
     collection = mydb["gtex_" + tissue]  # Connects to specific tissue's collection
     query = {'gene': {'$in': genes}}
@@ -270,6 +297,24 @@ def create_app():
             return make_response(json.dumps(response), 200, headers)
         except (TypeError, ValueError, KeyError) as e:
             abort(400, e)
+
+    @flask_app.route("/genes-information", methods=['POST'])
+    def genes_information():
+        """Receives a list of genes IDs and returns information from Ensembl about them."""
+        if request.method == 'POST':
+            body = request.get_json()
+            if "genes_ids" not in list(body.keys()):
+                abort(400, "genes_ids is mandatory")
+
+            genes_ids = body['genes_ids']
+            if type(genes_ids) != list:
+                abort(400, "genes_ids must be a list")
+
+            try:
+                response = get_information_of_genes(genes_ids)
+            except Exception as e:
+                abort(400, e)
+        return make_response(response, 200, headers)
 
     @flask_app.route("/genes-same-group/<gene_id>", methods=['GET'])
     def genes_of_the_same_family(gene_id):
