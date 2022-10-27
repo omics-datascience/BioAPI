@@ -14,6 +14,8 @@ services:
             # Mounts initialize script as read-only
             - mongo_data:/data/db
             - mongo_config:/data/configdb
+            # Uncomment if you want custom MongoDB config
+            # - ./config/mongo/mongod.conf:/etc/mongo/mongod.conf
         deploy:
             resources:
                 limits:

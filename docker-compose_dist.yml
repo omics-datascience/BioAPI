@@ -7,6 +7,8 @@ services:
         volumes:
             - mongo_data:/data/db
             - mongo_config:/data/configdb
+            # Uncomment if you want custom MongoDB config
+            # - ./config/mongo/mongod.conf:/etc/mongo/mongod.conf
         environment:
             MONGO_INITDB_ROOT_USERNAME: '' # Complete
             MONGO_INITDB_ROOT_PASSWORD: '' # Complete
@@ -18,7 +20,7 @@ services:
 
     # BioAPI server
     web:
-        image: omicsdatascience/bio-api:0.1.1
+        image: omicsdatascience/bio-api:0.1.2
         environment:
             DEBUG: 'false'
             # MongoDB's credentials must be the same as 'mongo' service above
