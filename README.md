@@ -105,6 +105,54 @@ Service that takes a string of any length and returns a list of genes that conta
             ```  
 
 
+### Genes information
+
+From a list of valid genes, obtain their descriptions, types and chromosomal coordinates for the reference human genomes GRCh37 and GRCh37.  
+
+- URL: /genes-symbols
+- Method: POST  
+- Params: A body in Json format with the following content
+    -  `genes_ids` : list of valid genes identifiers  
+- Success Response:
+    - Code: 200
+    - Content:
+        - `<genes_ids>`: Returns a Json with as many keys as there are genes in the body. For each gene, the value is a Json with the following format:
+            -   `description` : gene description
+            -   `type` : gene type (example: protein_coding)
+            -   `chromosome` : chromosome where the gene is located
+            -   `start` : chromosomal position of gene starts for the reference genome GRCh38
+            -   `end` : chromosomal position of gene ends for the reference genome GRCh38
+            -   `start_GRCh37` : chromosomal position of gene starts for the reference genome GRCh37
+            -   `end_GRCh37` : chromosomal position of gene ends for the reference genome GRCh37
+    - Example:
+        - URL: http://localhost:8000/genes-information
+        - body: 
+        `{    "genes_ids" : ["ACTN4","ACTR3C"]    }`
+        - Response:
+            ```json
+            {
+                "ACTN4": 
+                {
+                    "chromosome": "19",
+                    "end": "38731589",
+                    "end_GRCh37": "39222223",
+                    "start": "38647649",
+                    "start_GRCh37": "39138289",
+                    "type": "protein_coding"
+                },
+                "ACTR3C": 
+                {
+                    "chromosome": "7",
+                    "end": "150323725",
+                    "end_GRCh37": "150020814",
+                    "start": "150243916",
+                    "start_GRCh37": "149941005",
+                    "type": "protein_coding"
+                }
+            }
+            ```  
+
+
 ### Gene Groups
 
 Gets the identifier of a gene, validates it and then returns the group of genes to which it belongs according to HGNC, and all the other genes that belong to the same group.  

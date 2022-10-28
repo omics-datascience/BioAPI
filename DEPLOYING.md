@@ -89,6 +89,13 @@ pip install -r config/genomic_db_conf/requirements.txt
     ```bash
     ./gtex2mongodb.sh
     ```
+4. Gene information: [Ensembl (Biomart tool)](https://www.ensembl.org/biomart/martview/)
+    - Go to the path "databases/ensembl_gene"
+    - Edit the empty variables `user` and `password` with the credentials configured in step 2. 
+    - Run the bash script:  
+    ```bash
+    ./ensembl_gene2mongodb.sh
+    ```
 
 
 ## Run BioAPI
