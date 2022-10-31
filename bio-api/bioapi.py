@@ -15,7 +15,8 @@ from multiprocessing import Pool
 # Gets production flag
 IS_DEBUG: bool = os.environ.get('DEBUG', 'true') == 'true'
 
-PROCESS=8
+# Config the number of process when using multiprocessing
+PROCESS = 8
 
 # Gets configuration
 Config = configparser.ConfigParser()
@@ -68,13 +69,14 @@ def get_mongo_connection() -> Database:
 
 mydb = get_mongo_connection()
 
+
 def map_gene(gene: str) -> List[str]:
     """
     Gets all the aliases for a specific gene
     :return List of aliases
     """
-    #db=get_mongo_connection()
-    collection_hgnc = mydb["hgnc"]  # HGNC collection
+    db = get_mongo_connection()
+    collection_hgnc = db["hgnc"]  # HGNC collection
 
     dbs = ["hgnc_id", "symbol", "alias_symbol", "prev_symbol", "entrez_id", "ensembl_gene_id", "vega_id",
            "ucsc_id", "ena", "refseq_accession", "ccds_id", "uniprot_ids", "cosmic", "omim_id", "mirbase", "homeodb",
@@ -84,9 +86,11 @@ def map_gene(gene: str) -> List[str]:
     # Generates query
     or_search = [{db: gene} for db in dbs]
     query = {'$or': or_search}
-    coll=Collation(locale='en', strength=CollationStrength.SECONDARY)
+    coll = Collation(locale='en', strength=CollationStrength.SECONDARY)
     docs = collection_hgnc.find(query, collation=coll)
-    return [doc["symbol"] for doc in docs]
+    res = [doc["symbol"] for doc in docs]
+    db.client.close()
+    return res
 
 
 def get_potential_gene_symbols(query_string, limit_elements):
@@ -164,12 +168,13 @@ def get_pathways_of_gene(gene):
 
 def get_information_of_genes(genes: List[str]) -> Dict:
     res = {}
-    collection_ensembl_gene_grch37 = mydb["ensembl_gene_grch37"] 
-    collection_ensembl_gene_grch38 = mydb["ensembl_gene_grch38"] 
+    collection_ensembl_gene_grch37 = mydb["ensembl_gene_grch37"]
+    collection_ensembl_gene_grch38 = mydb["ensembl_gene_grch38"]
 
     # Generates query
-    query = {"hgnc_symbol":{"$in": genes} }
-    projection = {'_id': 0, 'description': 1,'hgnc_symbol': 1, 'gene_biotype': 1, 'chromosome_name': 1, 'start_position': 1, 'end_position': 1}
+    query = {"hgnc_symbol": {"$in": genes}}
+    projection = {'_id': 0, 'description': 1, 'hgnc_symbol': 1, 'gene_biotype': 1, 'chromosome_name': 1,
+                  'start_position': 1, 'end_position': 1}
     docs_grch37 = collection_ensembl_gene_grch37.find(query, projection)
     docs_grch38 = collection_ensembl_gene_grch38.find(query, projection)
 
@@ -180,12 +185,12 @@ def get_information_of_genes(genes: List[str]) -> Dict:
         res[doc_grch38["hgnc_symbol"]]["chromosome"] = str(doc_grch38["chromosome_name"])
         res[doc_grch38["hgnc_symbol"]]["start"] = str(doc_grch38["start_position"])
         res[doc_grch38["hgnc_symbol"]]["end"] = str(doc_grch38["end_position"])
-    
+
     for doc_grch37 in docs_grch37:
         if doc_grch37["hgnc_symbol"] in res:
             res[doc_grch37["hgnc_symbol"]]["start_GRCh37"] = str(doc_grch37["start_position"])
             res[doc_grch37["hgnc_symbol"]]["end_GRCh37"] = str(doc_grch37["end_position"])
- 
+
     return res
 
 
@@ -252,11 +257,7 @@ def create_app():
         In case it is not found it returns an empty list for the specific not found gene."""
         response = {}
         if request.method == 'POST':
-            tem_list = []
-            def add_result(res):
-                tem_list.append(res)
-
-            buscar_gen = Pool(processes = PROCESS)
+            buscar_gen = Pool(processes=PROCESS)
 
             body = request.get_json()
             if "genes_ids" not in list(body.keys()):
@@ -267,11 +268,11 @@ def create_app():
                 abort(400, "genes_ids must be a list")
 
             try:
-                res = [buscar_gen.apply_async(map_gene, args = (gene, ), callback=add_result) for gene in genes_ids]
+                res = [buscar_gen.apply_async(map_gene, args=(gene,)) for gene in genes_ids]
                 buscar_gen.close()  # close the process pool
-                buscar_gen.join() # wait for all tasks to complete
-                for i in range(0,len(genes_ids)):
-                    response[genes_ids[i]]=res[i].get()
+                buscar_gen.join()  # wait for all tasks to complete
+                for i in range(0, len(genes_ids)):
+                    response[genes_ids[i]] = res[i].get()
             except Exception as e:
                 abort(400, e)
         return make_response(response, 200, headers)
