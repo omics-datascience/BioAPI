@@ -63,10 +63,12 @@ To import all databases in MongoDB:
 
 Alternatively (but **not recommended** due to high computational demands) you can run a separate ETL process to download from source, process and import the databases into MongoDB. The ETL process is programmed in a single bash script for each database and is shown below:  
 
-First, you must install the necessary requirements. They can be installed using
-```bash
-pip install -r config/genomic_db_conf/requirements.txt
-```
+First, you must install the necessary requirements.  
+- [R languaje](https://www.r-project.org/). Version 4.1.2 or later.
+- Some python packages. They can be installed using
+    ```bash
+    pip install -r config/genomic_db_conf/requirements.txt
+    ```
 
 1. Metabolic pathways: [ConsensusPathDB](http://cpdb.molgen.mpg.de/)  
     - Go to the path "databases/cpdb"

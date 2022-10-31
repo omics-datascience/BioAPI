@@ -169,12 +169,13 @@ def get_information_of_genes(genes: List[str]) -> Dict:
 
     # Generates query
     query = {"hgnc_symbol":{"$in": genes} }
-    projection = {'_id': 0, 'hgnc_symbol': 1, 'gene_biotype': 1, 'chromosome_name': 1, 'start_position': 1, 'end_position': 1}
+    projection = {'_id': 0, 'description': 1,'hgnc_symbol': 1, 'gene_biotype': 1, 'chromosome_name': 1, 'start_position': 1, 'end_position': 1}
     docs_grch37 = collection_ensembl_gene_grch37.find(query, projection)
     docs_grch38 = collection_ensembl_gene_grch38.find(query, projection)
 
     for doc_grch38 in docs_grch38:
         res[doc_grch38["hgnc_symbol"]] = {}
+        res[doc_grch38["hgnc_symbol"]]["description"] = doc_grch38["description"]
         res[doc_grch38["hgnc_symbol"]]["type"] = doc_grch38["gene_biotype"]
         res[doc_grch38["hgnc_symbol"]]["chromosome"] = str(doc_grch38["chromosome_name"])
         res[doc_grch38["hgnc_symbol"]]["start"] = str(doc_grch38["start_position"])

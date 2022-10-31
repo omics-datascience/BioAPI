@@ -133,6 +133,7 @@ From a list of valid genes, obtain their descriptions, types and chromosomal coo
             {
                 "ACTN4": 
                 {
+                    "description": "actinin alpha 4 [Source:HGNC Symbol;Acc:HGNC:166]",
                     "chromosome": "19",
                     "end": "38731589",
                     "end_GRCh37": "39222223",
@@ -142,6 +143,7 @@ From a list of valid genes, obtain their descriptions, types and chromosomal coo
                 },
                 "ACTR3C": 
                 {
+                    "description": "actin related protein 3C [Source:HGNC Symbol;Acc:HGNC:37282]",
                     "chromosome": "7",
                     "end": "150323725",
                     "end_GRCh37": "150020814",
