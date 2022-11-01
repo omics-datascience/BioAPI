@@ -75,8 +75,7 @@ def map_gene(gene: str) -> List[str]:
     Gets all the aliases for a specific gene
     :return List of aliases
     """
-    db = get_mongo_connection()
-    collection_hgnc = db["hgnc"]  # HGNC collection
+    collection_hgnc = mydb["hgnc"]  # HGNC collection
 
     dbs = ["hgnc_id", "symbol", "alias_symbol", "prev_symbol", "entrez_id", "ensembl_gene_id", "vega_id",
            "ucsc_id", "ena", "refseq_accession", "ccds_id", "uniprot_ids", "cosmic", "omim_id", "mirbase", "homeodb",
@@ -89,7 +88,6 @@ def map_gene(gene: str) -> List[str]:
     coll = Collation(locale='en', strength=CollationStrength.SECONDARY)
     docs = collection_hgnc.find(query, collation=coll)
     res = [doc["symbol"] for doc in docs]
-    db.client.close()
     return res
 
 
@@ -268,11 +266,8 @@ def create_app():
                 abort(400, "genes_ids must be a list")
 
             try:
-                res = [buscar_gen.apply_async(map_gene, args=(gene,)) for gene in genes_ids]
-                buscar_gen.close()  # close the process pool
-                buscar_gen.join()  # wait for all tasks to complete
-                for i in range(0, len(genes_ids)):
-                    response[genes_ids[i]] = res[i].get()
+                for gene in genes_ids:
+                    response[gene] = map_gene(gene)
             except Exception as e:
                 abort(400, e)
         return make_response(response, 200, headers)
