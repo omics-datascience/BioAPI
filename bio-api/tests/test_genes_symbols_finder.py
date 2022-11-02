@@ -6,11 +6,16 @@ header = {  'Content-Type': 'application/json'    }
 
 def test_response_format(client):
     """"Tests a valid response strucure"""
-    data = {"limit":2, "query": "brc"}
+    data = {"limit":100000, "query": "a"}
     response = client.get(path = URL_BASE, query_string = data, headers = header)
     res = json.loads(response.data)
     assert response.status_code == 200
     assert type(res) == list
+    for element in res:
+        assert type(element) == str
+    data = {"limit":2, "query": "brc"}
+    response = client.get(path = URL_BASE, query_string = data, headers = header)
+    res = json.loads(response.data)
     assert len(res) == 2
  
 

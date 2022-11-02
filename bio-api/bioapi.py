@@ -102,19 +102,24 @@ def get_potential_gene_symbols(query_string, limit_elements):
     res = []
     limit_elements_full = False
     for db in dbs:
+        if limit_elements_full:
+            break
         query = {db: {"$regex": er}}
         projection = {'_id': 0, db: 1}
         docs = collection_hgnc.find(query, projection)
         for doc in docs:
             if len(res) < limit_elements:
-                res.append(doc[db])
-                # Removes duplicated (it's possible that different DBs have the same gene symbol)
-                res = list(dict.fromkeys(res))
+                if type(doc[db]) == list:
+                    for id in doc[db]:
+                        if id.upper().startswith(query_string.upper()):
+                             if not id in res:
+                                res.append(id)
+                else:
+                    if not doc[db] in res:
+                        res.append(doc[db])
             else:
                 limit_elements_full = True
                 break
-        if limit_elements_full:
-            break
     return res
 
 
