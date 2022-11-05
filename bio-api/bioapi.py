@@ -17,9 +17,6 @@ IS_DEBUG: bool = os.environ.get('DEBUG', 'true') == 'true'
 # BioAPI version
 VERSION = '0.1.4'
 
-# Config the number of process when using multiprocessing
-PROCESS = 8
-
 # Gets configuration
 Config = configparser.ConfigParser()
 Config.read("config.txt")
