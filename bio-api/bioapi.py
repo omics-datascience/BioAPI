@@ -10,10 +10,12 @@ from typing import List, Dict
 from flask import Flask, jsonify, make_response, abort, render_template, request
 from pymongo.database import Database
 from pymongo.collation import Collation, CollationStrength
-from multiprocessing import Pool
 
 # Gets production flag
 IS_DEBUG: bool = os.environ.get('DEBUG', 'true') == 'true'
+
+# BioAPI version
+VERSION = '0.1.4'
 
 # Config the number of process when using multiprocessing
 PROCESS = 8
@@ -228,7 +230,7 @@ def create_app():
     # Endpoints
     @flask_app.route("/")
     def homepage():
-        return render_template('homePage.html')
+        return render_template('homePage.html', version=VERSION)
 
     @flask_app.route("/ping")
     def ping_ok():
