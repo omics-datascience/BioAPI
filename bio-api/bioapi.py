@@ -132,15 +132,18 @@ def search_gene_group(gen):  # AGREGAR LO QUE PASA SI NO PERTENECE A NINGUN gene
     docs_cursor = collection_hgnc.find(query)
     docs: List = list(docs_cursor)
     if len(docs) == 1:
-        results['locus_group'] = docs[0]['locus_group']
-        results['locus_type'] = docs[0]['locus_type']
-        if "gene_group" in list(docs[0].keys()):
-            if type(docs[0]['gene_group']) == list:
-                results['gene_group'] = docs[0]['gene_group']
-                results['gene_group_id'] = docs[0]['gene_group_id']
+        document = docs[0]
+
+        results['locus_group'] = document['locus_group']
+        results['locus_type'] = document['locus_type']
+
+        if "gene_group" in document:
+            if type(document['gene_group']) == list:
+                results['gene_group'] = document['gene_group']
+                results['gene_group_id'] = document['gene_group_id']
             else:
-                results['gene_group'] = [docs[0]['gene_group']]
-                results['gene_group_id'] = [docs[0]['gene_group_id']]
+                results['gene_group'] = [document['gene_group']]
+                results['gene_group_id'] = [document['gene_group_id']]
 
     return results
 
@@ -198,17 +201,24 @@ def get_information_of_genes(genes: List[str]) -> Dict:
 
 
 def get_expression_from_gtex(tissue: str, genes: List) -> List:
+    """
+    Gets all the expressions for a specific tissue and a list of genes
+    :param tissue: Tissue to filter
+    :param genes: List of genes to filter
+    :return: List of expressions
+    """
     collection = mydb["gtex_" + tissue]  # Connects to specific tissue's collection
     query = {'gene': {'$in': genes}}
     projection = {'_id': 0, 'expression': 1, 'gene': 1, 'sample_id': 1}
     docs = collection.find(query, projection)
     temp = {}
     for doc in docs:
-        if doc["sample_id"] not in temp:
-            temp[doc["sample_id"]] = {}
-        temp[doc["sample_id"]][doc["gene"]] = doc["expression"]
-    results = [temp[sample] for sample in temp.keys()]
-    return results
+        sample_id = doc["sample_id"]
+        if sample_id not in temp:
+            temp[sample_id] = {}
+        temp[sample_id][doc["gene"]] = doc["expression"]
+
+    return list(temp.values())
 
 
 def create_app():
@@ -259,22 +269,19 @@ def create_app():
         """Receives a list of genes IDs in any standard and returns the standardized corresponding genes IDs.
         In case it is not found it returns an empty list for the specific not found gene."""
         response = {}
-        if request.method == 'POST':
-            buscar_gen = Pool(processes=PROCESS)
+        body = request.get_json()
+        if "genes_ids" not in body:
+            abort(400, "genes_ids is mandatory")
 
-            body = request.get_json()
-            if "genes_ids" not in list(body.keys()):
-                abort(400, "genes_ids is mandatory")
+        genes_ids = body['genes_ids']
+        if type(genes_ids) != list:
+            abort(400, "genes_ids must be a list")
 
-            genes_ids = body['genes_ids']
-            if type(genes_ids) != list:
-                abort(400, "genes_ids must be a list")
-
-            try:
-                for gene in genes_ids:
-                    response[gene] = map_gene(gene)
-            except Exception as e:
-                abort(400, e)
+        try:
+            for gene in genes_ids:
+                response[gene] = map_gene(gene)
+        except Exception as e:
+            abort(400, e)
         return make_response(response, 200, headers)
 
     @flask_app.route("/genes-symbols-finder/", methods=['GET'])
@@ -303,19 +310,19 @@ def create_app():
     @flask_app.route("/genes-information", methods=['POST'])
     def genes_information():
         """Receives a list of genes IDs and returns information from Ensembl about them."""
-        if request.method == 'POST':
-            body = request.get_json()
-            if "genes_ids" not in list(body.keys()):
-                abort(400, "genes_ids is mandatory")
+        body = request.get_json()
+        if "genes_ids" not in body:
+            abort(400, "genes_ids is mandatory")
 
-            genes_ids = body['genes_ids']
-            if type(genes_ids) != list:
-                abort(400, "genes_ids must be a list")
+        genes_ids = body['genes_ids']
+        if type(genes_ids) != list:
+            abort(400, "genes_ids must be a list")
 
-            try:
-                response = get_information_of_genes(genes_ids)
-            except Exception as e:
-                abort(400, e)
+        try:
+            response = get_information_of_genes(genes_ids)
+        except Exception as e:
+            response = {}  # To prevent mypy warnings
+            abort(400, e)
         return make_response(response, 200, headers)
 
     @flask_app.route("/genes-same-group/<gene_id>", methods=['GET'])
@@ -362,60 +369,60 @@ def create_app():
 
     @flask_app.route("/genes-pathways-intersection", methods=['POST'])
     def genes_of_pathways():
-        if request.method == 'POST':
-            body = request.get_json()
-            if "genes_ids" not in list(body.keys()):
-                abort(400, "genes_ids is mandatory")
-            genes_ids = body['genes_ids']
-            if type(genes_ids) != list:
-                abort(400, "genes_ids must be a list")
-            if len(genes_ids) == 0:
-                abort(400, "genes_ids must contain at least one gene symbol")
+        body = request.get_json()
+        if "genes_ids" not in body:
+            abort(400, "genes_ids is mandatory")
 
-            pathways_tmp = [get_pathways_of_gene(gene) for gene in genes_ids]
-            pathways_intersection = list(set.intersection(*map(set, pathways_tmp)))
-            response = {"pathways": []}
-            for e in pathways_intersection:
-                r = json.loads(e.replace("\'", "\""))
-                response["pathways"].append(r)
-            return make_response(response, 200, headers)
+        genes_ids = body['genes_ids']
+        if type(genes_ids) != list:
+            abort(400, "genes_ids must be a list")
+        if len(genes_ids) == 0:
+            abort(400, "genes_ids must contain at least one gene symbol")
+
+        pathways_tmp = [get_pathways_of_gene(gene) for gene in genes_ids]
+        pathways_intersection = list(set.intersection(*map(set, pathways_tmp)))
+        response = {"pathways": []}
+        for e in pathways_intersection:
+            r = json.loads(e.replace("\'", "\""))
+            response["pathways"].append(r)
+        return make_response(response, 200, headers)
 
     @flask_app.route("/genes-expression", methods=['POST'])
     def expression_data_from_gtex():
-        if request.method == 'POST':
-            body = request.get_json()
-            body_keys = list(body.keys())
+        body = request.get_json()
 
-            if "genes_ids" not in body_keys:
-                abort(400, "genes_ids is mandatory")
+        if "genes_ids" not in body:
+            abort(400, "genes_ids is mandatory")
 
-            genes_ids = body['genes_ids']
-            if type(genes_ids) != list:
-                abort(400, "genes_ids must be a list")
-            if len(genes_ids) == 0:
-                abort(400, "genes_ids must contain at least one gene symbol")
-            if "tissue" not in body_keys:
-                abort(400, "tissue is mandatory")
+        genes_ids = body['genes_ids']
+        if type(genes_ids) != list:
+            abort(400, "genes_ids must be a list")
 
-            tissue = body['tissue']
-            type_response = None  # To prevent MyPy warning
-            if "type" in body_keys:
-                if body['type'] not in ["gzip", "json"]:
-                    abort(400, "allowed values for the 'type' key are 'json' or 'gzip'")
-                else:
-                    type_response = body['type']
+        if len(genes_ids) == 0:
+            abort(400, "genes_ids must contain at least one gene symbol")
+
+        if "tissue" not in body:
+            abort(400, "tissue is mandatory")
+
+        tissue = body['tissue']
+        type_response = None  # To prevent MyPy warning
+        if "type" in body:
+            if body['type'] not in ["gzip", "json"]:
+                abort(400, "allowed values for the 'type' key are 'json' or 'gzip'")
             else:
-                type_response = 'json'
+                type_response = body['type']
+        else:
+            type_response = 'json'
 
-            expression_data = get_expression_from_gtex(tissue, genes_ids)
+        expression_data = get_expression_from_gtex(tissue, genes_ids)
 
-            if type_response == "gzip":
-                content = gzip.compress(json.dumps(expression_data).encode('utf8'), 5)
-                response = make_response(content)
-                response.headers['Content-length'] = len(content)
-                response.headers['Content-Encoding'] = 'gzip'
-                return response
-            return jsonify(expression_data)
+        if type_response == "gzip":
+            content = gzip.compress(json.dumps(expression_data).encode('utf8'), 5)
+            response = make_response(content)
+            response.headers['Content-length'] = len(content)
+            response.headers['Content-Encoding'] = 'gzip'
+            return response
+        return jsonify(expression_data)
 
     # Error handling
     @flask_app.errorhandler(400)
