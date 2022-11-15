@@ -16,7 +16,7 @@ services:
         deploy:
             resources:
                 limits:
-                    memory: 12g
+                    memory: 6g
 
     # BioAPI server
     web:

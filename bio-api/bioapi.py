@@ -17,6 +17,9 @@ IS_DEBUG: bool = os.environ.get('DEBUG', 'true') == 'true'
 # BioAPI version
 VERSION = '0.1.4'
 
+# Valid pathways sources
+PATHWAYS_SOURCES = ["kegg", "biocarta", "ehmn", "humancyc", "inoh", "netpath", "pid", "reactome", "smpdb", "signalink", "wikipathways"]
+
 # Gets configuration
 Config = configparser.ConfigParser()
 Config.read("config.txt")
@@ -363,6 +366,8 @@ def create_app():
 
     @flask_app.route("/genes-pathways/<pathway_source>/<pathway_id>", methods=['GET'])
     def pathways_of_genes(pathway_source, pathway_id):
+        if pathway_source not in PATHWAYS_SOURCES:
+            abort(404, f'{pathway_source} is an invalid pathway source')
         response = {"genes": get_genes_of_pathway(pathway_id, pathway_source)}
         return make_response(response, 200, headers)
 

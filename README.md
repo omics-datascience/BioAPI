@@ -202,18 +202,18 @@ Gets the identifier of a gene, validates it and then returns the group of genes 
 Get the list of genes that are involved in a pathway for a given database.
 
 - URL: /genes-pathways/<*source*>/<*external_id*>
-    - <*source*>: Database to query. Valid options:  
-       - KEGG
-       - BioCarta
-       - EHMN
-       - HumanCyc
-       - INOH
-       - NetPath
-       - PID
-       - Reactome
-       - SMPDB
-       - Signalink
-       - Wikipathways  
+    - <*source*>: Database to query. Use lowercase. Valid Options:  
+       - kegg ([link](https://www.genome.jp/kegg/))
+       - biocarta ([link](https://maayanlab.cloud/Harmonizome/resource/Biocarta))
+       - ehmn ([link](http://allie.dbcls.jp/pair/EHMN;Edinburgh+Human+Metabolic+Network.html))
+       - humancyc ([link](https://humancyc.org/))
+       - inoh ([link](https://dbarchive.biosciencedbc.jp/en/inoh/desc.html))
+       - netpath ([link](https://www.wikipathways.org/index.php/Portal:NetPath))
+       - pid ([link](https://github.com/NCIP/pathway-interaction-database))
+       - reactome ([link](https://reactome.org/))
+       - smpdb ([link](https://www.smpdb.ca/))
+       - signalink ([link](http://signalink.org/))
+       - wikipathways ([link](https://www.wikipathways.org/index.php/WikiPathways))  
         Using an invalid option returns an empty list of genes.
     - <*external_id*>: Pathway identifier in the source database.
 - Method: GET  
@@ -346,7 +346,7 @@ All kind of contribution is welcome! If you want to contribute just:
 
 ### Run Flask dev server
 
-1. Start up Docker services like MongoDb: `docker compose -f docker-compose.dev.yml up -d`
+1. Start up Docker services like MongoDB: `docker compose -f docker-compose.dev.yml up -d`
 2. Go to the `bioapi` folder.
 3. Run Flask server: `python3 bioapi.py`
 
