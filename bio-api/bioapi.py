@@ -19,7 +19,7 @@ IS_DEBUG: bool = os.environ.get('DEBUG', 'true') == 'true'
 THREAD_POOL_WORKERS = 8
 
 # BioAPI version
-VERSION = '0.1.4'
+VERSION = '0.1.5'
 
 # Valid pathways sources
 PATHWAYS_SOURCES = ["kegg", "biocarta", "ehmn", "humancyc", "inoh", "netpath", "pid", "reactome",
