@@ -5,11 +5,12 @@ headers = {
     'Content-Type': 'application/json'
 }
 
+
 def test_gene_id_valid(client):
     """"Tests a valid gene_id"""
-    valid_id="ENSG00000157764" #ensembl_gene_id
-    data = {    
-        "genes_ids" : [ valid_id ]
+    valid_id = "ENSG00000157764"  # ensembl_gene_id
+    data = {
+        "genes_ids": [valid_id]
     }
     response = client.post(f'{URL_BASE}', data=json.dumps(data), headers=headers)
     res = json.loads(response.data)
@@ -17,12 +18,13 @@ def test_gene_id_valid(client):
     assert type(res[valid_id]) == list
     assert "BRAF" in res[valid_id]
 
+
 def test_valid_and_invalid_genes(client):
     """test for one valid and one invalid gene"""
-    valid_id="HGNC:3236"    #hgnc_id
-    invalid_id="blcdtm"     #invalid id
-    data = {    
-        "genes_ids" : [ valid_id, invalid_id ]
+    valid_id = "HGNC:3236"  # hgnc_id
+    invalid_id = "blcdtm"  # invalid id
+    data = {
+        "genes_ids": [valid_id, invalid_id]
     }
     response = client.post(f'{URL_BASE}', data=json.dumps(data), headers=headers)
     res = json.loads(response.data)
@@ -35,10 +37,10 @@ def test_valid_and_invalid_genes(client):
 
 def test_gene_alias_two_genes_and_invalid_id(client):
     """tests a symbol that is aliases of two genes and an invalid symbol"""
-    alias_id="NAP1"    #alias
-    invalid_id="estoesungeninvalido"     #invalid id
-    data = {    
-        "genes_ids" : [ alias_id, invalid_id ]
+    alias_id = "NAP1"  # alias
+    invalid_id = "invalid_gene"  # invalid id
+    data = {
+        "genes_ids": [alias_id, invalid_id]
     }
     response = client.post(f'{URL_BASE}', data=json.dumps(data), headers=headers)
     res = json.loads(response.data)
@@ -55,22 +57,21 @@ def test_gene_alias_two_genes_and_invalid_id(client):
 
 def test_empty_gene_id(client):
     """test correct body structure but no gene in the list"""
-    data = {    
-        "genes_ids" : []
+    data = {
+        "genes_ids": []
     }
     response = client.post(f'{URL_BASE}', data=json.dumps(data), headers=headers)
     res = json.loads(response.data)
     assert response.status_code == 200
-    assert len(list(res.keys())) == 0
-    assert res == {}
-    
+    assert len(res) == 0
+
 
 def test_corrupted_structure(client):
     """test incorrect body structure"""
-    data = {    
-        "thisisakey" : "hi"
+    data = {
+        "this_is_a_key": "hi"
     }
     response = client.post(f'{URL_BASE}', data=json.dumps(data), headers=headers)
     res = json.loads(response.data)
     assert response.status_code == 400
-    assert "error" in list(res.keys())
+    assert "error" in res

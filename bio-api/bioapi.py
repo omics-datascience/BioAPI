@@ -3,6 +3,7 @@ import os
 import json
 import gzip
 import logging
+from concurrent.futures import ThreadPoolExecutor
 import pymongo
 import configparser
 import urllib.parse
@@ -14,11 +15,15 @@ from pymongo.collation import Collation, CollationStrength
 # Gets production flag
 IS_DEBUG: bool = os.environ.get('DEBUG', 'true') == 'true'
 
+# Number of threads to use in Pool
+THREAD_POOL_WORKERS = 8
+
 # BioAPI version
 VERSION = '0.1.4'
 
 # Valid pathways sources
-PATHWAYS_SOURCES = ["kegg", "biocarta", "ehmn", "humancyc", "inoh", "netpath", "pid", "reactome", "smpdb", "signalink", "wikipathways"]
+PATHWAYS_SOURCES = ["kegg", "biocarta", "ehmn", "humancyc", "inoh", "netpath", "pid", "reactome",
+                    "smpdb", "signalink", "wikipathways"]
 
 # Gets configuration
 Config = configparser.ConfigParser()
@@ -111,14 +116,14 @@ def get_potential_gene_symbols(query_string, limit_elements):
         docs = collection_hgnc.find(query, projection)
         for doc in docs:
             if len(res) < limit_elements:
-                if type(doc[db]) == list:
-                    for id in doc[db]:
-                        if id.upper().startswith(query_string.upper()):
-                             if not id in res:
-                                res.append(id)
+                doc_db = doc[db]
+                if type(doc_db) == list:
+                    for doc_id in doc_db:
+                        if doc_id.upper().startswith(query_string.upper()) and doc_id not in res:
+                            res.append(doc_id)
                 else:
-                    if not doc[db] in res:
-                        res.append(doc[db])
+                    if doc_db not in res:
+                        res.append(doc_db)
             else:
                 limit_elements_full = True
                 break
@@ -258,11 +263,7 @@ def create_app():
             if len(gv) == 0:
                 abort(404, "invalid gene identifier")
             response[gene_id] = gv
-        except TypeError as e:
-            abort(400, e)
-        except ValueError as e:
-            abort(400, e)
-        except KeyError as e:
+        except (TypeError, ValueError, KeyError) as e:
             abort(400, e)
         return make_response(response, 200, headers)
 
@@ -271,19 +272,21 @@ def create_app():
         """Receives a list of genes IDs in any standard and returns the standardized corresponding genes IDs.
         In case it is not found it returns an empty list for the specific not found gene."""
         response = {}
-        body = request.get_json()
-        if "genes_ids" not in body:
-            abort(400, "genes_ids is mandatory")
+        if request.method == 'POST':
+            body = request.get_json()
+            if "genes_ids" not in body:
+                abort(400, "genes_ids is mandatory")
 
-        genes_ids = body['genes_ids']
-        if type(genes_ids) != list:
-            abort(400, "genes_ids must be a list")
+            genes_ids = body['genes_ids']
+            if type(genes_ids) != list:
+                abort(400, "genes_ids must be a list")
 
-        try:
-            for gene in genes_ids:
-                response[gene] = map_gene(gene)
-        except Exception as e:
-            abort(400, e)
+            try:
+                with ThreadPoolExecutor(max_workers=THREAD_POOL_WORKERS) as executor:
+                    for gene_id, result in zip(genes_ids, executor.map(map_gene, genes_ids)):
+                        response[gene_id] = result
+            except Exception as e:
+                abort(400, e)
         return make_response(response, 200, headers)
 
     @flask_app.route("/genes-symbols-finder/", methods=['GET'])
@@ -356,11 +359,7 @@ def create_app():
                     }
                     response["groups"].append(g)
 
-        except TypeError as e:
-            abort(400, e)
-        except ValueError as e:
-            abort(400, e)
-        except KeyError as e:
+        except (TypeError, ValueError, KeyError) as e:
             abort(400, e)
         return make_response(response, 200, headers)
 
