@@ -23,3 +23,6 @@ databases/ensembl_gene/.Rhistory
 databases/ensembl_gene/ensembl_gene_grch37.csv
 databases/ensembl_gene/ensembl_gene_grch38.csv
 borrar.py
+.project
+.pydevproject
+.venv/
