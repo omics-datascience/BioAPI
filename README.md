@@ -105,6 +105,56 @@ Service that takes a string of any length and returns a list of genes that conta
             ```  
 
 
+### Genes information
+
+From a list of valid genes, obtain their descriptions, types and chromosomal coordinates for the reference human genomes GRCh37 and GRCh37.  
+
+- URL: /genes-symbols
+- Method: POST  
+- Params: A body in Json format with the following content
+    -  `genes_ids` : list of valid genes identifiers  
+- Success Response:
+    - Code: 200
+    - Content:
+        - `<genes_ids>`: Returns a Json with as many keys as there are genes in the body. For each gene, the value is a Json with the following format:
+            -   `description` : gene description
+            -   `type` : gene type (example: protein_coding)
+            -   `chromosome` : chromosome where the gene is located
+            -   `start` : chromosomal position of gene starts for the reference genome GRCh38
+            -   `end` : chromosomal position of gene ends for the reference genome GRCh38
+            -   `start_GRCh37` : chromosomal position of gene starts for the reference genome GRCh37
+            -   `end_GRCh37` : chromosomal position of gene ends for the reference genome GRCh37
+    - Example:
+        - URL: http://localhost:8000/genes-information
+        - body: 
+        `{    "genes_ids" : ["ACTN4","ACTR3C"]    }`
+        - Response:
+            ```json
+            {
+                "ACTN4": 
+                {
+                    "description": "actinin alpha 4 [Source:HGNC Symbol;Acc:HGNC:166]",
+                    "chromosome": "19",
+                    "end": "38731589",
+                    "end_GRCh37": "39222223",
+                    "start": "38647649",
+                    "start_GRCh37": "39138289",
+                    "type": "protein_coding"
+                },
+                "ACTR3C": 
+                {
+                    "description": "actin related protein 3C [Source:HGNC Symbol;Acc:HGNC:37282]",
+                    "chromosome": "7",
+                    "end": "150323725",
+                    "end_GRCh37": "150020814",
+                    "start": "150243916",
+                    "start_GRCh37": "149941005",
+                    "type": "protein_coding"
+                }
+            }
+            ```  
+
+
 ### Gene Groups
 
 Gets the identifier of a gene, validates it and then returns the group of genes to which it belongs according to HGNC, and all the other genes that belong to the same group.  
@@ -152,18 +202,18 @@ Gets the identifier of a gene, validates it and then returns the group of genes 
 Get the list of genes that are involved in a pathway for a given database.
 
 - URL: /genes-pathways/<*source*>/<*external_id*>
-    - <*source*>: Database to query. Valid options:  
-       - KEGG
-       - BioCarta
-       - EHMN
-       - HumanCyc
-       - INOH
-       - NetPath
-       - PID
-       - Reactome
-       - SMPDB
-       - Signalink
-       - Wikipathways  
+    - <*source*>: Database to query. Use lowercase. Valid Options:  
+       - kegg ([link](https://www.genome.jp/kegg/))
+       - biocarta ([link](https://maayanlab.cloud/Harmonizome/resource/Biocarta))
+       - ehmn ([link](http://allie.dbcls.jp/pair/EHMN;Edinburgh+Human+Metabolic+Network.html))
+       - humancyc ([link](https://humancyc.org/))
+       - inoh ([link](https://dbarchive.biosciencedbc.jp/en/inoh/desc.html))
+       - netpath ([link](https://www.wikipathways.org/index.php/Portal:NetPath))
+       - pid ([link](https://github.com/NCIP/pathway-interaction-database))
+       - reactome ([link](https://reactome.org/))
+       - smpdb ([link](https://www.smpdb.ca/))
+       - signalink ([link](http://signalink.org/))
+       - wikipathways ([link](https://www.wikipathways.org/index.php/WikiPathways))  
         Using an invalid option returns an empty list of genes.
     - <*external_id*>: Pathway identifier in the source database.
 - Method: GET  
@@ -296,7 +346,7 @@ All kind of contribution is welcome! If you want to contribute just:
 
 ### Run Flask dev server
 
-1. Start up Docker services like MongoDb: `docker compose -f docker-compose.dev.yml up -d`
+1. Start up Docker services like MongoDB: `docker compose -f docker-compose.dev.yml up -d`
 2. Go to the `bioapi` folder.
 3. Run Flask server: `python3 bioapi.py`
 

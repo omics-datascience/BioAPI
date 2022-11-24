@@ -16,11 +16,11 @@ services:
         deploy:
             resources:
                 limits:
-                    memory: 12g
+                    memory: 6g
 
     # BioAPI server
     web:
-        image: omicsdatascience/bio-api:0.1.2
+        image: omicsdatascience/bio-api:0.1.5
         environment:
             DEBUG: 'false'
             # MongoDB's credentials must be the same as 'mongo' service above
