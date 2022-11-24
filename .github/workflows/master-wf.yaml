@@ -6,7 +6,6 @@ on:
       - "master"
 jobs:
   docker-bio-api:
-    needs: [Python-tests, Node-checks]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
