@@ -1,4 +1,12 @@
 FROM python:3.10.8
+ENV MONGO_HOST "mongo"
+ENV MONGO_PORT 27017
+ENV MONGO_USER "bioapi"
+ENV MONGO_PASSWORD "modulector"
+ENV MONGO_DB "modulector"
+
+# The number of gunicorn's worker processes for handling requests.
+ENV WEB_CONCURRENCY 1
 
 # Installs Python requirements
 RUN pip install --upgrade pip
