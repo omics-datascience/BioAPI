@@ -13,7 +13,7 @@ jobs:
       - name: Get version
         run: SETTINGSFILE=$(pwd)/bio-api/bioapi.py ./tools/get_version.sh
       - name: Set version
-        run: SETTINGSFILE=$(pwd) ./tools/get_version.sh >> $GITHUB_ENV
+        run: SETTINGSFILE=$(pwd)/bio-api/bioapi.py ./tools/get_version.sh >> $GITHUB_ENV
       - name: Check bio-api current version
         id: is_image_exist
         uses: tm-bverret/docker-exist-action@v1.1.2
