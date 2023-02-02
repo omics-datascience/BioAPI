@@ -49,13 +49,14 @@ To import all databases in MongoDB:
                 - /path/to/bioapi_db.gz:/bioapi_db.gz
     # ...
     ```
+	Where "/path/to/" is the absolute path of the "bioapi_db.gz" file downloaded on step 1.
 4. Start up the services again running `docker compose up -d`
 5. Go inside the container `docker container exec -it bio_api_mongo_db bash`
 6. Use Mongorestore to import it into MongoDB:
     ```bash
     mongorestore --username <user> --password <pass> --authenticationDatabase admin --gzip --archive=/bioapi_db.gz
     ```
-   Where *\<user\>*, *\<pass\>* are the preconfigured credentials to MongoDB in the `docker-compose.yml` file. *bioapi_db.gz* is the file downloaded in the previous step. **Keep in mind that this loading process will import approximately *45 GB* of information into MongoDB, so it may take a while**.
+   Where *\<user\>*, *\<pass\>* are the preconfigured credentials to MongoDB in the `docker-compose.yml` file. *bioapi_db.gz* is the file downloaded in the previous step. **Keep in mind that this loading process will import approximately *47 GB* of information into MongoDB, so it may take a while**.
 7. Rollup the changes in `docker-compose.yml` file to remove the backup file from the `volumes` section. Restart all the services again.
 
 
