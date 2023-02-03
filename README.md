@@ -223,7 +223,7 @@ Get the list of genes that are involved in a pathway for a given database.
     - Content:
         - `genes`: a list of genes involved in the metabolic pathway.  
     - Example:
-        - URL: http://localhost:8000/genes-pathways/KEGG/hsa00740
+        - URL: http://localhost:8000/genes-pathways/kegg/hsa00740
         - Response:
             ```json
             {
