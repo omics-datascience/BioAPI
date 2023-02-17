@@ -2,7 +2,7 @@ version: '3.7'
 services:
     # MongoDB Server
     mongo:
-        image: mongo:6.0.2
+        image: mongo:6.0.2  # NOTE: on Windows use mongo:4.2 as it could throw connection errors
         container_name: bio_api_mongo_db
         environment:
             MONGO_INITDB_ROOT_USERNAME: root
@@ -22,15 +22,15 @@ services:
                     memory: 6g
 
     # Mongo express
-    # mongo-express:
-    #     image: mongo-express:0.54.0
-    #     container_name: bio_api_dev_mongo_express
-    #     restart: always
-    #     ports:
-    #         - 8081:8081
-    #     environment:
-    #         ME_CONFIG_MONGODB_ADMINUSERNAME: root
-    #         ME_CONFIG_MONGODB_ADMINPASSWORD: root
+    mongo-express:
+        image: mongo-express:0.54.0
+        container_name: bio_api_dev_mongo_express
+        restart: always
+        ports:
+            - 8081:8081
+        environment:
+            ME_CONFIG_MONGODB_ADMINUSERNAME: root
+            ME_CONFIG_MONGODB_ADMINPASSWORD: root
 
 volumes:
     mongo_data:
