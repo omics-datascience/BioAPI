@@ -49,7 +49,7 @@ def test_invalid_gene_symbol(client):
     response = client.get(f'{URL_BASE}/{invalid_id}')
     res = json.loads(response.data)
     assert response.status_code == 404
-    assert res["error"] =="400 Bad Request: invalid gene identifier"
+    assert res["error"] == "404 Not Found: invalid gene identifier"
 
 
 def test_mandatory_param(client):

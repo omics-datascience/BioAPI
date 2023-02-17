@@ -1,0 +1,36 @@
+name: Check if version exist on docker registry
+on:
+  pull_request:
+    branches:
+      - "main"
+      - "master"
+jobs:
+  version-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Get version
+        run: SETTINGSFILE=$(pwd)/bio-api/bioapi.py ./tools/get_version.sh
+      - name: Set version
+        run: SETTINGSFILE=$(pwd)/bio-api/bioapi.py ./tools/get_version.sh >> $GITHUB_ENV
+      - name: Check bio-api current version
+        id: is_image_exist
+        uses: tm-bverret/docker-exist-action@v1.1.2
+        with:
+          registry: docker.io
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          image: omicsdatascience/bio-api:${{ env.VERSION }}
+      - name: evaluation result?
+        run: |
+          echo "Result of image check was: ${{ env.RESULT }}" 
+        env:
+          RESULT: ${{ steps.is_image_exist.outputs.image_exist }}          
+      - name: bio-api current version docker image exists?
+        if: steps.is_image_exist.outputs.image_exist == 1
+        uses: actions/github-script@v3
+        with:
+          script: |
+            core.setFailed('This bio-api version already exists on docker registry')
+
