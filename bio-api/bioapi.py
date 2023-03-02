@@ -253,19 +253,6 @@ def create_app():
             output["endpoints"].append(line)
         return make_response(output, 200, headers)
 
-    @flask_app.route("/gene-symbol/<gene_id>", methods=['GET'])
-    def gene_symbol(gene_id: str):
-        """Receives a gene ID in any standard and returns the standardized gene ID. In case it is not found it
-        returns an empty list."""
-        response = {gene_id: []}
-        try:
-            gv = map_gene(gene_id)
-            if len(gv) == 0:
-                abort(404, "invalid gene identifier")
-            response[gene_id] = gv
-        except (TypeError, ValueError, KeyError) as e:
-            abort(400, e)
-        return make_response(response, 200, headers)
 
     @flask_app.route("/genes-symbols", methods=['POST'])
     def genes_symbols():

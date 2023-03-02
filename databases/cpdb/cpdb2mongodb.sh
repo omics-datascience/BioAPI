@@ -6,11 +6,12 @@ port_mongo=27017
 user=
 password=
 db=bio_api
-#######################################
+############# Database URL ############
+cpdb_url="http://cpdb.molgen.mpg.de/CPDB/getPathwayGenes?idtype=hgnc-symbol"
 
 date
 echo "INFO	Downloading CPDB database..."
-wget -t 10 -O cpdb_dataset.tsv "http://cpdb.molgen.mpg.de/CPDB/getPathwayGenes?idtype=hgnc-symbol"
+wget -t 10 -O cpdb_dataset.tsv $cpdb_url
 echo "INFO	OK."
 date
 echo "INFO	Reformatting database..."

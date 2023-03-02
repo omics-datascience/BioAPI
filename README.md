@@ -9,41 +9,16 @@ This document is focused on the **development** of the system. If you are lookin
 
 BioAPI obtains information from different bioinformatic databases. These databases were installed locally to reduce data search time. The databases currently integrated to BioAPI are:
 1. Gene nomenclature: [HUGO Gene Nomenclature Committee](https://www.genenames.org/).  
-HGNC is the resource for approved human gene nomenclature.
+HGNC is the resource for approved human gene nomenclature. Downloaded from its official website in September 2022.  
 2. Gene information: [ENSEMBL](http://www.ensembl.org/biomart/martview).  
-BioMart data mining tool was used to obtain a gene-related dataset from Ensembl. Ensembl is a genome browser for vertebrate genomes that supports research in comparative genomics, evolution, sequence variation and transcriptional regulation. Ensembl annotate genes, computes multiple alignments, predicts regulatory function and collects disease data.
+BioMart data mining tool was used to obtain a gene-related dataset from Ensembl. Ensembl is a genome browser for vertebrate genomes that supports research in comparative genomics, evolution, sequence variation and transcriptional regulation. Ensembl annotate genes, computes multiple alignments, predicts regulatory function and collects disease data. Downloaded using *BioMart data mining tool* in September 2022.  
 3. Metabolic pathways: [ConsensusPathDB](http://cpdb.molgen.mpg.de/).  
-ConsensusPathDB-human integrates interaction networks in Homo sapiens including binary and complex protein-protein, genetic, metabolic, signaling, gene regulatory and drug-target interactions, as well as biochemical pathways. Data originate from currently 31 public resources for interactions (listed below) and interactions that we have curated from the literature. The interaction data are integrated in a complementary manner (avoiding redundancies), resulting in a seamless interaction network containing different types of interactions.         
+ConsensusPathDB-human integrates interaction networks in Homo sapiens including binary and complex protein-protein, genetic, metabolic, signaling, gene regulatory and drug-target interactions, as well as biochemical pathways. Data originate from currently 31 public resources for interactions (listed below) and interactions that we have curated from the literature. The interaction data are integrated in a complementary manner (avoiding redundancies), resulting in a seamless interaction network containing different types of interactions. Downloaded from its official website in September 2022.          
 4. Gene expression: [Genotype-Tissue Expression (GTEx)](https://gtexportal.org/home/).  
-The Genotype-Tissue Expression (GTEx) project is an ongoing effort to build a comprehensive public resource to study tissue-specific gene expression and regulation. Samples were collected from 54 non-diseased tissue sites across nearly 1000 individuals, primarily for molecular assays including WGS, WES, and RNA-Seq. 
+The Genotype-Tissue Expression (GTEx) project is an ongoing effort to build a comprehensive public resource to study tissue-specific gene expression and regulation. Samples were collected from 54 non-diseased tissue sites across nearly 1000 individuals, primarily for molecular assays including WGS, WES, and RNA-Seq. GTEx is being used in its version [GTEx Analysis V8 (dbGaP Accession phs000424.v8.p2)](https://gtexportal.org/home/datasets#datasetDiv1) and was downloaded from its official website in September 2022.  
 
 
-## Services included in BioAPI
-
-
-### Gene symbol validator
-
-Searches the identifier of a gene of different genomic databases and returns the approved symbol according to HGNC.  
-
-- URL: /gene-symbol/<*gene_id*>
-    - <*gene_id*> is the identifier from which you want to obtain the symbol in HGNC nomenclature  
-- Method: GET  
-- Params: -  
-- Success Response:
-    - Code: 200
-    - Content:
-        - `<gene_id>`: list of valid identifiers for the gene_id
-    - Example:
-        - URL: http://localhost:8000/gene-symbol/A1BG-AS
-        - Response:
-            ```json
-            {
-                "A1BG-AS": [
-                    "A1BG-AS1"
-                ]
-            }
-            ```
-
+## Services included in BioAPI  
 
 ### Genes symbols validator
 
@@ -359,3 +334,14 @@ To run all the tests:
 
 1. Go to the `bioapi` folder.
 2. Run the `pytest` command.
+
+
+### Update genomic databases
+For the "Metabolic pathways (ConsensusPathDB)", "Gene nomenclature (HUGO Gene Nomenclature Committee)" and "Gene information (Ensembl)" databases, it is not necessary to make any modifications to any script. This is because the datasets are automatically downloaded in their most up-to-date versions when the bash file for each database is executed as described in the **Manually import the different databases** section of the DEPLOYING.md file.  
+If you need to update the "Gene expression (Genotype-Tissue Expression)" database, you should also follow the procedures in the section named above, but first you should edit the bash file as follows:  
+Modify the **gtex2mongodb.sh** file. Edit the variables *"expression_url"* and *"annotation_url"*.  
+In the *expession_url* variable, set the url corresponding to the GTEx "RNA-Seq Data" compressed file (gz compression). This file should contain the Gene TPMs values (Remember that Gene expression on the GTEx Portal are shown in Transcripts Per Million or TPMs).  
+In the *"annotation_url"* variable, set the url corresponding to the file that contains the annotated samples and allows finding the corresponding tissue type for each sample in the database.  
+By default, GTEx is being used in its version [GTEx Analysis V8 (dbGaP Accession phs000424.v8.p2)](https://gtexportal.org/home/datasets#datasetDiv1)
+
+**NOTE:** It is NOT necessary to drop the MongoDB database before upgrading (this applies to all databases). 
