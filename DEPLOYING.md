@@ -99,6 +99,13 @@ First, you must install the necessary requirements.
     ```bash
     ./ensembl_gene2mongodb.sh
     ```
+5. Gene ontology: [Gene Ontology (GO)](http://geneontology.org/)
+    - Go to the path "databases/gene_ontology"
+    - Edit the empty variables `user` and `password` with the credentials configured in step 2. 
+    - Run the python script:  
+    ```python
+    ./go2mongodb.py
+    ```
 
 
 ## Run BioAPI

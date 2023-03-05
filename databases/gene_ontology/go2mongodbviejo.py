@@ -4,18 +4,6 @@ import gzip
 import shutil
 from pymongo import MongoClient
 
-
-
-############# MongoDB Conf ############
-ip_mongo="localhost"
-port_mongo=8888
-user="root"
-password="root"
-db_name="bio_api"
-#######################################
-
-
-
 def pile_into_dict(dic,key,content):
     if key in dic:
         if isinstance(dic[key], list):
@@ -38,13 +26,17 @@ print("INFO Uncompresing anotations")
 with gzip.open('goa_human_isoform.gaf.gz', 'rb') as f_in:
     with open('goa_human_isoform.gaf', 'wb') as f_out:
         shutil.copyfileobj(f_in, f_out)
-
 print("INFO	OK.")
 
 
 print("INFO	Processing Gene Ontology database...")
 
 go = open("go.obo", "r")
+line = go.readline().strip()
+
+while line != "[Term]":
+    line = go.readline().strip()
+
 all_terms= []
 term= {}
 
@@ -64,8 +56,18 @@ for line in go:
         break
     elif line != [""]:
         pile_into_dict(term,line[0],line[1])
+        # if line[0] in term:
+            # if isinstance(term[line[0]], list):
+                # term[line[0]].append(line[1])
+            # else:
+                 # term[line[0]]= [term[line[0]],line[1]]
+        # else:
+            # term[line[0]]= line[1]
 
-go.close()
+# save as JASON
+# jsonfile = open("go.json", "w")
+# jsonfile.write(str(all_terms))
+# jsonfile.close()
 print("INFO	OK.")
 
 
@@ -88,40 +90,62 @@ for line in anotations:
             gene_symbol = line[2]
             gene={"gene_symbol":gene_symbol}
         pile_into_dict(gene,line[3],line[4])
-anotations.close()
-print("INFO	OK.")
+print(all_genes)
+
+# -----------------
+ip_mongo="localhost"
+port_mongo="8888"
+user="root"
+password="root"
+db_name="bio_api"
+
+mongoClient = MongoClient(ip_mongo + ":" + port_mongo,username=user,password=password,authSource='admin',authMechanism='SCRAM-SHA-1')
 
 
-
-print("INFO	Importing to MongoDB...")
-mongoClient = MongoClient(ip_mongo + ":" + str(port_mongo),username=user,password=password,authSource='admin',authMechanism='SCRAM-SHA-1')
 db = mongoClient[db_name]
 
+# jsonfile = open("go.json", "r")
+# jsonfile.close()
 
-anotation_colection = db["go_anotations"]
-anotation_colection.drop()
-anotation_colection.insert_many(all_genes)
-
-
-go_colection = db["go"]
-go_colection.drop()
-go_colection.insert_many(all_terms)
-print("INFO	OK.")
+collection = db["go_anotations"]
+collection.drop()
+collection.insert_many(all_genes)
 
 
+# collection = db["go"]
+# collection.drop()
+# collection.insert_many(all_terms)
 
 
-print("INFO	Creating indexes in MongoDB...")
-
-# go_colection.create_index([ ("gene", ASCENDING) ]) 
 mongoClient.close()
+
+
 print("INFO	OK.")
 
+# ------
+
+# import urllib.request
+# import os
+# import gzip
+# import shutil
 
 
-print("INFO	Removing intermediate files...")
-os.remove("go.obo")
-os.remove("goa_human_isoform.gaf.gz")
-os.remove("goa_human_isoform.gaf")
+# print("INFO	Downloading Gene Ontology anotations database...")
+# urllib.request.urlretrieve("http://geneontology.org/gene-associations/goa_human_complex.gaf.gz", "goa_human_complex.gaf.gz")
+# print("INFO	OK.")
 
-print("INFO	OK.")
+
+# print("INFO Uncompresing anotations")
+# with gzip.open('goa_human_complex.gaf.gz', 'rb') as f_in:
+    # with open('goa_human_complex.gaf', 'wb') as f_out:
+        # shutil.copyfileobj(f_in, f_out)
+# print("INFO	OK.")
+
+
+
+# [{"test":"false"}]
+
+# print("INFO	Removing intermediate files...")
+# os.remove("go.obo")
+# os.remove("goa_human_complex.gaf.gz")
+# print("INFO	OK.")
