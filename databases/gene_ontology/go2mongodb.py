@@ -19,7 +19,7 @@ urllib.request.urlretrieve("http://purl.obolibrary.org/obo/go.obo", "go.obo")
 print("INFO	OK.")
 
 print("INFO	Downloading Gene Ontology anotations database...")
-urllib.request.urlretrieve("http://geneontology.org/gene-associations/goa_human_complex.gaf.gz", "goa_human_complex.gaf.gz")
+urllib.request.urlretrieve("http://geneontology.org/gene-associations/goa_human_isoform.gaf.gz", "goa_human_isoform.gaf.gz")
 print("INFO	OK.")
 
 print("INFO Uncompresing anotations")

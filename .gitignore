@@ -29,5 +29,5 @@ borrar.py
 bio-api/config.txt
 docker-compose.dev.yml
 databases/gene_ontology/go.obo
-databases/gene_ontology/goa_human_complex.gaf
-databases/gene_ontology/goa_human_complex.gaf.gz
+databases/gene_ontology/goa_human_isoform.gaf
+databases/gene_ontology/goa_human_isoform.gaf.gz
