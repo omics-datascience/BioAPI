@@ -1,8 +1,5 @@
 import argparse
-import dask.dataframe as dd
-import pandas as pd
 import csv
-from typing import Dict
 
 class C:
     pass

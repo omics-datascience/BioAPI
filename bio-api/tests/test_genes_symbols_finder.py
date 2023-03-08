@@ -1,6 +1,6 @@
 import json
 
-URL_BASE = '/genes-symbols-finder/'
+URL_BASE = '/gene-symbols-finder/'
 
 header = {'Content-Type': 'application/json'}
 

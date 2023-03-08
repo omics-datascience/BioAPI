@@ -1,6 +1,6 @@
 import json
 
-URL_BASE = '/genes-pathways'
+URL_BASE = '/pathway-genes'
 
 
 def test_valid_source_and_externalid(client):

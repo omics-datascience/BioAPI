@@ -1,6 +1,6 @@
 import json
 
-URL_BASE = '/genes-pathways-intersection'
+URL_BASE = '/pathways-in-common'
 headers = {
     'Content-Type': 'application/json'
 }
@@ -10,7 +10,7 @@ def test_valid_genes_ids(client):
     """"Tests valid genes ids"""
     valid_ids = ["HLA-B", "BRAF"]
     data = {
-        "genes_ids": valid_ids
+        "gene_ids": valid_ids
     }
     response = client.post(f'{URL_BASE}', data=json.dumps(data), headers=headers)
     res = json.loads(response.data)
@@ -26,7 +26,7 @@ def test_invalid_genes_ids(client):
     """ Tests invalid genes ids """
     invalids_ids = ["HLA-B", "INVALID"]
     data = {
-        "genes_ids": invalids_ids
+        "gene_ids": invalids_ids
     }
     response = client.post(f'{URL_BASE}', data=json.dumps(data), headers=headers)
     res = json.loads(response.data)
@@ -38,7 +38,7 @@ def test_invalid_genes_ids(client):
 def test_empty_gene_id(client):
     """test correct body structure but no gene in the list"""
     data = {
-        "genes_ids": []
+        "gene_ids": []
     }
     response = client.post(f'{URL_BASE}', data=json.dumps(data), headers=headers)
     res = json.loads(response.data)
