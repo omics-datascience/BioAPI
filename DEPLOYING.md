@@ -100,7 +100,7 @@ First, you must install the necessary requirements.
     ./ensembl_gene2mongodb.sh
     ```
 5. Gene ontology: [Gene Ontology (GO)](http://geneontology.org/)
-	**This import needs the "Gene nomenclature" databases (2) already imported to properly process the gene ontology databases
+	**NOTE:** This import needs the "Gene nomenclature" databases (2) already imported to properly process the gene ontology databases
     - Go to the path "databases/gene_ontology"
     - Edit the empty variables `user` and `password` with the credentials configured in step 2. 
     - Run the python script:  
