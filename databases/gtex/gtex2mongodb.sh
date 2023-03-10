@@ -6,14 +6,17 @@ port_mongo=27017
 user=
 password=
 db=bio_api
+############# Database URL ############
+expression_url="https://storage.googleapis.com/gtex_analysis_v8/rna_seq_data/GTEx_Analysis_2017-06-05_v8_RNASeQCv1.1.9_gene_tpm.gct.gz"
+annotation_url="https://storage.googleapis.com/gtex_analysis_v8/annotations/GTEx_Analysis_v8_Annotations_SampleAttributesDS.txt"
 #######################################
 
-expression_file="GTEx_Analysis_2017-06-05_v8_RNASeQCv1.1.9_gene_tpm.gct"
-annotation_file="GTEx_Analysis_v8_Annotations_SampleAttributesDS.txt"
+expression_file="GTEx_expressions_data.gct"
+annotation_file="GTEx_annotations_data.txt"
 date
 echo "Descargando bases de datos..."
-wget -t 10 -O "$expression_file.gz" "https://storage.googleapis.com/gtex_analysis_v8/rna_seq_data/GTEx_Analysis_2017-06-05_v8_RNASeQCv1.1.9_gene_tpm.gct.gz"
-wget -t 10 -O $annotation_file "https://storage.googleapis.com/gtex_analysis_v8/annotations/GTEx_Analysis_v8_Annotations_SampleAttributesDS.txt"
+wget -t 10 -O "$expression_file.gz" $expression_url
+wget -t 10 -O $annotation_file $annotation_url 
 
 date
 echo "Descomprimiendo base de datos..."

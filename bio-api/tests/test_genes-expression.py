@@ -1,6 +1,6 @@
 import json
 
-URL_BASE = '/genes-expression'
+URL_BASE = '/expression-of-genes'
 
 headers = {
     'Content-Type': 'application/json'
@@ -13,7 +13,7 @@ def test_valid_response_format(client):
     tissue = "Breast"
     data = {
         "tissue": tissue,
-        "genes_ids": [gene]
+        "gene_ids": [gene]
     }
     response = client.post(f'{URL_BASE}', data=json.dumps(data), headers=headers)
     res = json.loads(response.data)
@@ -27,13 +27,13 @@ def test_invalid_body_format(client):
     # 'tejido' instead of 'tissue'
     data = {
         "tejido": "Blood",
-        "genes_ids": ["BRCA1", "BRCA2"]
+        "gene_ids": ["BRCA1", "BRCA2"]
     }
     response = client.post(f'{URL_BASE}', data=json.dumps(data), headers=headers)
     res = json.loads(response.data)
     assert response.status_code == 400
     assert res["error"] == "400 Bad Request: tissue is mandatory"
-    # 'gene' instead of 'genes_ids'
+    # 'gene' instead of 'gene_ids'
     data = {
         "tissue": "Blood",
         "gene": ["BRCA1"]
@@ -41,16 +41,16 @@ def test_invalid_body_format(client):
     response = client.post(f'{URL_BASE}', data=json.dumps(data), headers=headers)
     res = json.loads(response.data)
     assert response.status_code == 400
-    assert res["error"] == "400 Bad Request: genes_ids is mandatory"
-    # Str instead of list type in genes_ids
+    assert res["error"] == "400 Bad Request: gene_ids is mandatory"
+    # Str instead of list type in gene_ids
     data = {
         "tissue": "Blood",
-        "genes_ids": "BRCA1"
+        "gene_ids": "BRCA1"
     }
     response = client.post(f'{URL_BASE}', data=json.dumps(data), headers=headers)
     res = json.loads(response.data)
     assert response.status_code == 400
-    assert res["error"] == "400 Bad Request: genes_ids must be a list"
+    assert res["error"] == "400 Bad Request: gene_ids must be a list"
 
 
 def test_invalid_tissues(client):
@@ -59,7 +59,7 @@ def test_invalid_tissues(client):
     tissue = "invalid_tissue"
     data = {
         "tissue": tissue,
-        "genes_ids": [gene]
+        "gene_ids": [gene]
     }
     response = client.post(f'{URL_BASE}', data=json.dumps(data), headers=headers)
     res = json.loads(response.data)

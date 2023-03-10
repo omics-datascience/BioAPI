@@ -9,58 +9,33 @@ This document is focused on the **development** of the system. If you are lookin
 
 BioAPI obtains information from different bioinformatic databases. These databases were installed locally to reduce data search time. The databases currently integrated to BioAPI are:
 1. Gene nomenclature: [HUGO Gene Nomenclature Committee](https://www.genenames.org/).  
-HGNC is the resource for approved human gene nomenclature.
+HGNC is the resource for approved human gene nomenclature. Downloaded from its official website in September 2022.  
 2. Gene information: [ENSEMBL](http://www.ensembl.org/biomart/martview).  
-BioMart data mining tool was used to obtain a gene-related dataset from Ensembl. Ensembl is a genome browser for vertebrate genomes that supports research in comparative genomics, evolution, sequence variation and transcriptional regulation. Ensembl annotate genes, computes multiple alignments, predicts regulatory function and collects disease data.
+BioMart data mining tool was used to obtain a gene-related dataset from Ensembl. Ensembl is a genome browser for vertebrate genomes that supports research in comparative genomics, evolution, sequence variation and transcriptional regulation. Ensembl annotate genes, computes multiple alignments, predicts regulatory function and collects disease data. Downloaded using *BioMart data mining tool* in September 2022.  
 3. Metabolic pathways: [ConsensusPathDB](http://cpdb.molgen.mpg.de/).  
-ConsensusPathDB-human integrates interaction networks in Homo sapiens including binary and complex protein-protein, genetic, metabolic, signaling, gene regulatory and drug-target interactions, as well as biochemical pathways. Data originate from currently 31 public resources for interactions (listed below) and interactions that we have curated from the literature. The interaction data are integrated in a complementary manner (avoiding redundancies), resulting in a seamless interaction network containing different types of interactions.         
+ConsensusPathDB-human integrates interaction networks in Homo sapiens including binary and complex protein-protein, genetic, metabolic, signaling, gene regulatory and drug-target interactions, as well as biochemical pathways. Data originate from currently 31 public resources for interactions (listed below) and interactions that we have curated from the literature. The interaction data are integrated in a complementary manner (avoiding redundancies), resulting in a seamless interaction network containing different types of interactions. Downloaded from its official website in September 2022.          
 4. Gene expression: [Genotype-Tissue Expression (GTEx)](https://gtexportal.org/home/).  
-The Genotype-Tissue Expression (GTEx) project is an ongoing effort to build a comprehensive public resource to study tissue-specific gene expression and regulation. Samples were collected from 54 non-diseased tissue sites across nearly 1000 individuals, primarily for molecular assays including WGS, WES, and RNA-Seq. 
+The Genotype-Tissue Expression (GTEx) project is an ongoing effort to build a comprehensive public resource to study tissue-specific gene expression and regulation. Samples were collected from 54 non-diseased tissue sites across nearly 1000 individuals, primarily for molecular assays including WGS, WES, and RNA-Seq. GTEx is being used in its version [GTEx Analysis V8 (dbGaP Accession phs000424.v8.p2)](https://gtexportal.org/home/datasets#datasetDiv1) and was downloaded from its official website in September 2022.  
 
 
-## Services included in BioAPI
-
-
-### Gene symbol validator
-
-Searches the identifier of a gene of different genomic databases and returns the approved symbol according to HGNC.  
-
-- URL: /gene-symbol/<*gene_id*>
-    - <*gene_id*> is the identifier from which you want to obtain the symbol in HGNC nomenclature  
-- Method: GET  
-- Params: -  
-- Success Response:
-    - Code: 200
-    - Content:
-        - `<gene_id>`: list of valid identifiers for the gene_id
-    - Example:
-        - URL: http://localhost:8000/gene-symbol/A1BG-AS
-        - Response:
-            ```json
-            {
-                "A1BG-AS": [
-                    "A1BG-AS1"
-                ]
-            }
-            ```
-
+## Services included in BioAPI  
 
 ### Genes symbols validator
 
 Searches the identifier of a list of genes of different genomics databases and returns the approved symbols according to HGNC nomenclature.  
 
-- URL: /genes-symbols
+- URL: /gene-symbols
 - Method: POST  
 - Params: A body in Json format with the following content
-    -  `genes_ids` : list of identifiers that you want to get your approved symbols  
+    -  `gene_ids` : list of identifiers that you want to get your approved symbols  
 - Success Response:
     - Code: 200
     - Content:
-        - `<genes_ids>`: Returns a Json with as many keys as there are genes in the body. For each gene, the value is a list with the valid symbols.  
+        - `<gene_ids>`: Returns a Json with as many keys as there are genes in the body. For each gene, the value is a list with the valid symbols.  
     - Example:
-        - URL: http://localhost:8000/genes-symbols
+        - URL: http://localhost:8000/gene-symbols
         - body: 
-        `{    "genes_ids" : ["BRCA1","F1-CAR", "BRCC1", "FANCS"]    }`
+        `{    "gene_ids" : ["BRCA1","F1-CAR", "BRCC1", "FANCS"]    }`
         - Response:
             ```json
             {
@@ -83,7 +58,7 @@ Searches the identifier of a list of genes of different genomics databases and r
 
 Service that takes a string of any length and returns a list of genes that contain that search criteria.  
 
-- URL: /genes-symbols-finder
+- URL: /gene-symbols-finder
 - Method: GET  
 - Params: 
     - `query` : gene search string
@@ -92,7 +67,7 @@ Service that takes a string of any length and returns a list of genes that conta
     - Code: 200
     - Content: a list of gene symbols matching the search criteria.  
     - Example:
-        - URL: http://localhost:8000/genes-symbols-finder/?limit=50&query=BRC
+        - URL: http://localhost:8000/gene-symbols-finder/?limit=50&query=BRC
         - Response:
             ```json
             [
@@ -109,14 +84,14 @@ Service that takes a string of any length and returns a list of genes that conta
 
 From a list of valid genes, obtain their descriptions, types and chromosomal coordinates for the reference human genomes GRCh37 and GRCh37.  
 
-- URL: /genes-symbols
+- URL: /gene-symbols
 - Method: POST  
 - Params: A body in Json format with the following content
-    -  `genes_ids` : list of valid genes identifiers  
+    -  `gene_ids` : list of valid genes identifiers  
 - Success Response:
     - Code: 200
     - Content:
-        - `<genes_ids>`: Returns a Json with as many keys as there are genes in the body. For each gene, the value is a Json with the following format:
+        - `<gene_ids>`: Returns a Json with as many keys as there are genes in the body. For each gene, the value is a Json with the following format:
             -   `description` : gene description
             -   `type` : gene type (example: protein_coding)
             -   `chromosome` : chromosome where the gene is located
@@ -125,9 +100,9 @@ From a list of valid genes, obtain their descriptions, types and chromosomal coo
             -   `start_GRCh37` : chromosomal position of gene starts for the reference genome GRCh37
             -   `end_GRCh37` : chromosomal position of gene ends for the reference genome GRCh37
     - Example:
-        - URL: http://localhost:8000/genes-information
+        - URL: http://localhost:8000/information-of-genes
         - body: 
-        `{    "genes_ids" : ["ACTN4","ACTR3C"]    }`
+        `{    "gene_ids" : ["ACTN4","ACTR3C"]    }`
         - Response:
             ```json
             {
@@ -159,7 +134,7 @@ From a list of valid genes, obtain their descriptions, types and chromosomal coo
 
 Gets the identifier of a gene, validates it and then returns the group of genes to which it belongs according to HGNC, and all the other genes that belong to the same group.  
 
-- URL: /genes-same-group/<*gene_id*>
+- URL: /genes-of-its-group/<*gene_id*>
     - <*gene_id*> is the identifier of the gene for any database  
 - Method: GET  
 - Params: -  
@@ -174,7 +149,7 @@ Gets the identifier of a gene, validates it and then returns the group of genes 
             - `gene_group_id`:
             - `genes`:
     - Example:
-        - URL: http://localhost:8000/genes-same-group/ENSG00000146648
+        - URL: http://localhost:8000/genes-of-its-group/ENSG00000146648
         - Response:
             ```json
             {
@@ -201,7 +176,7 @@ Gets the identifier of a gene, validates it and then returns the group of genes 
 
 Get the list of genes that are involved in a pathway for a given database.
 
-- URL: /genes-pathways/<*source*>/<*external_id*>
+- URL: /pathway-genes/<*source*>/<*external_id*>
     - <*source*>: Database to query. Use lowercase. Valid Options:  
        - kegg ([link](https://www.genome.jp/kegg/))
        - biocarta ([link](https://maayanlab.cloud/Harmonizome/resource/Biocarta))
@@ -223,7 +198,7 @@ Get the list of genes that are involved in a pathway for a given database.
     - Content:
         - `genes`: a list of genes involved in the metabolic pathway.  
     - Example:
-        - URL: http://localhost:8000/genes-pathways/kegg/hsa00740
+        - URL: http://localhost:8000/pathway-genes/kegg/hsa00740
         - Response:
             ```json
             {
@@ -245,10 +220,10 @@ Get the list of genes that are involved in a pathway for a given database.
 
 Gets the common pathways for a list of genes.
 
-- URL: /genes-pathways-intersection
+- URL: /pathways-in-common
 - Method: POST  
 - Params: A body in Json format with the following content
-    -  `genes_ids`: list of genes for which you want to get the common metabolic pathways
+    -  `gene_ids`: list of genes for which you want to get the common metabolic pathways
 - Success Response:
     - Code: 200
     - Content:
@@ -257,9 +232,9 @@ Gets the common pathways for a list of genes.
             - `external_id`: pathway identifier in the source.    
             - `pathway`: name of the pathway.
     - Example:
-        - URL: http://localhost:8000/genes-pathways-intersection
+        - URL: http://localhost:8000/pathways-in-common
         - body: 
-        `{    "genes_ids" : ["HLA-B" , "BRAF"]    }`
+        `{    "gene_ids" : ["HLA-B" , "BRAF"]    }`
         - Response:
             ```json
             {
@@ -278,10 +253,10 @@ Gets the common pathways for a list of genes.
 
 This service gets gene expression in healthy tissue
 
-- URL: /genes-expression
+- URL: /expression-of-genes
 - Method: POST  
 - Params: A body in Json format with the following content
-    -  `genes_ids`: list of genes for which you want to get the expression.  
+    -  `gene_ids`: list of genes for which you want to get the expression.  
     -  `tissue`: healthy tissue from which you want to get the expression values.  
 - Success Response:
     - Code: 200
@@ -289,8 +264,8 @@ This service gets gene expression in healthy tissue
         The response you get is a list. Each element of the list is a new list containing the expression values for each gene in the same sample from the GTEx database.
         - `<gene_id>`: expression value for the gene_id.
     - Example:
-        - URL: http://localhost:8000/genes-expression
-        - body: `{ "tissue": "Skin",    "genes_ids": ["BRCA1", "BRCA2"] }`
+        - URL: http://localhost:8000/expression-of-genes
+        - body: `{ "tissue": "Skin",    "gene_ids": ["BRCA1", "BRCA2"] }`
         - Response:
             ```json
             [
@@ -359,3 +334,14 @@ To run all the tests:
 
 1. Go to the `bioapi` folder.
 2. Run the `pytest` command.
+
+
+### Update genomic databases
+For the "Metabolic pathways (ConsensusPathDB)", "Gene nomenclature (HUGO Gene Nomenclature Committee)" and "Gene information (Ensembl)" databases, it is not necessary to make any modifications to any script. This is because the datasets are automatically downloaded in their most up-to-date versions when the bash file for each database is executed as described in the **Manually import the different databases** section of the DEPLOYING.md file.  
+If you need to update the "Gene expression (Genotype-Tissue Expression)" database, you should also follow the procedures in the section named above, but first you should edit the bash file as follows:  
+Modify the **gtex2mongodb.sh** file. Edit the variables *"expression_url"* and *"annotation_url"*.  
+In the *expession_url* variable, set the url corresponding to the GTEx "RNA-Seq Data" compressed file (gz compression). This file should contain the Gene TPMs values (Remember that Gene expression on the GTEx Portal are shown in Transcripts Per Million or TPMs).  
+In the *"annotation_url"* variable, set the url corresponding to the file that contains the annotated samples and allows finding the corresponding tissue type for each sample in the database.  
+By default, GTEx is being used in its version [GTEx Analysis V8 (dbGaP Accession phs000424.v8.p2)](https://gtexportal.org/home/datasets#datasetDiv1)
+
+**NOTE:** It is NOT necessary to drop the MongoDB database before upgrading (this applies to all databases). 

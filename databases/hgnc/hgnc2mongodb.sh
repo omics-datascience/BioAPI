@@ -6,11 +6,12 @@ port_mongo=27017
 user=
 password=
 db=bio_api
-#######################################
+############# Database URL ############
+hgnc_url="ftp://ftp.ebi.ac.uk/pub/databases/genenames/hgnc/tsv/hgnc_complete_set.txt"
 
 date
 echo "INFO	Downloading HGNC database..."
-wget -t 10 -O hgnc_dataset.tsv "ftp://ftp.ebi.ac.uk/pub/databases/genenames/hgnc/tsv/hgnc_complete_set.txt"
+wget -t 10 -O hgnc_dataset.tsv $hgnc_url
 echo "INFO	OK."
 date
 echo "INFO	Reformatting database..."

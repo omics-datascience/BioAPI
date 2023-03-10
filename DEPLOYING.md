@@ -72,8 +72,8 @@ First, you must install the necessary requirements.
     ```
 
 1. Metabolic pathways: [ConsensusPathDB](http://cpdb.molgen.mpg.de/)  
-    - Go to the path "databases/cpdb"
-    - Edit the empty variables `user` and `password` with the credentials configured in step 2. 
+   - Go to the path "databases/cpdb"
+   - Edit the empty variables `user` and `password` with the credentials configured in step 2. 
    - Run the bash script:  
    ```bash
    ./cpdb2mongodb.sh
@@ -107,6 +107,8 @@ First, you must install the necessary requirements.
     ```python
     python ./go2mongodb.py
     ```
+
+**NOTE:** If you want to update the genomic databases to a more recent version, follow the instructions mentioned in the *"Contributing"* section of the Readme.md file.  
 
 
 ## Run BioAPI

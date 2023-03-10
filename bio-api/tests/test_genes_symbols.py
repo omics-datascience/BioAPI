@@ -1,6 +1,6 @@
 import json
 
-URL_BASE = '/genes-symbols'
+URL_BASE = '/gene-symbols'
 headers = {
     'Content-Type': 'application/json'
 }
@@ -10,7 +10,7 @@ def test_gene_id_valid(client):
     """"Tests a valid gene_id"""
     valid_id = "ENSG00000157764"  # ensembl_gene_id
     data = {
-        "genes_ids": [valid_id]
+        "gene_ids": [valid_id]
     }
     response = client.post(f'{URL_BASE}', data=json.dumps(data), headers=headers)
     res = json.loads(response.data)
@@ -24,7 +24,7 @@ def test_valid_and_invalid_genes(client):
     valid_id = "HGNC:3236"  # hgnc_id
     invalid_id = "blcdtm"  # invalid id
     data = {
-        "genes_ids": [valid_id, invalid_id]
+        "gene_ids": [valid_id, invalid_id]
     }
     response = client.post(f'{URL_BASE}', data=json.dumps(data), headers=headers)
     res = json.loads(response.data)
@@ -40,7 +40,7 @@ def test_gene_alias_two_genes_and_invalid_id(client):
     alias_id = "NAP1"  # alias
     invalid_id = "invalid_gene"  # invalid id
     data = {
-        "genes_ids": [alias_id, invalid_id]
+        "gene_ids": [alias_id, invalid_id]
     }
     response = client.post(f'{URL_BASE}', data=json.dumps(data), headers=headers)
     res = json.loads(response.data)
@@ -58,7 +58,7 @@ def test_gene_alias_two_genes_and_invalid_id(client):
 def test_empty_gene_id(client):
     """test correct body structure but no gene in the list"""
     data = {
-        "genes_ids": []
+        "gene_ids": []
     }
     response = client.post(f'{URL_BASE}', data=json.dumps(data), headers=headers)
     res = json.loads(response.data)

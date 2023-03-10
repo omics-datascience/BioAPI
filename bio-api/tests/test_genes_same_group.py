@@ -1,6 +1,6 @@
 import json
 
-URL_BASE = '/genes-same-group'
+URL_BASE = '/genes-of-its-group'
 
 
 def test_gene_in_group(client):
