@@ -228,6 +228,45 @@ def get_expression_from_gtex(tissue: str, genes: List) -> List:
     return list(temp.values())
 
 
+#go functions
+
+def terms_related_to_one_gene(gene: str, relation_type: list= ["enables","involved_in","part_of","located_in"]):#-> Dict[str]
+    collection_go_anotations = mydb["go_anotations"]
+    anotation = dict(collection_go_anotations.find_one({"gene_symbol": gene}))
+    # print((anotastion))
+    related_genes = set()
+    if anotation != None:
+        for relation in relation_type:
+            if relation in anotation:
+                if isinstance(anotation[relation], list):
+                    related_genes.update(anotation[relation])
+                else:
+                    related_genes.add(anotation[relation])
+            
+        # res = {"gene": gene, "relations" : related_genes}
+    
+    return related_genes
+    
+def terms_related_to_many_genes(gene_ids: list, filter_type = "intersection", relation_type: list= ["enables","involved_in","part_of","located_in"]):
+    gene = gene_ids.pop()
+    term_set= set(terms_related_to_one_gene(gene,relation_type))
+    for gene in gene_ids:
+        terms = terms_related_to_one_gene(gene,relation_type)
+        if filter_type == "intersection":
+            term_set= term_set.intersection(terms)
+        elif filter_type == "union":
+            term_set = term_set.union(terms)
+
+    return term_set
+
+def populate_terms_with_data(term_list, ontology_type: list = ["biological_process", "molecular_function", "cellular_component"]):
+    collection_go = mydb["go"]
+    terms = str(list(collection_go.find({"id": { "$in": term_list }, "namespace": { "$in": ontology_type }})))
+    print(terms)
+    return terms
+
+#app
+
 def create_app():
     # Creates and configures the app
     flask_app = Flask(__name__, instance_relative_config=True)
@@ -240,7 +279,7 @@ def create_app():
     @flask_app.route("/ping")
     def ping_ok():
         """To use as healthcheck by Docker"""
-        output = "ok"
+        output = "okey"
         return make_response(output, 200, headers)
 
     @flask_app.route("/bioapi-map")
@@ -413,7 +452,38 @@ def create_app():
             response.headers['Content-Encoding'] = 'gzip'
             return response
         return jsonify(expression_data)
-
+    
+    
+    @flask_app.route("/genes-to-terms", methods=['POST'])
+    def genes_to_go_terms():
+        """Recieves a list of genes and returns the related terms
+        """
+        response = {}
+        gene_term_arguments= {}
+        if request.method == 'POST':
+            body = request.get_json()
+            if "gene_ids" not in body:
+                abort(400, "gene_ids is mandatory")
+            if "relation_type" in body:
+                gene_term_arguments["relation_type"] = body["relation_type"]
+                
+            gene_term_arguments['gene_ids'] = body['gene_ids']
+            for a in gene_term_arguments:
+                if not isinstance(gene_term_arguments[a], list):
+                    abort(400, str(a)+" must be a list")
+            if "filter_type" in body:
+                gene_term_arguments["filter_type"] = body["filter_type"]
+            terms= terms_related_to_many_genes(**gene_term_arguments)
+            
+            populate_arguments= {}
+            if "ontology_type" in body:
+                populate_arguments["ontology_type"] = body["ontology_type"]
+                if not isinstance(body["ontology_type"], list):
+                    abort(400, str(a)+" must be a list")
+            response = populate_terms_with_data(list(terms), **populate_arguments)
+        return make_response(response, 200, headers)
+    
+    
     # Error handling
     @flask_app.errorhandler(400)
     def bad_request(e):

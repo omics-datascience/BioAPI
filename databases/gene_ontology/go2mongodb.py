@@ -69,8 +69,17 @@ for line in go:
             relationships = term.pop("relationship")
             if not isinstance(relationships, list): relationships = [relationships]
             for r in relationships:
-                r= r.strip().split(" ",1)
+                r= r.strip().split(" ")
                 pile_into_dict(term,r[0],r[1])
+        if "is_a" in term:
+            is_a = term["is_a"]
+            if isinstance(is_a, list):
+                term["is_a"]= []
+                for i in is_a: 
+                    i= i.strip().split(" ")
+                    term["is_a"].append(i[0])
+            else:
+                term["is_a"]= is_a.strip().split(" ")[0]
         if not ("is_obsolete" in term):
             all_terms.append(term)
         term= {}
@@ -161,11 +170,11 @@ print("INFO	OK.")
 
 
 
-print("INFO	Creating indexes in MongoDB...")
+# print("INFO	Creating indexes in MongoDB...")
 
-# go_colection.create_index([ ("gene", ASCENDING) ]) 
-mongoClient.close()
-print("INFO	OK.")
+# # go_colection.create_index([ ("gene", ASCENDING) ]) 
+# mongoClient.close()
+# print("INFO	OK.")
 
 
 
