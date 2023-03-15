@@ -66,10 +66,8 @@ Alternatively (but **not recommended** due to high computational demands) you ca
 
 1. Install the necessary requirements:  
     - [R languaje](https://www.r-project.org/). Version 4.1.2 or later (Only necessary if you want to update the Gene information database from Ensembl)
-    - Some python packages. They can be installed using
-        ```bash
-        pip install -r config/genomic_db_conf/requirements.txt
-        ```
+    - Some python packages. They can be installed using:
+        `pip install -r config/genomic_db_conf/requirements.txt`  
 2. The ETL process is programmed in a single bash script for each database. Edit in the bash file of the database that you want to update the **user** and **password** parameters, using the same values that you set in the `docker-compose.yml` file. Bash files can be found in the *'databases'* folder, within the corresponding directories for each database:  
     - For Metabolic pathways ([ConsensusPathDB](http://cpdb.molgen.mpg.de/)) use "databases/cpdb" directory and the *cpdb2mongodb.sh* file.
     - For Gene nomenclature ([HUGO Gene Nomenclature Committee](https://www.genenames.org/)) use "databases/hgnc" directory and the *hgnc2mongodb.sh* file.
