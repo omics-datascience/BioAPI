@@ -309,7 +309,6 @@ The possible error codes are 400, 404 and 500. The content of each of them is a 
 }
 ```
 
-
 ## Contributing
 
 All kind of contribution is welcome! If you want to contribute just:
@@ -334,14 +333,3 @@ To run all the tests:
 
 1. Go to the `bioapi` folder.
 2. Run the `pytest` command.
-
-
-### Update genomic databases
-For the "Metabolic pathways (ConsensusPathDB)", "Gene nomenclature (HUGO Gene Nomenclature Committee)" and "Gene information (Ensembl)" databases, it is not necessary to make any modifications to any script. This is because the datasets are automatically downloaded in their most up-to-date versions when the bash file for each database is executed as described in the **Manually import the different databases** section of the DEPLOYING.md file.  
-If you need to update the "Gene expression (Genotype-Tissue Expression)" database, you should also follow the procedures in the section named above, but first you should edit the bash file as follows:  
-Modify the **gtex2mongodb.sh** file. Edit the variables *"expression_url"* and *"annotation_url"*.  
-In the *expession_url* variable, set the url corresponding to the GTEx "RNA-Seq Data" compressed file (gz compression). This file should contain the Gene TPMs values (Remember that Gene expression on the GTEx Portal are shown in Transcripts Per Million or TPMs).  
-In the *"annotation_url"* variable, set the url corresponding to the file that contains the annotated samples and allows finding the corresponding tissue type for each sample in the database.  
-By default, GTEx is being used in its version [GTEx Analysis V8 (dbGaP Accession phs000424.v8.p2)](https://gtexportal.org/home/datasets#datasetDiv1)
-
-**NOTE:** It is NOT necessary to drop the MongoDB database before upgrading (this applies to all databases). 

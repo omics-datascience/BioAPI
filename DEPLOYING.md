@@ -62,46 +62,22 @@ To import all databases in MongoDB:
 
 ### Manually import the different databases
 
-Alternatively (but **not recommended** due to high computational demands) you can run a separate ETL process to download from source, process and import the databases into MongoDB. The ETL process is programmed in a single bash script for each database and is shown below:  
+Alternatively (but **not recommended** due to high computational demands) you can run a separate ETL process to download from source, process and import the databases into MongoDB. 
 
-First, you must install the necessary requirements.  
-- [R languaje](https://www.r-project.org/). Version 4.1.2 or later.
-- Some python packages. They can be installed using
-    ```bash
-    pip install -r config/genomic_db_conf/requirements.txt
-    ```
-
-1. Metabolic pathways: [ConsensusPathDB](http://cpdb.molgen.mpg.de/)  
-   - Go to the path "databases/cpdb"
-   - Edit the empty variables `user` and `password` with the credentials configured in step 2. 
-   - Run the bash script:  
-   ```bash
-   ./cpdb2mongodb.sh
-   ```
-2. Gene nomenclature: [HUGO Gene Nomenclature Committee](https://www.genenames.org/)
-    - Go to the path "databases/hgnc"
-    - Edit the empty variables `user` and `password` with the credentials configured in step 2. 
-    - Run the bash script:  
-    ```bash
-    ./hgnc2mongodb.sh
-    ```
-3. Gene expression: [Genotype-Tissue Expression (GTEx)](https://gtexportal.org/home/)
-    - Go to the path "databases/gtex"
-    - Edit the empty variables `user` and `password` with the credentials configured in step 2. 
-    - Run the bash script:  
-    ```bash
-    ./gtex2mongodb.sh
-    ```
-4. Gene information: [Ensembl (Biomart tool)](https://www.ensembl.org/biomart/martview/)
-    - Go to the path "databases/ensembl_gene"
-    - Edit the empty variables `user` and `password` with the credentials configured in step 2. 
-    - Run the bash script:  
-    ```bash
-    ./ensembl_gene2mongodb.sh
-    ```
-
-**NOTE:** If you want to update the genomic databases to a more recent version, follow the instructions mentioned in the *"Contributing"* section of the Readme.md file.  
-
+1. Install the necessary requirements:  
+    - [R languaje](https://www.r-project.org/). Version 4.1.2 or later (Only necessary if you want to update the Gene information database from Ensembl)
+    - Some python packages. They can be installed using
+        ```bash
+        pip install -r config/genomic_db_conf/requirements.txt
+        ```
+2. The ETL process is programmed in a single bash script for each database. Edit in the bash file of the database that you want to update the **user** and **password** parameters, using the same values that you set in the `docker-compose.yml` file. Bash files can be found in the *'databases'* folder, within the corresponding directories for each database:  
+    - For Metabolic pathways ([ConsensusPathDB](http://cpdb.molgen.mpg.de/)) use "databases/cpdb" directory and the *cpdb2mongodb.sh* file.
+    - For Gene nomenclature ([HUGO Gene Nomenclature Committee](https://www.genenames.org/)) use "databases/hgnc" directory and the *hgnc2mongodb.sh* file.
+    - For Gene expression ([Genotype-Tissue Expression (GTEx)](https://gtexportal.org/home/)) use "databases/gtex" directory and the *gtex2mongodb.sh*.
+    - For Gene information ([Ensembl (Biomart tool)](https://www.ensembl.org/biomart/martview/)) use "databases/ensembl_gene" directory and the *ensembl_gene2mongodb.sh* file.  
+3. Run bash files.  
+    `./<file.sh>`  
+    where file.sh can be *cpdb2mongodb.sh*, *hgnc2mongodb.sh*, *gtex2mongodb.sh*, or *ensembl_gene2mongodb.sh*, as appropriate.  
 
 ## Run BioAPI
 Use docker compose to get the BioAPI up:
@@ -128,3 +104,15 @@ docker-compose logs <service>
 ```
 
 Where  *\<service\>* could be `nginx`, `web` or `mongo`.
+
+
+## Update genomic databases
+If new versions are released for the genomic databases included in BioAPI, you can update them by following the instructions below:  
+- For the "Metabolic pathways (ConsensusPathDB)", "Gene nomenclature (HUGO Gene Nomenclature Committee)" and "Gene information (Ensembl)" databases, it is not necessary to make any modifications to any script. This is because the datasets are automatically downloaded in their most up-to-date versions when the bash file for each database is executed as described in the **Manually import the different databases** section of this file.  
+- If you need to update the "Gene expression (Genotype-Tissue Expression)" database, you should also follow the procedures in the section named above, but first you should edit the bash file as follows:  
+    1. Modify the **gtex2mongodb.sh** file. Edit the variables *"expression_url"* and *"annotation_url"*.
+    1. In the *expession_url* variable, set the url corresponding to the GTEx "RNA-Seq Data" compressed file (gz compression). This file should contain the Gene TPMs values (Remember that Gene expression on the GTEx Portal are shown in Transcripts Per Million or TPMs).
+    1. In the *"annotation_url"* variable, set the url corresponding to the file that contains the annotated samples and allows finding the corresponding tissue type for each sample in the database.
+  By default, GTEx is being used in its version [GTEx Analysis V8 (dbGaP Accession phs000424.v8.p2)](https://gtexportal.org/home/datasets#datasetDiv1)
+
+**NOTE:** It is NOT necessary to drop the MongoDB database before upgrading (this applies to all databases). 
