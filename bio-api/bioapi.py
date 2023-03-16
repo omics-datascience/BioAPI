@@ -265,6 +265,88 @@ def populate_terms_with_data(term_list, ontology_type: list = ["biological_proce
     print(terms)
     return terms
 
+def strip_term(term,relations):
+    new_term = {"id": term["id"], "name": term["name"], "ontology_type": term["namespace"], "relations": {}}
+    for r in relations:
+        if r in term:
+            if not isinstance(term[r], list): term[r] = [term[r]]
+            new_term["relations"][r]= term[r]
+    return new_term
+
+relations = ["part_of","regulates","has_part"]
+
+def  BFS_on_terms(term_id, relations: list = ["part_of","regulates","has_part"], general_depth= 0, hierarchical_depth= 0, ontology_type: list =["biological_process", "molecular_function", "cellular_component"]): #function for BFS
+    collection_go = mydb["go"]
+    graph = {}
+    DEPTH_MARK = "*"
+    
+    visited = [] # List for visited nodes.
+    queue = []     #Initialize a queue
+    visited.append(term_id)
+    queue.append(term_id)
+    queue.append(DEPTH_MARK)
+    actual_depth = 0
+
+    while queue:          # Creating loop to visit each node
+        act = queue.pop(0) 
+        if act == DEPTH_MARK:
+            if actual_depth == general_depth or not queue:
+                break
+            queue.append(DEPTH_MARK)
+            actual_depth += 1  
+        else:
+            #could be optimized by pooling all the next level neighbours and doing one db call per level
+            #but on the other side you have to control for already visited nodes, so im not sure if its faster
+            term = collection_go.find_one({"id": act}) 
+            # print(term)
+            print(term)
+            if not term["namespace"] in ontology_type:
+                continue
+            term =strip_term(term,relations)
+            graph[term["id"]] = term
+            for rel in term["relations"].values():
+                for neighbour in rel:
+                  if neighbour not in visited:
+                    visited.append(neighbour)
+                    queue.append(neighbour)
+    
+    terms= [term_id]
+    next_level_terms = []
+    for i in range(hierarchical_depth):
+        terms = collection_go.find({"is_a": { "$in": terms }} )
+        for t in terms:
+            t_id = t["id"]
+            if t_id in visited:
+                term =strip_term(t,["is_a"])
+                graph[t_id]["relations"]['is_a']= term["relations"]["is_a"]
+            else:
+                term =strip_term(t,["is_a"])
+                graph[term["id"]] = term
+            next_level_terms.append(term["id"])
+            
+        terms = next_level_terms
+        next_level_terms = []
+    
+    #go to the ontology root   #To do
+    # terms= [term_id]
+    # while terms: 
+        # terms = collection_go.find({"id": { "$in": terms }} )
+        # for t in terms:
+            # t_id = t["id"]
+            # if t_id in visited:
+                # term =strip_term(t,["is_a"])
+                # graph[t_id]["relations"]['is_a']= term["relations"]["is_a"]
+            # else:
+                # term =strip_term(t,["is_a"])
+                # graph[term["id"]] = term
+            # if "is_a" in term["relations"]:
+                # next_level_terms.extend(term["relations"]["is_a"])
+            
+        # terms = next_level_terms
+        # next_level_terms = []
+    
+    
+    return str(list(graph.values()))
 #app
 
 def create_app():
@@ -279,7 +361,7 @@ def create_app():
     @flask_app.route("/ping")
     def ping_ok():
         """To use as healthcheck by Docker"""
-        output = "okey"
+        output = "ok"
         return make_response(output, 200, headers)
 
     @flask_app.route("/bioapi-map")
@@ -483,7 +565,39 @@ def create_app():
             response = populate_terms_with_data(list(terms), **populate_arguments)
         return make_response(response, 200, headers)
     
-    
+    @flask_app.route("/related-terms", methods=['POST'])
+    def related_terms():
+        """Recieves a term and returns the related terms
+        """
+        
+        response = {}
+        arguments= {}
+        if request.method == 'POST':
+            body = request.get_json()
+            if "term_id" not in body:
+                abort(400, "term_id is mandatory")
+            arguments["term_id"] = body["term_id"]
+            try:
+                if "general_depth" in body:
+                    arguments["general_depth"] = int(body["general_depth"])
+                if "hierarchical_depth" in body:
+                    arguments["hierarchical_depth"] = int(body["hierarchical_depth"])
+            except ValueError:
+                abort(400, "depth should be an integer")
+            # if arguments["general_depth"] < 0:
+                 # abort(400, "depth should be a positive integer")
+            # if arguments["general_depth"] < 0:
+                 # abort(400, "depth should be a positive integer")
+            if "relations" in body:
+                arguments["relations"] = body["relations"]
+                if type(arguments["relations"]) != list:
+                    abort(400, "relations must be a list")
+            if "ontology_type" in body:
+                arguments["ontology_type"] = body["ontology_type"]
+                if type(arguments["ontology_type"]) != list:
+                    abort(400, "ontology_type must be a list")
+            response = BFS_on_terms(**arguments)
+        return make_response(response, 200, headers)
     # Error handling
     @flask_app.errorhandler(400)
     def bad_request(e):
