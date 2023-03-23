@@ -70,16 +70,21 @@ for line in go:
             if not isinstance(relationships, list): relationships = [relationships]
             for r in relationships:
                 r= r.strip().split(" ")
-                pile_into_dict(term,r[0],r[1])
-        if "is_a" in term:
-            is_a = term["is_a"]
-            if isinstance(is_a, list):
-                term["is_a"]= []
-                for i in is_a: 
-                    i= i.strip().split(" ")
-                    term["is_a"].append(i[0])
-            else:
-                term["is_a"]= is_a.strip().split(" ")[0]
+                pile_into_dict(term,r[0],r[1].split(":")[1])
+                
+        atributes_with_ids = ["is_a","alt_id","disjoint_from","id"]
+        
+        for atr_name in atributes_with_ids:
+            if atr_name in term:
+                atr = term[atr_name]
+                if isinstance(atr, list):
+                    term[atr_name]= []
+                    for i in atr: 
+                        i= i.strip().split(" ")
+                        term[atr_name].append(i[0].split(":")[1])
+                else:
+                    term[atr_name]= atr.strip().split(" ")[0].split(":")[1]
+        if "id" in term: term["go_id"] = term.pop("id")
         if not ("is_obsolete" in term):
             all_terms.append(term)
         term= {}
@@ -99,7 +104,7 @@ mongoClient = MongoClient(ip_mongo + ":" + str(port_mongo),username=user,passwor
 db = mongoClient[db_name]
 print("INFO	OK.")
 
-print("INFO	Processing Gene Ontology anotations database...")
+print("INFO	Processing Gene Ontology anotations database (may take a while)...")
 
 from typing import List, Dict
 from pymongo.collation import Collation, CollationStrength
@@ -147,9 +152,9 @@ for line in anotations:
                     counter+=1
             gene_symbol = line[2]
             gene={"gene_symbol":gene_symbol}
-        pile_into_dict(gene,line[3],line[4])
+        pile_into_dict(gene,line[3],line[4].split(":")[1])
 anotations.close()
-print("INFO	"+str(counter)+" gene aliases were discarded due to ambiguity")
+print("INFO	"+str(counter)+" lines were discarded due to ambiguity with gene ids")
 print("INFO	OK.")
 
 
@@ -170,11 +175,13 @@ print("INFO	OK.")
 
 
 
-# print("INFO	Creating indexes in MongoDB...")
+print("INFO	Creating indexes in MongoDB...")
 
-# # go_colection.create_index([ ("gene", ASCENDING) ]) 
+go_colection.create_index([ ("id", 1) ]) 
+anotation_colection.create_index([ ("gene_symbol", 1) ]) 
+
 # mongoClient.close()
-# print("INFO	OK.")
+print("INFO	OK.")
 
 
 
