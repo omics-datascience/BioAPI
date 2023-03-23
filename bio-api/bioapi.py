@@ -262,7 +262,6 @@ def terms_related_to_many_genes(gene_ids: list, filter_type = "intersection", re
 def populate_terms_with_data(term_list, ontology_type: list = ["biological_process", "molecular_function", "cellular_component"]):
     collection_go = mydb["go"]
     terms = str(list(collection_go.find({"id": { "$in": term_list }, "namespace": { "$in": ontology_type }})))
-    print(terms)
     return terms
 
 def strip_term(term,relations):
@@ -275,7 +274,7 @@ def strip_term(term,relations):
 
 relations = ["part_of","regulates","has_part"]
 
-def  BFS_on_terms(term_id, relations: list = ["part_of","regulates","has_part"], general_depth= 0, hierarchical_depth= 0, ontology_type: list =["biological_process", "molecular_function", "cellular_component"]): #function for BFS
+def  BFS_on_terms(term_id, relations: list = ["part_of","regulates","has_part"], general_depth= 0, hierarchical_depth_to_children= 0, ontology_type: list =["biological_process", "molecular_function", "cellular_component"]): #function for BFS
     collection_go = mydb["go"]
     graph = {}
     DEPTH_MARK = "*"
@@ -299,7 +298,6 @@ def  BFS_on_terms(term_id, relations: list = ["part_of","regulates","has_part"],
             #but on the other side you have to control for already visited nodes, so im not sure if its faster
             term = collection_go.find_one({"id": act}) 
             # print(term)
-            print(term)
             if not term["namespace"] in ontology_type:
                 continue
             term =strip_term(term,relations)
@@ -312,7 +310,7 @@ def  BFS_on_terms(term_id, relations: list = ["part_of","regulates","has_part"],
     
     terms= [term_id]
     next_level_terms = []
-    for i in range(hierarchical_depth):
+    for i in range(hierarchical_depth_to_children):
         terms = collection_go.find({"is_a": { "$in": terms }} )
         for t in terms:
             t_id = t["id"]
@@ -580,8 +578,8 @@ def create_app():
             try:
                 if "general_depth" in body:
                     arguments["general_depth"] = int(body["general_depth"])
-                if "hierarchical_depth" in body:
-                    arguments["hierarchical_depth"] = int(body["hierarchical_depth"])
+                if "hierarchical_depth_to_children" in body:
+                    arguments["hierarchical_depth_to_children"] = int(body["hierarchical_depth_to_children"])
             except ValueError:
                 abort(400, "depth should be an integer")
             # if arguments["general_depth"] < 0:
