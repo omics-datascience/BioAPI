@@ -300,6 +300,39 @@ This service gets gene expression in healthy tissue
             - If one of the genes entered as a parameter corresponds to an invalid symbol, the response will omit the values for that gene. It is recommended to use the *"Genes symbols validator"* service to validate your genes before using this functionality.
 
 
+### Gene Ontology terms related to a list of genes
+
+Gets the list of related terms for a list of genes.
+
+- URL: /genes-to-terms
+- Method: POST  
+- Params: A body in Json format with the following content
+    -  `gene_ids`: list of genes for which you want to get the terms common (they must be a list, and have to be in HGNC gene symbol format)
+- Success Response:
+    - Code: 200
+    - Content:
+        - `pathways`: list of elements of type Json. Each element corresponds to a different metabolic pathway.  
+            - `source`: database of the metabolic pathway found.
+            - `external_id`: pathway identifier in the source.    
+            - `pathway`: name of the pathway.
+    - Example:
+        - URL: http://localhost:8000/pathways-in-common
+        - body: 
+        `{    "gene_ids" : ["HLA-B" , "BRAF"]    }`
+        - Response:
+            ```json
+            {
+                "pathways": [
+                    {
+                        "external_id": "hsa04650",
+                        "pathway": "Natural killer cell mediated cytotoxicity",
+                        "source": "KEGG"
+                    }
+                ]
+            }
+            ```  
+
+
 ## Error Responses
 
 The possible error codes are 400, 404 and 500. The content of each of them is a Json with a unique key called "error" where its value is a description of the problem that produces the error. For example:  
