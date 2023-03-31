@@ -85,6 +85,7 @@ for line in go:
                 else:
                     term[atr_name]= atr.strip().split(" ")[0].split(":")[1]
         if "id" in term: term["go_id"] = term.pop("id")
+        if "namespace" in term: term["ontology_type"] = term.pop("namespace")
         if not ("is_obsolete" in term):
             all_terms.append(term)
         term= {}

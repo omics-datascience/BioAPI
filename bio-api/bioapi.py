@@ -246,7 +246,12 @@ def terms_related_to_one_gene(gene: str, relation_type: list= ["enables","involv
         # res = {"gene": gene, "relations" : related_genes}
     
     return related_genes
-    
+
+def is_term_on_db(term_id):
+    collection_go = mydb["go"]
+    print(collection_go.find_one({"go_id": term_id}))
+    return collection_go.find_one({"go_id": term_id}) == None
+ 
 def terms_related_to_many_genes(gene_ids: list, filter_type = "intersection", relation_type: list= ["enables","involved_in","part_of","located_in"]):
     gene = gene_ids.pop()
     term_set= set(terms_related_to_one_gene(gene,relation_type))
@@ -261,18 +266,18 @@ def terms_related_to_many_genes(gene_ids: list, filter_type = "intersection", re
 
 def populate_terms_with_data(term_list, ontology_type: list = ["biological_process", "molecular_function", "cellular_component"]):
     collection_go = mydb["go"]
-    terms = str(list(collection_go.find({"id": { "$in": term_list }, "namespace": { "$in": ontology_type }})))
+    terms = str(list(collection_go.find({"go_id": { "$in": term_list }, "ontology_type": { "$in": ontology_type }},{"_id":0})))
     return terms
 
 def strip_term(term,relations):
-    new_term = {"id": term["id"], "name": term["name"], "ontology_type": term["namespace"], "relations": {}}
+    new_term = {"go_id": term["go_id"], "name": term["name"], "ontology_type": term["ontology_type"], "relations": {}}
     for r in relations:
         if r in term:
             if not isinstance(term[r], list): term[r] = [term[r]]
             new_term["relations"][r]= term[r]
     return new_term
 
-relations = ["part_of","regulates","has_part"]
+# relations = ["part_of","regulates","has_part"]
 
 def  BFS_on_terms(term_id, relations: list = ["part_of","regulates","has_part"], general_depth= 0, hierarchical_depth_to_children= 0, ontology_type: list =["biological_process", "molecular_function", "cellular_component"]): #function for BFS
     collection_go = mydb["go"]
@@ -296,12 +301,12 @@ def  BFS_on_terms(term_id, relations: list = ["part_of","regulates","has_part"],
         else:
             #could be optimized by pooling all the next level neighbours and doing one db call per level
             #but on the other side you have to control for already visited nodes, so im not sure if its faster
-            term = collection_go.find_one({"id": act}) 
-            # print(term)
-            if not term["namespace"] in ontology_type:
+            term = collection_go.find_one({"go_id": act}) 
+            print(term)
+            if not term["ontology_type"] in ontology_type:
                 continue
             term =strip_term(term,relations)
-            graph[term["id"]] = term
+            graph[term["go_id"]] = term
             for rel in term["relations"].values():
                 for neighbour in rel:
                   if neighbour not in visited:
@@ -313,14 +318,14 @@ def  BFS_on_terms(term_id, relations: list = ["part_of","regulates","has_part"],
     for i in range(hierarchical_depth_to_children):
         terms = collection_go.find({"is_a": { "$in": terms }} )
         for t in terms:
-            t_id = t["id"]
+            t_id = t["go_id"]
             if t_id in visited:
                 term =strip_term(t,["is_a"])
                 graph[t_id]["relations"]['is_a']= term["relations"]["is_a"]
             else:
                 term =strip_term(t,["is_a"])
-                graph[term["id"]] = term
-            next_level_terms.append(term["id"])
+                graph[term["go_id"]] = term
+            next_level_terms.append(term["go_id"])
             
         terms = next_level_terms
         next_level_terms = []
@@ -329,7 +334,7 @@ def  BFS_on_terms(term_id, relations: list = ["part_of","regulates","has_part"],
     # terms= [term_id]
     # while terms: 
         # terms = collection_go.find({"id": { "$in": terms }} )
-        # for t in terms:
+        # while not terms.empty():
             # t_id = t["id"]
             # if t_id in visited:
                 # term =strip_term(t,["is_a"])
@@ -538,6 +543,9 @@ def create_app():
     def genes_to_go_terms():
         """Recieves a list of genes and returns the related terms
         """
+        
+        valid_filter_types = ["union", "intersection"]
+        valid_ontology_types =["biological_process", "molecular_function", "cellular_component"]
         response = {}
         gene_term_arguments= {}
         if request.method == 'POST':
@@ -546,12 +554,13 @@ def create_app():
                 abort(400, "gene_ids is mandatory")
             if "relation_type" in body:
                 gene_term_arguments["relation_type"] = body["relation_type"]
-                
             gene_term_arguments['gene_ids'] = body['gene_ids']
             for a in gene_term_arguments:
                 if not isinstance(gene_term_arguments[a], list):
                     abort(400, str(a)+" must be a list")
             if "filter_type" in body:
+                if not body["filter_type"] in valid_filter_types:
+                    abort(400, "filter_type is invalid. should be one of this options: "+ str(valid_filter_types))
                 gene_term_arguments["filter_type"] = body["filter_type"]
             terms= terms_related_to_many_genes(**gene_term_arguments)
             
@@ -560,6 +569,9 @@ def create_app():
                 populate_arguments["ontology_type"] = body["ontology_type"]
                 if not isinstance(body["ontology_type"], list):
                     abort(400, str(a)+" must be a list")
+                for ot in populate_arguments["ontology_type"]:
+                    if not (ot in valid_ontology_types):
+                        abort(400, str(ot)+" is not a valid ontology_type")
             response = populate_terms_with_data(list(terms), **populate_arguments)
         return make_response(response, 200, headers)
     
@@ -567,25 +579,27 @@ def create_app():
     def related_terms():
         """Recieves a term and returns the related terms
         """
-        
+        valid_ontology_types = ["biological_process", "molecular_function", "cellular_component"]
         response = {}
         arguments= {}
         if request.method == 'POST':
             body = request.get_json()
             if "term_id" not in body:
                 abort(400, "term_id is mandatory")
+            if is_term_on_db(body["term_id"]):
+                abort(400, "term_id is not on database")
             arguments["term_id"] = body["term_id"]
             try:
                 if "general_depth" in body:
                     arguments["general_depth"] = int(body["general_depth"])
+                    if arguments["general_depth"] < 0:
+                        abort(400, "depth should be a positive integer")
                 if "hierarchical_depth_to_children" in body:
                     arguments["hierarchical_depth_to_children"] = int(body["hierarchical_depth_to_children"])
+                    if arguments["hierarchical_depth_to_children"] < 0:
+                        abort(400, "hierarchical depth should be a positive integer")
             except ValueError:
                 abort(400, "depth should be an integer")
-            # if arguments["general_depth"] < 0:
-                 # abort(400, "depth should be a positive integer")
-            # if arguments["general_depth"] < 0:
-                 # abort(400, "depth should be a positive integer")
             if "relations" in body:
                 arguments["relations"] = body["relations"]
                 if type(arguments["relations"]) != list:
@@ -594,6 +608,10 @@ def create_app():
                 arguments["ontology_type"] = body["ontology_type"]
                 if type(arguments["ontology_type"]) != list:
                     abort(400, "ontology_type must be a list")
+                for ot in arguments["ontology_type"]:
+                    if not (ot in valid_ontology_types):
+                        abort(400, str(ot)+" is not a valid ontology_type")
+            
             response = BFS_on_terms(**arguments)
         return make_response(response, 200, headers)
     # Error handling
