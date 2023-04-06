@@ -73,6 +73,7 @@ Alternatively (but **not recommended** due to high computational demands) you ca
     - For Gene nomenclature ([HUGO Gene Nomenclature Committee](https://www.genenames.org/)) use "databases/hgnc" directory and the *hgnc2mongodb.sh* file.
     - For Gene expression ([Genotype-Tissue Expression (GTEx)](https://gtexportal.org/home/)) use "databases/gtex" directory and the *gtex2mongodb.sh*.
     - For Gene information ([Ensembl (Biomart tool)](https://www.ensembl.org/biomart/martview/)) use "databases/ensembl_gene" directory and the *ensembl_gene2mongodb.sh* file.  
+    - For Oncokb Drug information, it is necessary that you download the dataset from Therapeutic, Diagnostic and Prognostic datasets of Actionable Genes from its [official site](https://www.oncokb.org/actionableGenes) and place it within the directory "databases/oncokb" with the Name "oncokb_biomarker_drug_associations.tsv". Then use the same directory as before and the script oncokb2mongodb.sh to load.  
 3. Run bash files.  
     `./<file.sh>`  
     where file.sh can be *cpdb2mongodb.sh*, *hgnc2mongodb.sh*, *gtex2mongodb.sh*, or *ensembl_gene2mongodb.sh*, as appropriate.  
@@ -106,7 +107,7 @@ Where  *\<service\>* could be `nginx`, `web` or `mongo`.
 
 ## Update genomic databases
 If new versions are released for the genomic databases included in BioAPI, you can update them by following the instructions below:  
-- For the "Metabolic pathways (ConsensusPathDB)", "Gene nomenclature (HUGO Gene Nomenclature Committee)" and "Gene information (Ensembl)" databases, it is not necessary to make any modifications to any script. This is because the datasets are automatically downloaded in their most up-to-date versions when the bash file for each database is executed as described in the **Manually import the different databases** section of this file.  
+- For the "Metabolic pathways (ConsensusPathDB)", "Gene nomenclature (HUGO Gene Nomenclature Committee)", "Gene information (Ensembl)" and Drugs (OncoKB) databases, it is not necessary to make any modifications to any script. This is because the datasets are automatically downloaded in their most up-to-date versions when the bash file for each database is executed as described in the **Manually import the different databases** section of this file.  
 - If you need to update the "Gene expression (Genotype-Tissue Expression)" database, you should also follow the procedures in the section named above, but first you should edit the bash file as follows:  
     1. Modify the **gtex2mongodb.sh** file. Edit the variables *"expression_url"* and *"annotation_url"*.
     1. In the *expession_url* variable, set the url corresponding to the GTEx "RNA-Seq Data" compressed file (gz compression). This file should contain the Gene TPMs values (Remember that Gene expression on the GTEx Portal are shown in Transcripts Per Million or TPMs).
