@@ -27,7 +27,7 @@ parser.add_argument('--output', help='Nombre del archivo Json de salida', requir
 args = parser.parse_args(namespace=c)
 
 #Defino funciones
-def get_clasification(evidence: str): # Obtiene el nivel de evidencia nivel 2 desde OncoKB
+def get_classification(evidence: str): # Obtiene el nivel de evidencia nivel 2 desde OncoKB
     result = None
     for key in EVIDENCE:
         if evidence in EVIDENCE[key]:
@@ -45,19 +45,20 @@ if __name__ == '__main__':
     headers = next(contenido) 
     # Level	Gene	Alterations	Cancer Types	Drugs (for therapeutic implications only)
     # Cambio nombres en el header:
-    headers[headers.index('Drugs (for therapeutic implications only)')] = 'Drugs'
-    headers[headers.index('Cancer Types')] = 'Cancer_Types'
-    headers[headers.index('Level')] = 'OncoKB_Level_of_Evidence'
-    headers[headers.index('Alterations')] = 'Alterations'
+    headers[headers.index('Drugs (for therapeutic implications only)')] = 'drugs'
+    headers[headers.index('Cancer Types')] = 'cancer_types'
+    headers[headers.index('Level')] = 'level_of_evidence'
+    headers[headers.index('Alterations')] = 'alterations'
+    headers[headers.index('Gene')] = 'gene'
 
     for registro in contenido:
         json_file = {}
         for i in range(0, len(headers)):
-            if headers[i] == 'OncoKB_Level_of_Evidence':
+            if headers[i] == 'level_of_evidence':
                 json_file["level_of_evidence"] = registro[i]
-                clasification = get_clasification(registro[i])
-                if clasification != None:
-                    json_file["clasification"] = clasification
+                classification = get_classification(registro[i])
+                if classification != None:
+                    json_file["classification"] = classification
             else: 
                 if registro[i] != "":
                     json_file[headers[i]] = registro[i]
