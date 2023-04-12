@@ -48,7 +48,12 @@ if __name__ == '__main__':
         for i in range(0, len(headers)):
             if i not in headers_a_filtrar:
                 if registro[i] != "" and registro[i] != None and registro[i].upper() != 'NULL':
-                    json_file[headers[i]] = registro[i]
+                    if registro[i].upper() == "YES":
+                        json_file[headers[i]] = 1
+                    elif registro[i].upper() == "NO":
+                        json_file[headers[i]] = 0
+                    else:
+                        json_file[headers[i]] = registro[i]
         cont_json.append(json_file)
         
     jsonfile = open(archivo_salida, "w")
