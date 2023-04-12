@@ -86,7 +86,7 @@ Service that takes a string of any length and returns a list of genes that conta
 
 From a list of valid genes, obtain their descriptions, types and chromosomal coordinates for the reference human genomes GRCh37 and GRCh37.  
 
-- URL: /gene-symbols
+- URL: /information-of-genes
 - Method: POST  
 - Params: A body in Json format with the following content
     -  `gene_ids` : list of valid genes identifiers  
