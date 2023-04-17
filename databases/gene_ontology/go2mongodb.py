@@ -3,6 +3,7 @@ import os
 import gzip
 import shutil
 from pymongo import MongoClient
+import json
 
 
 
@@ -35,20 +36,23 @@ def pile_into_dict(dic,key,content):
         dic[key]= content
 
 
-print("INFO	Downloading Gene Ontology database...")
-urllib.request.urlretrieve("http://purl.obolibrary.org/obo/go.obo", "go.obo")
-print("INFO	OK.")
+# print("INFO	Downloading Gene Ontology database...")
+# urllib.request.urlretrieve("http://purl.obolibrary.org/obo/go.obo", "go.obo")
+# print("INFO	OK.")
 
-print("INFO	Downloading Gene Ontology anotations database...")
-urllib.request.urlretrieve("http://geneontology.org/gene-associations/goa_human_isoform.gaf.gz", "goa_human_isoform.gaf.gz")
-print("INFO	OK.")
+# print("INFO	Downloading Gene Ontology anotations database...")
+# urllib.request.urlretrieve("http://geneontology.org/gene-associations/goa_human_isoform.gaf.gz", "goa_human_isoform.gaf.gz")
+# urllib.request.urlretrieve("http://geneontology.org/gene-associations/goa_human.gaf.gz", "goa_human.gaf.gz")
+# print("INFO	OK.")
 
-print("INFO	Uncompresing anotations")
-with gzip.open('goa_human_isoform.gaf.gz', 'rb') as f_in:
-    with open('goa_human_isoform.gaf', 'wb') as f_out:
-        shutil.copyfileobj(f_in, f_out)
-
-print("INFO	OK.")
+# print("INFO	Uncompresing anotations")
+# with gzip.open('goa_human_isoform.gaf.gz', 'rb') as f_in:
+    # with open('goa_human_isoform.gaf', 'wb') as f_out:
+        # shutil.copyfileobj(f_in, f_out)
+# with gzip.open('goa_human.gaf.gz', 'rb') as f_in:
+    # with open('goa_human.gaf', 'wb') as f_out:
+        # shutil.copyfileobj(f_in, f_out)
+# print("INFO	OK.")
 
 
 print("INFO	Processing Gene Ontology database...")
@@ -129,33 +133,59 @@ def map_gene(gene: str) -> List[str]:
     res = [doc["symbol"] for doc in docs]
     return res
 
+def process_anotations(anotations,all_genes,rejected_aliases):
+    line = anotations.readline().strip()
+    gene={}
+    gene_symbol= ""
+    for line in anotations:
+        if line[0]!="!":
+            line = line.strip().split("\t")
+
+            if gene_symbol == line[2]:
+                pass
+            else:
+                if gene_symbol != "":
+                    real_alias= map_gene(gene["gene_symbol"])
+                    if len(real_alias)==1: 
+                        real_alias = real_alias[0]
+                        if real_alias in all_genes: 
+                            gene.pop("gene_symbol")
+                            for att in gene:
+                                if att in all_genes[real_alias]:
+                                    if isinstance(all_genes[real_alias][att],str):
+                                        all_genes[real_alias][att]= [all_genes[real_alias][att]]
+                                    if isinstance(gene[att],str):
+                                        gene[att] = [gene[att]]
+                                    all_genes[real_alias][att].extend(gene[att])
+                                        
+                                else:
+                                    all_genes[real_alias][att] = gene[att]
+                            # print(all_genes[real_alias])
+                        else:
+                            gene["gene_symbol"] = real_alias
+                            all_genes[gene["gene_symbol"]]=gene
+                            # print("agregado"+str(gene["gene_symbol"]))
+                    else:
+                        rejected_aliases[gene["gene_symbol"]]=real_alias
+                gene_symbol = line[2]
+                gene={"gene_symbol":gene_symbol}
+            pile_into_dict(gene,line[3],line[4].split(":")[1])
+
+
 anotations = open("goa_human_isoform.gaf", "r")
-line = anotations.readline().strip()
-
-gene={}
-all_genes=[]
-gene_symbol= ""
-counter= 0
-
-for line in anotations:
-    if line[0]!="!":
-        line = line.strip().split("\t")
-
-        if gene_symbol == line[2]:
-            pass
-        else:
-            if gene_symbol != "":
-                real_alias= map_gene(gene["gene_symbol"])
-                if len(real_alias)==1: 
-                    gene["gene_symbol"] = real_alias[0]
-                    all_genes.append(gene)
-                else:
-                    counter+=1
-            gene_symbol = line[2]
-            gene={"gene_symbol":gene_symbol}
-        pile_into_dict(gene,line[3],line[4].split(":")[1])
+all_genes={}
+rejected_aliases = dict()
+process_anotations(anotations,all_genes,rejected_aliases)
 anotations.close()
-print("INFO	"+str(counter)+" lines were discarded due to ambiguity with gene ids")
+
+print("INFO	Processing MORE Gene Ontology anotations...")
+anotations = open("goa_human.gaf", "r")
+process_anotations(anotations,all_genes,rejected_aliases)
+anotations.close()
+
+with open('logs.json', 'w') as fp:
+    json.dump(rejected_aliases, fp)
+print("INFO	log.json was created containing all the rejected aliases")
 print("INFO	OK.")
 
 
@@ -165,7 +195,7 @@ print("INFO	Importing to MongoDB...")
 
 anotation_colection = db["go_anotations"]
 anotation_colection.drop()
-anotation_colection.insert_many(all_genes)
+anotation_colection.insert_many(list(all_genes.values()))
 
 
 go_colection = db["go"]
@@ -186,9 +216,11 @@ print("INFO	OK.")
 
 
 
-print("INFO	Removing intermediate files...")
-os.remove("go.obo")
-os.remove("goa_human_isoform.gaf.gz")
-os.remove("goa_human_isoform.gaf")
+# print("INFO	Removing intermediate files...")
+# os.remove("go.obo")
+# os.remove("goa_human_isoform.gaf.gz")
+# os.remove("goa_human_isoform.gaf")
+# os.remove("goa_human.gaf.gz")
+# os.remove("goa_human.gaf")
 
 print("INFO	OK.")

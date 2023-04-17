@@ -239,6 +239,10 @@ def terms_related_to_one_gene(gene: str, relation_type: list= ["enables","involv
         for relation in relation_type:
             if relation in anotation:
                 if isinstance(anotation[relation], list):
+                    print("..........")
+                    print(anotation[relation])
+                    print(anotation)
+                
                     related_genes.update(anotation[relation])
                 else:
                     related_genes.add(anotation[relation])
