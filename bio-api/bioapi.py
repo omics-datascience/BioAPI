@@ -228,6 +228,27 @@ def get_expression_from_gtex(tissue: str, genes: List) -> List:
     return list(temp.values())
 
 
+def get_drugs_from_oncokb(genes: List) -> List:
+    """
+    Gets all drugs associated with a gene list
+    :param genes: List of genes to filter
+    :return: Dict of genes with their associated drugs according to OncoKB database
+    """
+    collection = mydb["oncokb_biomarker_drug_associations"]  # Connects to collection
+    query = {'gene': {'$in': genes}}
+    projection = {'_id': 0}
+    docs = collection.find(query, projection)
+    res = {}
+    for doc in docs:
+        gen = doc["gene"]
+        doc.pop("gene")
+        if gen not in res:
+            res[gen] = []
+        res[gen].append(doc)
+
+    return res
+
+
 def create_app():
     # Creates and configures the app
     flask_app = Flask(__name__, instance_relative_config=True)
@@ -413,6 +434,25 @@ def create_app():
             response.headers['Content-Encoding'] = 'gzip'
             return response
         return jsonify(expression_data)
+    
+
+    @flask_app.route("/drugs", methods=['POST'])
+    def drugs_data():
+        body = request.get_json()
+
+        if "gene_ids" not in body:
+            abort(400, "gene_ids is mandatory")
+
+        gene_ids = body['gene_ids']
+        if type(gene_ids) != list:
+            abort(400, "gene_ids must be a list")
+
+        if len(gene_ids) == 0:
+            abort(400, "gene_ids must contain at least one gene symbol")
+
+        data = get_drugs_from_oncokb(gene_ids)
+
+        return jsonify(data)
 
     # Error handling
     @flask_app.errorhandler(400)

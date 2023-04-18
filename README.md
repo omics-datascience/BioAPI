@@ -16,7 +16,7 @@ BioMart data mining tool was used to obtain a gene-related dataset from Ensembl.
 ConsensusPathDB-human integrates interaction networks in Homo sapiens including binary and complex protein-protein, genetic, metabolic, signaling, gene regulatory and drug-target interactions, as well as biochemical pathways. Data originate from currently 31 public resources for interactions (listed below) and interactions that we have curated from the literature. The interaction data are integrated in a complementary manner (avoiding redundancies), resulting in a seamless interaction network containing different types of interactions. Downloaded from its official website in September 2022.          
 4. Gene expression: [Genotype-Tissue Expression (GTEx)](https://gtexportal.org/home/).  
 The Genotype-Tissue Expression (GTEx) project is an ongoing effort to build a comprehensive public resource to study tissue-specific gene expression and regulation. Samples were collected from 54 non-diseased tissue sites across nearly 1000 individuals, primarily for molecular assays including WGS, WES, and RNA-Seq. GTEx is being used in its version [GTEx Analysis V8 (dbGaP Accession phs000424.v8.p2)](https://gtexportal.org/home/datasets#datasetDiv1) and was downloaded from its official website in September 2022.  
-5. Actionable genes: [OncoKB](https://www.oncokb.org/).  
+5. Actionable and Cancer genes: [OncoKB](https://www.oncokb.org/).  
 OncoKB™ is a precision oncology knowledge base developed at Memorial Sloan Kettering Cancer Center that contains biological and clinical information about genomic alterations in cancer. Alteration- and tumor type-specific therapeutic implications are classified using the OncoKB™ [Levels of Evidence system](https://www.oncokb.org/levels), which assigns clinical actionability to individual mutational events. Downloaded from its official website in April 2023.  
 
 
@@ -300,6 +300,42 @@ This service gets gene expression in healthy tissue
             keep in mind:
             - As an example only three samples are shown. Note that in the GTEx database there may be more than 2500 samples for a given healthy tissue.
             - If one of the genes entered as a parameter corresponds to an invalid symbol, the response will omit the values for that gene. It is recommended to use the *"Genes symbols validator"* service to validate your genes before using this functionality.
+
+
+### Gene drugs
+
+This service retrieves drugs with some level of evidence associated with a list of genes from the OncoKB database.  
+
+- URL: /drugs
+- Method: POST  
+- Params: A body in Json format with the following content
+    -  `gene_ids`: list of genes for which you want to get the drugs from OncoKB database.  
+- Success Response:
+    - Code: 200
+    - Content:
+        The response you get is a dict. Each key of the list is a gene with information in OncoKB. For each key gene, the value is a list. Each item in the list is a Dict containing the following associated drug information obtained from OncoKB.  
+        - `<drugs>`: drug associated with specific gene alteration.
+        - `<alterations>`: specific cancer gene alterations.
+        - `<cancer_types>`: type of cancer according to OncoTree [nomenclature](http://oncotree.mskcc.org/)
+        - `<classification>`: clinical implications of the drug (therapeutic, diagnostic, and prognostic).
+        - `<level_of_evidence>`: [Level of evidence](https://www.oncokb.org/levels#version=V2) of the drug according to OncoKB version 2.
+    - Example:
+        - URL: http://localhost:8000/drugs
+        - body: `{ "gene_ids": ["ATM"] }`
+        - Response:
+            ```json
+            {
+                "ATM": [
+                    {
+                        "alterations": "Oncogenic Mutations",
+                        "cancer_types": "Prostate Cancer, NOS, Prostate Cancer",
+                        "classification": "Therapeutic",
+                        "drugs": "Olaparib",
+                        "level_of_evidence": "1"
+                    }
+                ]
+            }
+            ```  
 
 
 ## Error Responses
