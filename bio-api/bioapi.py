@@ -181,15 +181,15 @@ def get_pathways_of_gene(gene):
 
 def get_information_of_genes(genes: List[str]) -> Dict:
     res = {}
-    collection_ensembl_gene_grch37 = mydb["ensembl_gene_grch37"]
-    collection_ensembl_gene_grch38 = mydb["ensembl_gene_grch38"]
+    collection_gene_grch37 = mydb["gene_grch37"]
+    collection_gene_grch38 = mydb["gene_grch38"]
 
     # Generates query
     query = {"hgnc_symbol": {"$in": genes}}
     projection = {'_id': 0, 'description': 1, 'hgnc_symbol': 1, 'gene_biotype': 1, 'chromosome_name': 1,
                   'start_position': 1, 'end_position': 1}
-    docs_grch37 = collection_ensembl_gene_grch37.find(query, projection)
-    docs_grch38 = collection_ensembl_gene_grch38.find(query, projection)
+    docs_grch37 = collection_gene_grch37.find(query, projection)
+    docs_grch38 = collection_gene_grch38.find(query, projection)
 
     for doc_grch38 in docs_grch38:
         res[doc_grch38["hgnc_symbol"]] = {}
@@ -228,11 +228,11 @@ def get_expression_from_gtex(tissue: str, genes: List) -> List:
     return list(temp.values())
 
 
-def get_drugs_from_oncokb(genes: List) -> List:
+def get_data_from_oncokb(genes: List) -> List:
     """
-    Gets all drugs associated with a gene list
+    Gets all data associated with a gene list
     :param genes: List of genes to filter
-    :return: Dict of genes with their associated drugs according to OncoKB database
+    :return: Dict of genes with their associated drugs and information according to OncoKB database
     """
     collection = mydb["oncokb_biomarker_drug_associations"]  # Connects to collection
     query = {'gene': {'$in': genes}}
@@ -322,7 +322,7 @@ def create_app():
 
     @flask_app.route("/information-of-genes", methods=['POST'])
     def information_of_genes():
-        """Receives a list of gene IDs and returns information from Ensembl about them."""
+        """Receives a list of gene IDs and returns information about them."""
         body = request.get_json()
         if "gene_ids" not in body:
             abort(400, "gene_ids is mandatory")
@@ -436,8 +436,8 @@ def create_app():
         return jsonify(expression_data)
     
 
-    @flask_app.route("/drugs", methods=['POST'])
-    def drugs_data():
+    @flask_app.route("/information-of-oncokb", methods=['POST'])
+    def oncokb_data():
         body = request.get_json()
 
         if "gene_ids" not in body:
@@ -450,7 +450,7 @@ def create_app():
         if len(gene_ids) == 0:
             abort(400, "gene_ids must contain at least one gene symbol")
 
-        data = get_drugs_from_oncokb(gene_ids)
+        data = get_data_from_oncokb(gene_ids)
 
         return jsonify(data)
 

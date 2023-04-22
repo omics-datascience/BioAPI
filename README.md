@@ -303,10 +303,9 @@ This service gets gene expression in healthy tissue
 
 
 ### Gene drugs
+This service retrieves information of genes and drugs obtained from the OncoKB database, at a therapeutic, diagnostic and prognostic level.  
 
-This service retrieves drugs with some level of evidence associated with a list of genes from the OncoKB database.  
-
-- URL: /drugs
+- URL: /information-of-oncokb
 - Method: POST  
 - Params: A body in Json format with the following content
     -  `gene_ids`: list of genes for which you want to get the drugs from OncoKB database.  
@@ -316,11 +315,11 @@ This service retrieves drugs with some level of evidence associated with a list 
         The response you get is a dict. Each key of the list is a gene with information in OncoKB. For each key gene, the value is a list. Each item in the list is a Dict containing the following associated drug information obtained from OncoKB.  
         - `<drugs>`: drug associated with specific gene alteration.
         - `<alterations>`: specific cancer gene alterations.
-        - `<cancer_types>`: type of cancer according to OncoTree [nomenclature](http://oncotree.mskcc.org/)
+        - `<cancer_types>`: type of cancer according to OncoTree [nomenclature](http://oncotree.mskcc.org/).
         - `<classification>`: clinical implications of the drug (therapeutic, diagnostic, and prognostic).
-        - `<level_of_evidence>`: [Level of evidence](https://www.oncokb.org/levels#version=V2) of the drug according to OncoKB version 2.
+        - `<level_of_evidence>`: [Level of evidence](https://www.oncokb.org/levels#version=V2) of the drug or gene according to OncoKB version 2.
     - Example:
-        - URL: http://localhost:8000/drugs
+        - URL: http://localhost:8000/information-of-oncokb
         - body: `{ "gene_ids": ["ATM"] }`
         - Response:
             ```json
