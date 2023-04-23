@@ -72,7 +72,7 @@ Alternatively (but **not recommended** due to high computational demands) you ca
     - For Metabolic pathways ([ConsensusPathDB](http://cpdb.molgen.mpg.de/)) use "databases/cpdb" directory and the *cpdb2mongodb.sh* file.
     - For Gene nomenclature ([HUGO Gene Nomenclature Committee](https://www.genenames.org/)) use "databases/hgnc" directory and the *hgnc2mongodb.sh* file.
     - For Gene expression ([Genotype-Tissue Expression (GTEx)](https://gtexportal.org/home/)) use "databases/gtex" directory and the *gtex2mongodb.sh*.
-    - For Gene information ([Ensembl (Biomart tool)](https://www.ensembl.org/biomart/martview/)) use "databases/ensembl_gene" directory and the *ensembl_gene2mongodb.sh* file.  
+    - For Gene information ([Ensembl genomic data](https://www.ensembl.org/biomart/martview/), [RefSeq gene summaries](https://www.ncbi.nlm.nih.gov/refseq/), and [CiVIC gene descriptions](https://civicdb.org/welcome)) use "databases/gene_info" directory and the *geneinfo2mongodb.sh* file.  
     - For Oncokb cancer genes and Drug information, it is necessary that you download the datasets from their [official site](https://www.oncokb.org/actionableGenes) (registration required). To Accionable Genes download Therapeutic, Diagnostic and Prognostic dataset of [Actionable Genes](https://www.oncokb.org/actionableGenes) and place it within the directory "databases/oncokb" with the Name "oncokb_biomarker_drug_associations.tsv". To Cancer Genes download the dataset of [Cancer Genes](https://www.oncokb.org/cancerGenes) and place it within the same directory as abobe with the Name "cancerGeneList.tsv". Then use the oncokb2mongodb.sh script to load both data sets into MongoDB.  
 3. Run bash files.  
     `./<file.sh>`  
@@ -107,8 +107,10 @@ Where  *\<service\>* could be `nginx`, `web` or `mongo`.
 
 ## Update genomic databases
 If new versions are released for the genomic databases included in BioAPI, you can update them by following the instructions below:  
-- For the "Metabolic pathways (ConsensusPathDB)", "Gene nomenclature (HUGO Gene Nomenclature Committee)", "Gene information (Ensembl)" and "Cancer and Accionable genes (OncoKB)" databases, it is not necessary to make any modifications to any script. This is because the datasets are automatically downloaded in their most up-to-date versions when the bash file for each database is executed as described in the **Manually import the different databases** section of this file.  
-*Note*: for OncoKB the download is not automatic since it requires registration, but the steps to download them manually are explained in the same section mentioned above.  
+- For the "Metabolic pathways (ConsensusPathDB)", "Gene nomenclature (HUGO Gene Nomenclature Committee)", "Gene information (from Ensembl and CiVIC)" and "Cancer and Accionable genes (OncoKB)" databases, it is not necessary to make any modifications to any script. This is because the datasets are automatically downloaded in their most up-to-date versions when the bash file for each database is executed as described in the **Manually import the different databases** section of this file.  
+**Important notes**: 
+  - For OncoKB the download is not automatic since it requires registration, but the steps to download them manually are explained in the same section mentioned above.  
+  - For RefSeq gene summaries, the R package [GeneSummary](https://bioconductor.org/packages/release/data/annotation/html/GeneSummary.html) is used. The update of the database will depend on the version that the package includes.   
 - If you need to update the "Gene expression (Genotype-Tissue Expression)" database, you should also follow the procedures in the section named above, but first you should edit the bash file as follows:  
     1. Modify the **gtex2mongodb.sh** file. Edit the variables *"expression_url"* and *"annotation_url"*.
     1. In the *expession_url* variable, set the url corresponding to the GTEx "RNA-Seq Data" compressed file (gz compression). This file should contain the Gene TPMs values (Remember that Gene expression on the GTEx Portal are shown in Transcripts Per Million or TPMs).

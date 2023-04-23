@@ -10,8 +10,10 @@ This document is focused on the **development** of the system. If you are lookin
 BioAPI obtains information from different bioinformatic databases. These databases were installed locally to reduce data search time. The databases currently integrated to BioAPI are:
 1. Gene nomenclature: [HUGO Gene Nomenclature Committee](https://www.genenames.org/).  
 HGNC is the resource for approved human gene nomenclature. Downloaded from its official website in September 2022.  
-2. Gene information: [ENSEMBL](http://www.ensembl.org/biomart/martview).  
-BioMart data mining tool was used to obtain a gene-related dataset from Ensembl. Ensembl is a genome browser for vertebrate genomes that supports research in comparative genomics, evolution, sequence variation and transcriptional regulation. Ensembl annotate genes, computes multiple alignments, predicts regulatory function and collects disease data. Downloaded using *BioMart data mining tool* in September 2022.  
+2. Gene information:  
+ - [ENSEMBL](http://www.ensembl.org/biomart/martview): BioMart data mining tool was used to obtain a gene-related dataset from Ensembl. Ensembl is a genome browser for vertebrate genomes that supports research in comparative genomics, evolution, sequence variation and transcriptional regulation. Ensembl annotate genes, computes multiple alignments, predicts regulatory function and collects disease data. Downloaded using *BioMart data mining tool* in September 2022.
+ - [RefSeq](https://www.ncbi.nlm.nih.gov/refseq/): The summary of each human gene was obtained from the RefSeq database. RefSeq (Reference Sequence) is the public database of annotated and curated nucleic acid (DNA and RNA) and protein sequences from the National Center for Biotechnology Information (NCBI). To obtain the summaries, the R package called [GeneSummary](https://bioconductor.org/packages/release/data/annotation/html/GeneSummary.html) was used, which obtains the abstracts from version 214 of RefSeq.
+ - [CiVIC](https://civicdb.org/welcome): A description of the genes oriented to clinical interpretation in cancer was obtained from the CiVIC database, an open-source platform supporting crowdsourced and expert-moderated cancer variant curation. The database was downloaded from its official website in April 2023.  
 3. Metabolic pathways: [ConsensusPathDB](http://cpdb.molgen.mpg.de/).  
 ConsensusPathDB-human integrates interaction networks in Homo sapiens including binary and complex protein-protein, genetic, metabolic, signaling, gene regulatory and drug-target interactions, as well as biochemical pathways. Data originate from currently 31 public resources for interactions (listed below) and interactions that we have curated from the literature. The interaction data are integrated in a complementary manner (avoiding redundancies), resulting in a seamless interaction network containing different types of interactions. Downloaded from its official website in September 2022.          
 4. Gene expression: [Genotype-Tissue Expression (GTEx)](https://gtexportal.org/home/).  
@@ -302,17 +304,17 @@ This service gets gene expression in healthy tissue
             - If one of the genes entered as a parameter corresponds to an invalid symbol, the response will omit the values for that gene. It is recommended to use the *"Genes symbols validator"* service to validate your genes before using this functionality.
 
 
-### Gene drugs
-This service retrieves information of genes and drugs obtained from the OncoKB database, at a therapeutic, diagnostic and prognostic level.  
+### Actionable and Cancer genes
+This service retrieves information of actionable genes and drugs obtained from the OncoKB database, at a therapeutic, diagnostic and prognostic level.  
 
 - URL: /information-of-oncokb
 - Method: POST  
 - Params: A body in Json format with the following content
-    -  `gene_ids`: list of genes for which you want to get the drugs from OncoKB database.  
+    -  `gene_ids`: list of genes for which you want to get the information from OncoKB database.  
 - Success Response:
     - Code: 200
     - Content:
-        The response you get is a dict. Each key of the list is a gene with information in OncoKB. For each key gene, the value is a list. Each item in the list is a Dict containing the following associated drug information obtained from OncoKB.  
+        The response you get is a dict. Each key of the list is a gene with information in OncoKB. For each key gene, the value is a list. Each item in the list is a Dict containing the following information obtained from OncoKB.  
         - `<drugs>`: drug associated with specific gene alteration.
         - `<alterations>`: specific cancer gene alterations.
         - `<cancer_types>`: type of cancer according to OncoTree [nomenclature](http://oncotree.mskcc.org/).
