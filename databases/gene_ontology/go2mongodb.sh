@@ -10,8 +10,8 @@
 
 
 
-# echo "INFO	Downloading Gene Ontology database..."
-# wget -t 10 -O "gos.obo" "purl.obolibrary.org/obo/go.obo"
+echo "INFO	Downloading Gene Ontology database..."
+wget -t 10 -O "gos.obo" "purl.obolibrary.org/obo/go.obo"
 # echo "INFO	OK."
 
 # echo "INFO	Downloading Gene Ontology anotations database..."

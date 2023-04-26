@@ -36,23 +36,23 @@ def pile_into_dict(dic,key,content):
         dic[key]= content
 
 
-# print("INFO	Downloading Gene Ontology database...")
-# urllib.request.urlretrieve("http://purl.obolibrary.org/obo/go.obo", "go.obo")
-# print("INFO	OK.")
+print("INFO	Downloading Gene Ontology database...")
+urllib.request.urlretrieve("http://purl.obolibrary.org/obo/go.obo", "go.obo")
+print("INFO	OK.")
 
-# print("INFO	Downloading Gene Ontology anotations database...")
-# urllib.request.urlretrieve("http://geneontology.org/gene-associations/goa_human_isoform.gaf.gz", "goa_human_isoform.gaf.gz")
-# urllib.request.urlretrieve("http://geneontology.org/gene-associations/goa_human.gaf.gz", "goa_human.gaf.gz")
-# print("INFO	OK.")
+print("INFO	Downloading Gene Ontology anotations database...")
+urllib.request.urlretrieve("http://geneontology.org/gene-associations/goa_human_isoform.gaf.gz", "goa_human_isoform.gaf.gz")
+urllib.request.urlretrieve("http://geneontology.org/gene-associations/goa_human.gaf.gz", "goa_human.gaf.gz")
+print("INFO	OK.")
 
-# print("INFO	Uncompresing anotations")
-# with gzip.open('goa_human_isoform.gaf.gz', 'rb') as f_in:
-    # with open('goa_human_isoform.gaf', 'wb') as f_out:
-        # shutil.copyfileobj(f_in, f_out)
-# with gzip.open('goa_human.gaf.gz', 'rb') as f_in:
-    # with open('goa_human.gaf', 'wb') as f_out:
-        # shutil.copyfileobj(f_in, f_out)
-# print("INFO	OK.")
+print("INFO	Uncompresing anotations")
+with gzip.open('goa_human_isoform.gaf.gz', 'rb') as f_in:
+    with open('goa_human_isoform.gaf', 'wb') as f_out:
+        shutil.copyfileobj(f_in, f_out)
+with gzip.open('goa_human.gaf.gz', 'rb') as f_in:
+    with open('goa_human.gaf', 'wb') as f_out:
+        shutil.copyfileobj(f_in, f_out)
+print("INFO	OK.")
 
 
 print("INFO	Processing Gene Ontology database...")
@@ -146,8 +146,12 @@ def process_anotations(anotations,all_genes,rejected_aliases):
             else:
                 if gene_symbol != "":
                     real_alias= map_gene(gene["gene_symbol"])
-                    if len(real_alias)==1: 
-                        real_alias = real_alias[0]
+                    if len(real_alias)==1 or gene["gene_symbol"] in real_alias: 
+                        if len(real_alias)!=1 and gene["gene_symbol"] in real_alias:
+                            rejected_aliases["accepted: "+gene["gene_symbol"]]=real_alias
+                            real_alias = gene["gene_symbol"]
+                        else:
+                            real_alias = real_alias[0]
                         if real_alias in all_genes: 
                             gene.pop("gene_symbol")
                             for att in gene:
@@ -211,16 +215,16 @@ print("INFO	Creating indexes in MongoDB...")
 go_colection.create_index([ ("id", 1) ]) 
 anotation_colection.create_index([ ("gene_symbol", 1) ]) 
 
-# mongoClient.close()
+mongoClient.close()
 print("INFO	OK.")
 
 
 
-# print("INFO	Removing intermediate files...")
-# os.remove("go.obo")
-# os.remove("goa_human_isoform.gaf.gz")
-# os.remove("goa_human_isoform.gaf")
-# os.remove("goa_human.gaf.gz")
-# os.remove("goa_human.gaf")
+print("INFO	Removing intermediate files...")
+os.remove("go.obo")
+os.remove("goa_human_isoform.gaf.gz")
+os.remove("goa_human_isoform.gaf")
+os.remove("goa_human.gaf.gz")
+os.remove("goa_human.gaf")
 
 print("INFO	OK.")

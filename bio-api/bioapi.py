@@ -253,7 +253,6 @@ def terms_related_to_one_gene(gene: str, relation_type: list= ["enables","involv
 
 def is_term_on_db(term_id):
     collection_go = mydb["go"]
-    print(collection_go.find_one({"go_id": term_id}))
     return collection_go.find_one({"go_id": term_id}) == None
  
 def terms_related_to_many_genes(gene_ids: list, filter_type = "intersection", relation_type: list= ["enables","involved_in","part_of","located_in"]):

@@ -1,0 +1,1 @@
+wget -t 10 -O "test.zip" "https://api.pharmgkb.org/v1/download/file/data/drugs.zip"
