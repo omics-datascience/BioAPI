@@ -4,7 +4,8 @@ import shutil
 from pymongo import MongoClient
 import json
 
-
+import requests, zipfile, io
+import os
 
 
 
@@ -30,7 +31,6 @@ def pile_into_dict(dic,key,content):
 
 
 
-import requests, zipfile, io
 
 print("INFO	Downloading PharmGKB database...")
 url = "https://api.pharmgkb.org/v1/download/file/data/drugLabels.zip"
@@ -70,7 +70,8 @@ for line in drugs:
         "Variants/Haplotypes":line[12] #if line[3]
         
         })
-
+drugs.close()
+print("INFO	OK.")
 
 # #URL https://www.pharmgkb.org/labelAnnotations
 # cancer_drugs = open("all-data.tsv", "r")
@@ -136,11 +137,12 @@ print("INFO	OK.")
 
 
 
-# # print("INFO	Removing intermediate files...")
-# # os.remove("go.obo")
-# # os.remove("goa_human_isoform.gaf.gz")
-# # os.remove("goa_human_isoform.gaf")
-# # os.remove("goa_human.gaf.gz")
-# # os.remove("goa_human.gaf")
+print("INFO	Removing intermediate files...")
+os.remove("README.pdf")
+os.remove("LICENSE.txt")
+os.remove("drugLabels.tsv")
+os.remove("drugLabels.byGene.tsv")
 
-# print("INFO	OK.")
+
+
+print("INFO	OK.")

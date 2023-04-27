@@ -353,6 +353,14 @@ def  BFS_on_terms(term_id, relations: list = ["part_of","regulates","has_part"],
     
     
     return str(list(graph.values()))
+
+# pharmGKB
+
+def cancer_drugs_related_to_gene(gene):
+    collection_pharm = mydb["pharmgkb"]
+    print(collection_pharm.find({"genes":gene},{"_id":0}))
+    return list(collection_pharm.find({"genes":gene},{"_id":0}))
+
 #app
 
 def create_app():
@@ -618,6 +626,23 @@ def create_app():
             response = BFS_on_terms(**arguments)
         return make_response(response, 200, headers)
     # Error handling
+    @flask_app.route("/drugs", methods=['POST'])
+    def cancer_drugs_related_to_genes():
+        """Recieves genes and returns the related drugs
+        """
+        response= {}
+        if request.method == 'POST':
+            body = request.get_json()
+            if "gene_ids" not in body:
+                abort(400, "gene_ids is mandatory")
+            if type(body["gene_ids"]) != list:
+                    abort(400, "gene_ids must be a list")
+            for gene in body["gene_ids"]:
+                response[gene] = cancer_drugs_related_to_gene(gene)
+        return ((jsonify(response)))
+    
+    
+    
     @flask_app.errorhandler(400)
     def bad_request(e):
         return jsonify(error=str(e)), 400
