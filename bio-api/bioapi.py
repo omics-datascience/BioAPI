@@ -183,26 +183,32 @@ def get_information_of_genes(genes: List[str]) -> Dict:
     res = {}
     collection_gene_grch37 = mydb["gene_grch37"]
     collection_gene_grch38 = mydb["gene_grch38"]
+    collection_gene_oncokb = mydb["oncokb_gene_cancer_list"]
 
     # Generates query
     query = {"hgnc_symbol": {"$in": genes}}
-    projection = {'_id': 0, 'description': 1, 'hgnc_symbol': 1, 'gene_biotype': 1, 'chromosome_name': 1,
-                  'start_position': 1, 'end_position': 1}
+    projection = {'_id': 0, 'hgnc_id': 0}
+
     docs_grch37 = collection_gene_grch37.find(query, projection)
     docs_grch38 = collection_gene_grch38.find(query, projection)
+    docs_oncokb = collection_gene_oncokb.find(query, projection)
 
     for doc_grch38 in docs_grch38:
-        res[doc_grch38["hgnc_symbol"]] = {}
-        res[doc_grch38["hgnc_symbol"]]["description"] = doc_grch38["description"]
-        res[doc_grch38["hgnc_symbol"]]["type"] = doc_grch38["gene_biotype"]
-        res[doc_grch38["hgnc_symbol"]]["chromosome"] = str(doc_grch38["chromosome_name"])
-        res[doc_grch38["hgnc_symbol"]]["start"] = str(doc_grch38["start_position"])
-        res[doc_grch38["hgnc_symbol"]]["end"] = str(doc_grch38["end_position"])
+        res[doc_grch38["hgnc_symbol"]] = doc_grch38
+        res[doc_grch38["hgnc_symbol"]]["chromosome"] = str(res[doc_grch38["hgnc_symbol"]].pop("chromosome_name"))
+        res[doc_grch38["hgnc_symbol"]].pop("hgnc_symbol")   
 
     for doc_grch37 in docs_grch37:
         if doc_grch37["hgnc_symbol"] in res:
-            res[doc_grch37["hgnc_symbol"]]["start_GRCh37"] = str(doc_grch37["start_position"])
-            res[doc_grch37["hgnc_symbol"]]["end_GRCh37"] = str(doc_grch37["end_position"])
+            res[doc_grch37["hgnc_symbol"]]["start_GRCh37"] = doc_grch37["start_position"]
+            res[doc_grch37["hgnc_symbol"]]["end_GRCh37"] = doc_grch37["end_position"]
+
+    for doc_oncokb in docs_oncokb:
+        if doc_oncokb["hgnc_symbol"] in res:            
+            if doc_oncokb["oncogene"]:
+                res[doc_oncokb["hgnc_symbol"]]["oncokb_cancer_gene"] = "Oncogene"
+            elif doc_oncokb["tumor_suppressor_gene"]:
+                res[doc_oncokb["hgnc_symbol"]]["oncokb_cancer_gene"] = "Tumor Suppressor Gene"
 
     return res
 

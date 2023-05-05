@@ -29,17 +29,17 @@ if __name__ == '__main__':
     print("Procesando archivo...")
     headers = next(contenido) 
     # Cambio nombres en el header:
-    headers[headers.index('Hugo Symbol')] = 'hugoSymbol'
-    headers[headers.index('GRCh38 RefSeq')] = 'refSeqTranscript'
-    headers[headers.index('OncoKB Annotated')] = 'oncokbAnnotated'
+    headers[headers.index('Hugo Symbol')] = 'hgnc_symbol'
+    headers[headers.index('GRCh38 RefSeq')] = 'refseq_transcript'
+    headers[headers.index('OncoKB Annotated')] = 'oncokb_annotated'
     headers[headers.index('Is Oncogene')] = 'oncogene'
-    headers[headers.index('Is Tumor Suppressor Gene')] = 'tumorSuppressorGene'
-    headers[headers.index('MSK-IMPACT')] = 'MSKImpact'
-    headers[headers.index('MSK-HEME')] = 'MSKImpactHeme'
-    headers[headers.index('FOUNDATION ONE')] = 'foundationOneCDx'
-    headers[headers.index('FOUNDATION ONE HEME')] = 'foundationOneHeme'
+    headers[headers.index('Is Tumor Suppressor Gene')] = 'tumor_suppressor_gene'
+    headers[headers.index('MSK-IMPACT')] = 'msk_impact'
+    headers[headers.index('MSK-HEME')] = 'msk_impact_heme'
+    headers[headers.index('FOUNDATION ONE')] = 'foundation_one_cdx'
+    headers[headers.index('FOUNDATION ONE HEME')] = 'foundation_one_heme'
     headers[headers.index('Vogelstein')] = 'vogelstein'
-    headers[headers.index('SANGER CGC(05/30/2017)')] = 'sangerCGC' 
+    headers[headers.index('SANGER CGC(05/30/2017)')] = 'sanger_cgc' 
 
     headers_a_filtrar = [1,2,3,4,6,16]
 

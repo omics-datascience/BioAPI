@@ -86,7 +86,7 @@ Service that takes a string of any length and returns a list of genes that conta
 
 ### Genes information
 
-From a list of valid genes, obtain their descriptions, types and chromosomal coordinates for the reference human genomes GRCh37 and GRCh37.  
+From a list of valid genes, it obtains different information for the human reference genomes GRCh38 and GRCh37.  
 
 - URL: /information-of-genes
 - Method: POST  
@@ -95,43 +95,67 @@ From a list of valid genes, obtain their descriptions, types and chromosomal coo
 - Success Response:
     - Code: 200
     - Content:
-        - `<gene_ids>`: Returns a Json with as many keys as there are genes in the body. For each gene, the value is a Json with the following format:
-            -   `description` : gene description
-            -   `type` : gene type (example: protein_coding)
-            -   `chromosome` : chromosome where the gene is located
-            -   `start` : chromosomal position of gene starts for the reference genome GRCh38
-            -   `end` : chromosomal position of gene ends for the reference genome GRCh38
-            -   `start_GRCh37` : chromosomal position of gene starts for the reference genome GRCh37
-            -   `end_GRCh37` : chromosomal position of gene ends for the reference genome GRCh37
+        - `<gene_ids>`: Returns a Json with as many keys as there are valid genes in the body. For each gene, the value is a Json with the following format:
+            - `description` : Very brief description of the gene according to the Ensembl database
+            - `refseq_summary` : More complete description of the gene according to the RefSeq database (RefSeq : NCBI Reference Sequences)
+            - `civic_description` : Description of the clinical relevance of the gene according to the CiVIC (Clinical Interpretation of Variants in Cancer) database
+            - `gene_biotype` : gene type (example: protein_coding)
+            - `chromosome` : chromosome where the gene is located
+            - `start` : chromosomal position of gene starts for the reference genome GRCh38
+            - `end` : chromosomal position of gene ends for the reference genome GRCh38
+            - `start_GRCh37` : chromosomal position of gene starts for the reference genome GRCh37
+            - `end_GRCh37` : chromosomal position of gene ends for the reference genome GRCh37
+            - `percentage_gene_gc_content` : Ratio of guanine and cytosine nucleotides in the DNA sequence of the gene
+            - `strand` : DNA strand containing the coding sequence for the gene
+            - `band` : cytoband or specific location in the genome
+            - `oncokb_cancer_gene` : return "Oncogene" or "Tumor Suppressor Gene" only if the gene has this information in the OncoKB database 
+            - `ensembl_gene_id` : Gene identifier in the Ensembl database
+            - `entrezgene_id` : Gene identifier in the NCBI Entrez database
+                    
     - Example:
         - URL: http://localhost:8000/information-of-genes
         - body: 
-        `{    "gene_ids" : ["ACTN4","ACTR3C"]    }`
+        `{    "gene_ids" : ["INVALIDGENE","MC1R", "ALK"]    }`
         - Response:
             ```json
             {
-                "ACTN4": 
-                {
-                    "description": "actinin alpha 4 [Source:HGNC Symbol;Acc:HGNC:166]",
-                    "chromosome": "19",
-                    "end": "38731589",
-                    "end_GRCh37": "39222223",
-                    "start": "38647649",
-                    "start_GRCh37": "39138289",
-                    "type": "protein_coding"
-                },
-                "ACTR3C": 
-                {
-                    "description": "actin related protein 3C [Source:HGNC Symbol;Acc:HGNC:37282]",
-                    "chromosome": "7",
-                    "end": "150323725",
-                    "end_GRCh37": "150020814",
-                    "start": "150243916",
-                    "start_GRCh37": "149941005",
-                    "type": "protein_coding"
+                "ALK": {
+                    "band": "p23.1", 
+                    "chromosome": "2", 
+                    "civic_description": "ALK amplifications, fusions and mutations have been shown to be driving events in non-small cell lung cancer. While crizontinib has ...", 
+                    "end_GRCh37": 30144432, 
+                    "end_position": 29921586, 
+                    "ensembl_gene_id": "ENSG00000171094", 
+                    "entrezgene_id": 238, 
+                    "gene_biotype": "protein_coding", 
+                    "hgnc_symbol": "ALK", 
+                    "oncokb_cancer_gene": "Oncogene", 
+                    "percentage_gene_gc_content": 43.51, 
+                    "refseq_summary": "This gene encodes a receptor tyrosine kinase, which belongs to the insulin receptor superfamily. This protein comprises...", 
+                    "start_GRCh37": 29415640, 
+                    "start_position": 29192774, 
+                    "strand": -1
+                }, 
+                "MC1R": {
+                    "band": "q24.3", 
+                    "chromosome": "16", 
+                    "description": "melanocortin 1 receptor", 
+                    "end_GRCh37": 89987385, 
+                    "end_position": 89920973, 
+                    "ensembl_gene_id": "ENSG00000258839", 
+                    "entrezgene_id": 4157, 
+                    "gene_biotype": "protein_coding", 
+                    "percentage_gene_gc_content": 58.17, 
+                    "refseq_summary": "This intronless gene encodes the receptor protein for melanocyte-stimulating hormone (MSH). The encoded protein...", 
+                    "start_GRCh37": 89978527, 
+                    "start_position": 89912119, 
+                    "strand": 1
                 }
             }
             ```  
+            Keep in mind: 
+             - If a gene passed in the body is not found in the database (invalid gene symbol), it will not appear in the response.
+             - If one of the fields for a gene has no value, it will not appear in the response.
 
 
 ### Gene Groups
@@ -337,6 +361,9 @@ This service retrieves information of actionable genes and drugs obtained from t
                 ]
             }
             ```  
+            Keep in mind: 
+             - If a gene passed in the body is not found in the database, it will not appear in the response.
+             - If one of the fields for a gene has no value in the database, it will not appear in the response.
 
 
 ## Error Responses
