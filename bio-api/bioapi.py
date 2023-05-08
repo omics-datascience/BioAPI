@@ -626,7 +626,7 @@ def create_app():
             response = BFS_on_terms(**arguments)
         return make_response(response, 200, headers)
     # Error handling
-    @flask_app.route("/drugs", methods=['POST'])
+    @flask_app.route("/drugs-pharm-gkb", methods=['POST'])
     def cancer_drugs_related_to_genes():
         """Recieves genes and returns the related drugs
         """
