@@ -67,7 +67,7 @@ def get_mongo_connection() -> Database:
                 logging.error(f'Host ({host}), port ({mongo_port}) or db ({db}) is invalid', exc_info=True)
                 exit(-1)
 
-        mongo_client = pymongo.MongoClient(f"mongodb://{user}:{password}@{host}:{mongo_port}/?authSource=admin")
+        mongo_client = pymongo.MongoClient(f"mongodb://{user}:{password}@{host}:{mongo_port}/?authSource=admin", serverSelectionTimeoutMS=60)
         return mongo_client[db]
     except Exception as e:
         logging.error("Database connection error." + str(e), exc_info=True)
@@ -184,14 +184,16 @@ def get_information_of_genes(genes: List[str]) -> Dict:
     collection_gene_grch37 = mydb["gene_grch37"]
     collection_gene_grch38 = mydb["gene_grch38"]
     collection_gene_oncokb = mydb["oncokb_gene_cancer_list"]
+    collection_hgnc = mydb["hgnc"]
 
     # Generates query
     query = {"hgnc_symbol": {"$in": genes}}
-    projection = {'_id': 0, 'hgnc_id': 0}
+    projection = {'_id': 0, 'description':0, 'hgnc_id': 0, 'entrezgene_id':0, 'ensembl_gene_id':0} # saco los identificadores porque los obtengo desde la coleccion hgnc
 
     docs_grch37 = collection_gene_grch37.find(query, projection)
     docs_grch38 = collection_gene_grch38.find(query, projection)
     docs_oncokb = collection_gene_oncokb.find(query, projection)
+    docs_hgnc = collection_hgnc.find({"symbol": {"$in": genes}})
 
     for doc_grch38 in docs_grch38:
         res[doc_grch38["hgnc_symbol"]] = doc_grch38
@@ -202,6 +204,18 @@ def get_information_of_genes(genes: List[str]) -> Dict:
         if doc_grch37["hgnc_symbol"] in res:
             res[doc_grch37["hgnc_symbol"]]["start_GRCh37"] = doc_grch37["start_position"]
             res[doc_grch37["hgnc_symbol"]]["end_GRCh37"] = doc_grch37["end_position"]
+
+    for doc_hgnc in docs_hgnc:
+        if doc_hgnc["symbol"] in res:
+            res[doc_hgnc["symbol"]]["hgnc_id"] = doc_hgnc["hgnc_id"]
+            if "name" in doc_hgnc:
+                res[doc_hgnc["symbol"]]["name"] = doc_hgnc["name"]
+            if "alias_symbol" in doc_hgnc:
+                res[doc_hgnc["symbol"]]["alias_symbol"] = doc_hgnc["alias_symbol"]
+            if "uniprot_ids" in doc_hgnc:
+                res[doc_hgnc["symbol"]]["uniprot_ids"] = doc_hgnc["uniprot_ids"]
+            if "omim_id" in doc_hgnc:
+                res[doc_hgnc["symbol"]]["omim_id"] = doc_hgnc["omim_id"]
 
     for doc_oncokb in docs_oncokb:
         if doc_oncokb["hgnc_symbol"] in res:            
@@ -240,17 +254,44 @@ def get_data_from_oncokb(genes: List) -> List:
     :param genes: List of genes to filter
     :return: Dict of genes with their associated drugs and information according to OncoKB database
     """
-    collection = mydb["oncokb_biomarker_drug_associations"]  # Connects to collection
-    query = {'gene': {'$in': genes}}
+    collection_accionability_gene = mydb["oncokb_biomarker_drug_associations"]  
+    collection_cancer_gene = mydb["oncokb_gene_cancer_list"] 
+    query1 = {'gene': {'$in': genes}}
+    query2 = {'hgnc_symbol': {'$in': genes}}
     projection = {'_id': 0}
-    docs = collection.find(query, projection)
+    docs_acciobility = collection_accionability_gene.find(query1, projection)
+    docs_cancer = collection_cancer_gene.find(query2, projection)
     res = {}
-    for doc in docs:
-        gen = doc["gene"]
-        doc.pop("gene")
+    for doc_a in docs_acciobility:
+        gen = doc_a.pop("gene")
+        classification = doc_a.pop("classification")
         if gen not in res:
-            res[gen] = []
-        res[gen].append(doc)
+            res[gen] = {}
+        if classification not in res[gen]:
+            res[gen][classification] = []
+        res[gen][classification].append(doc_a)
+
+    for doc_c in docs_cancer:
+        gen = doc_c.pop("hgnc_symbol")
+        if gen not in res:
+            res[gen] = {}
+        res[gen]["oncokb_cancer_gene"] = []
+        if doc_c["oncogene"]:
+            res[gen]["oncokb_cancer_gene"].append("Oncogene")
+        if doc_c["tumor_suppressor_gene"]:
+            res[gen]["oncokb_cancer_gene"].append("Tumor Suppressor Gene")
+        
+        if len(res[gen]["oncokb_cancer_gene"]) == 0:
+            res[gen].pop("oncokb_cancer_gene")
+        
+        sources = []
+        for key in doc_c:
+            if doc_c[key] == 1:
+                if key not in ["oncogene", "tumor_suppressor_gene"]:
+                    sources.append(key)
+        res[gen]["sources"] = sources
+
+        res[gen]["refseq_transcript"] = doc_c["refseq_transcript"]
 
     return res
 

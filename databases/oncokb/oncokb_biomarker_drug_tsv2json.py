@@ -14,7 +14,7 @@ class C:
 
 # La siguiente evidencia fue obtenida desde el sitio oficiald e OncoKB: https://www.oncokb.org/levels
 EVIDENCE = {
-      "Therapeutic": ["1", "2", "3A", "3B", "4", "R1", "R2"],
+      "Therapeutic": ["1", "2", "3", "3A", "3B", "4", "R1", "R2"],
       "Diagnostic": ["Dx1", "Dx2", "Dx3"],
       "Prognostic": ["Px1", "Px2", "Px3"]
 }
@@ -57,8 +57,7 @@ if __name__ == '__main__':
             if headers[i] == 'level_of_evidence':
                 json_file["level_of_evidence"] = registro[i]
                 classification = get_classification(registro[i])
-                if classification != None:
-                    json_file["classification"] = classification
+                json_file["classification"] = classification
             else: 
                 if registro[i] != "":
                     json_file[headers[i]] = registro[i]
