@@ -24,8 +24,6 @@ password="root"
 db_name="bio_api"
 #######################################
 
-
-
 def pile_into_dict(dic,key,content):
     if key in dic:
         if isinstance(dic[key], list):
@@ -34,6 +32,12 @@ def pile_into_dict(dic,key,content):
              dic[key]= [dic[key],content]
     else:
         dic[key]= content
+
+def pile_list_into_dict(dic,key,content):
+    if key in dic:
+        dic[key].append(content)
+    else:
+        dic[key]= [content]
 
 
 print("INFO	Downloading Gene Ontology database...")
@@ -154,11 +158,12 @@ def process_anotations(anotations,all_genes,rejected_aliases):
                             real_alias = real_alias[0]
                         if real_alias in all_genes: 
                             gene.pop("gene_symbol")
+                            
                             for att in gene:
                                 if att in all_genes[real_alias]:
-                                    if isinstance(all_genes[real_alias][att],str):
+                                    if isinstance(all_genes[real_alias][att],dict):
                                         all_genes[real_alias][att]= [all_genes[real_alias][att]]
-                                    if isinstance(gene[att],str):
+                                    if isinstance(gene[att],dict):
                                         gene[att] = [gene[att]]
                                     all_genes[real_alias][att].extend(gene[att])
                                         
@@ -168,12 +173,13 @@ def process_anotations(anotations,all_genes,rejected_aliases):
                         else:
                             gene["gene_symbol"] = real_alias
                             all_genes[gene["gene_symbol"]]=gene
+                            # print(all_genes)
                             # print("agregado"+str(gene["gene_symbol"]))
                     else:
                         rejected_aliases[gene["gene_symbol"]]=real_alias
                 gene_symbol = line[2]
                 gene={"gene_symbol":gene_symbol}
-            pile_into_dict(gene,line[3],line[4].split(":")[1])
+            pile_list_into_dict(gene,line[3],{"go_id":line[4].split(":")[1],"evidence":(line[6])})
 
 
 anotations = open("goa_human_isoform.gaf", "r")

@@ -234,42 +234,58 @@ def terms_related_to_one_gene(gene: str, relation_type: list= ["enables","involv
     collection_go_anotations = mydb["go_anotations"]
     anotation = dict(collection_go_anotations.find_one({"gene_symbol": gene}))
     # print((anotastion))
-    related_genes = set()
+    related_genes = {}
     if anotation != None:
         for relation in relation_type:
             if relation in anotation:
-                if isinstance(anotation[relation], list):
-                    print("..........")
-                    print(anotation[relation])
-                    print(anotation)
-                
-                    related_genes.update(anotation[relation])
-                else:
-                    related_genes.add(anotation[relation])
+                for term in anotation[relation]:
+                    aux = {"evidence": term["evidence"], "gene": gene, "relation_type":relation}
+                    if term["go_id"] in related_genes:
+                        related_genes[term["go_id"]].append(aux)
+                    else:
+                        related_genes[term["go_id"]]= [aux]
+                # related_genes.update(anotation[relation])
+             
             
         # res = {"gene": gene, "relations" : related_genes}
-    
     return related_genes
 
 def is_term_on_db(term_id):
     collection_go = mydb["go"]
     return collection_go.find_one({"go_id": term_id}) == None
- 
+
+# old_ version
+# def terms_related_to_many_genes(gene_ids: list, filter_type = "intersection", relation_type: list= ["enables","involved_in","part_of","located_in"]):
+    # gene = gene_ids.pop()
+    # term_set= set(terms_related_to_one_gene(gene,relation_type))
+    # for gene in gene_ids:
+        # terms = terms_related_to_one_gene(gene,relation_type)
+        # if filter_type == "intersection":
+            # term_set= term_set.intersection(terms)
+        # elif filter_type == "union":
+            # term_set = term_set.union(terms)
+
+    # return term_set
 def terms_related_to_many_genes(gene_ids: list, filter_type = "intersection", relation_type: list= ["enables","involved_in","part_of","located_in"]):
     gene = gene_ids.pop()
-    term_set= set(terms_related_to_one_gene(gene,relation_type))
+    term_set= terms_related_to_one_gene(gene,relation_type)
+    current_terms= None
     for gene in gene_ids:
         terms = terms_related_to_one_gene(gene,relation_type)
         if filter_type == "intersection":
-            term_set= term_set.intersection(terms)
+            current_terms= term_set.keys() & terms.keys()
         elif filter_type == "union":
-            term_set = term_set.union(terms)
-
+            current_terms= term_set.keys() | terms.keys()
+        for cterm in current_terms:
+            if cterm in term_set:
+                term_set[cterm].extend(terms[cterm])
+            else:
+                term_set[cterm]=(terms[cterm])
     return term_set
 
 def populate_terms_with_data(term_list, ontology_type: list = ["biological_process", "molecular_function", "cellular_component"]):
     collection_go = mydb["go"]
-    terms = str(list(collection_go.find({"go_id": { "$in": term_list }, "ontology_type": { "$in": ontology_type }},{"_id":0})))
+    terms = (list(collection_go.find({"go_id": { "$in": term_list }, "ontology_type": { "$in": ontology_type }},{"_id":0})))
     return terms
 
 def strip_term(term,relations):
@@ -574,7 +590,6 @@ def create_app():
                     abort(400, "filter_type is invalid. should be one of this options: "+ str(valid_filter_types))
                 gene_term_arguments["filter_type"] = body["filter_type"]
             terms= terms_related_to_many_genes(**gene_term_arguments)
-            
             populate_arguments= {}
             if "ontology_type" in body:
                 populate_arguments["ontology_type"] = body["ontology_type"]
@@ -584,7 +599,10 @@ def create_app():
                     if not (ot in valid_ontology_types):
                         abort(400, str(ot)+" is not a valid ontology_type")
             response = populate_terms_with_data(list(terms), **populate_arguments)
-        return make_response(response, 200, headers)
+            for i in range(len(response)):
+                response[i]["relation_to_genes"]= terms[response[i]["go_id"]]
+        # return make_response(response, 200, headers)
+        return jsonify(response)
     
     @flask_app.route("/related-terms", methods=['POST'])
     def related_terms():
