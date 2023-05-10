@@ -338,32 +338,94 @@ This service retrieves information of actionable genes and drugs obtained from t
 - Success Response:
     - Code: 200
     - Content:
-        The response you get is a dict. Each key of the list is a gene with information in OncoKB. For each key gene, the value is a list. Each item in the list is a Dict containing the following information obtained from OncoKB.  
-        - `<drugs>`: drug associated with specific gene alteration.
-        - `<alterations>`: specific cancer gene alterations.
-        - `<cancer_types>`: type of cancer according to OncoTree [nomenclature](http://oncotree.mskcc.org/).
-        - `<classification>`: clinical implications of the drug (therapeutic, diagnostic, and prognostic).
-        - `<level_of_evidence>`: [Level of evidence](https://www.oncokb.org/levels#version=V2) of the drug or gene according to OncoKB version 2.
+        - `<gene_ids>`: Returns a Json with as many keys as there are valid genes in the body. For each gene, the value is a Json with the following format:  
+            - `<therapeutic>`: Evidence of the gene for therapeutic. The value is a list of elements of the Json type, where each element is a different evidence with the following structure:  
+                - `<drugs>`: therapeutic drug.  
+                - `<level_of_evidence>`: level of therapeutic evidence.
+                - `<alterations>`: specific cancer gene alterations.
+                - `<cancer_types>`: type of cancer.
+            - `<diagnostic>`: Evidence of the gene for diagnosis (for hematologic malignancies only). The value is a list of elements of the Json type, where each element is a different evidence with the following structure:  
+                - `<level_of_evidence>`: level of diagnostic evidence.
+                - `<alterations>`: specific cancer gene alterations.
+                - `<cancer_types>`: type of cancer.
+            - `<prognostic>`: Evidence of the gene for prognostic (for hematologic malignancies only). The value is a list of elements of the Json type, where each element is a different evidence with the following structure:  
+                - `<level_of_evidence>`: level of prognostic evidence.
+                - `<alterations>`: specific cancer gene alterations.
+                - `<cancer_types>`: type of cancer.
+            - `<oncokb_cancer_gene>`: type of cancer gene. Oncogene and/or Tumor Suppressor Gene.  
+            - `<refseq_transcript>`: gene transcript according to the RefSeq database.  
+            - `<sources>`: list of sources where there is evidence of the relationship of the gene with cancer. These may be different sequencing panels, the Sanger Cancer Gene Census, or [Vogelstein et al. (2013)](http://science.sciencemag.org/content/339/6127/1546.full).
+
     - Example:
         - URL: http://localhost:8000/information-of-oncokb
         - body: `{ "gene_ids": ["ATM"] }`
         - Response:
             ```json
             {
-                "ATM": [
-                    {
-                        "alterations": "Oncogenic Mutations",
-                        "cancer_types": "Prostate Cancer, NOS, Prostate Cancer",
-                        "classification": "Therapeutic",
-                        "drugs": "Olaparib",
-                        "level_of_evidence": "1"
-                    }
-                ]
+                "ALK": {
+                    "diagnostic": [
+                        {
+                            "alterations": "Fusions",
+                            "cancer_types": "Anaplastic Large-Cell Lymphoma ALK Positive",
+                            "level_of_evidence": "Dx1"
+                        },
+                        {
+                            "alterations": "Fusions",
+                            "cancer_types": "ALK Positive Large B-Cell Lymphoma",
+                            "level_of_evidence": "Dx1"
+                        }
+                    ],
+                    "oncokb_cancer_gene": [
+                        "Oncogene"
+                    ],
+                    "refseq_transcript": "NM_004304.4",
+                    "sources": [
+                        "oncokb_annotated",
+                        "msk_impact",
+                        "msk_impact_heme",
+                        "foundation_one_cdx",
+                        "foundation_one_heme",
+                        "vogelstein",
+                        "sanger_cgc"
+                    ],
+                    "therapeutic": [
+                        {
+                            "alterations": "Fusions",
+                            "cancer_types": "Anaplastic Large-Cell Lymphoma ALK Positive",
+                            "drugs": "Crizotinib",
+                            "level_of_evidence": "1"
+                        }
+                    ]
+                },
+                "ATM": {
+                    "oncokb_cancer_gene": [
+                        "Tumor Suppressor Gene"
+                    ],
+                    "refseq_transcript": "NM_000051.3",
+                    "sources": [
+                        "oncokb_annotated",
+                        "msk_impact",
+                        "msk_impact_heme",
+                        "foundation_one_cdx",
+                        "foundation_one_heme",
+                        "vogelstein",
+                        "sanger_cgc"
+                    ],
+                    "therapeutic": [
+                        {
+                            "alterations": "Oncogenic Mutations",
+                            "cancer_types": "Prostate Cancer, NOS, Prostate Cancer",
+                            "drugs": "Olaparib",
+                            "level_of_evidence": "1"
+                        }
+                    ]
+                }
             }
             ```  
             Keep in mind: 
              - If a gene passed in the body is not found in the database, it will not appear in the response.
              - If one of the fields for a gene has no value in the database, it will not appear in the response.
+             - Values for cancer types use the [OncoTree nomenclature](http://oncotree.mskcc.org/).
 
 
 ## Error Responses

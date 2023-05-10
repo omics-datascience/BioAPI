@@ -264,7 +264,7 @@ def get_data_from_oncokb(genes: List) -> List:
     res = {}
     for doc_a in docs_acciobility:
         gen = doc_a.pop("gene")
-        classification = doc_a.pop("classification")
+        classification = doc_a.pop("classification").lower()
         if gen not in res:
             res[gen] = {}
         if classification not in res[gen]:
