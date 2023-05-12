@@ -600,7 +600,7 @@ def create_app():
                         abort(400, str(ot)+" is not a valid ontology_type")
             response = populate_terms_with_data(list(terms), **populate_arguments)
             for i in range(len(response)):
-                response[i]["relation_to_genes"]= terms[response[i]["go_id"]]
+                response[i]["relations_to_genes"]= terms[response[i]["go_id"]]
         # return make_response(response, 200, headers)
         return jsonify(response)
     
