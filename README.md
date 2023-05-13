@@ -347,7 +347,6 @@ The possible error codes are 400, 404 and 500. The content of each of them is a 
 }
 ```
 
-
 ## Contributing
 
 All kind of contribution is welcome! If you want to contribute just:
