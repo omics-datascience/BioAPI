@@ -388,13 +388,24 @@ Gets the list of related terms to a term.
 		}`
         - Response:
 	```json
-		    [
-	    {'go_id': '0000079', 'name': 'regulation of cyclin-dependent protein serine/threonine kinase activity', 'ontology_type': 'biological_process', 'relations': {'regulates': ['0004693'
-		    ]
-		}
-	    },
-	    {'go_id': '0004693', 'name': 'cyclin-dependent protein serine/threonine kinase activity', 'ontology_type': 'molecular_function', 'relations': {}
-	    }]
+		[
+		    {
+			"go_id": "0000079",
+			"name": "regulation of cyclin-dependent protein serine/threonine kinase activity",
+			"ontology_type": "biological_process",
+			"relations": {
+			    "regulates": [
+				"0004693"
+			    ]
+			}
+		    },
+		    {
+			"go_id": "0004693",
+			"name": "cyclin-dependent protein serine/threonine kinase activity",
+			"ontology_type": "molecular_function",
+			"relations": {}
+		    }
+		]
 	```  
 			
 ### Cancer related drugs (PharmGKB)
