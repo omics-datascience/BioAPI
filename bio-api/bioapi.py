@@ -368,7 +368,7 @@ def  BFS_on_terms(term_id, relations: list = ["part_of","regulates","has_part"],
         # next_level_terms = []
     
     
-    return str(list(graph.values()))
+    return (list(graph.values()))
 
 # pharmGKB
 
@@ -642,7 +642,7 @@ def create_app():
                         abort(400, str(ot)+" is not a valid ontology_type")
             
             response = BFS_on_terms(**arguments)
-        return make_response(response, 200, headers)
+        return jsonify(response)
     # Error handling
     @flask_app.route("/drugs-pharm-gkb", methods=['POST'])
     def cancer_drugs_related_to_genes():
