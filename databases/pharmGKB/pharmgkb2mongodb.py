@@ -3,7 +3,6 @@ import zipfile
 import shutil
 from pymongo import MongoClient
 import json
-
 import requests, zipfile, io
 import os
 
@@ -42,13 +41,6 @@ z.extractall()
 print("INFO	OK.")
 
 
-
-#check for all-data.tsv?
-
-
-
-
-
 print("INFO	Processing PharmGKB database...")
 
 drugs = open("drugLabels.tsv", "r")
@@ -73,33 +65,6 @@ for line in drugs:
 drugs.close()
 print("INFO	OK.")
 
-# #URL https://www.pharmgkb.org/labelAnnotations
-# cancer_drugs = open("all-data.tsv", "r")
-# all_drugs= {}
-# skiped_first_line = False
-# for line in cancer_drugs:
-    # line = line.split("\t")
-    # if not skiped_first_line:
-        # skiped_first_line = True
-    # else:
-        # all_drugs[line[0]]={"drug_name" : line[0]}
-# print(all_drugs)
-
-# all_drugs2= all_drugs.copy()
-# relations = open("relationships.tsv", "r")
-# for line in relations:
-    # line = line.split("\t")
-    # if line[1] in all_drugs:
-        # pile_into_dict(all_drugs[line[1]],line[5],line[4])
-    # # elif line[4] in all_drugs:
-        # # pile_into_dict(all_drugs2[line[4]],line[2],line[1])
-# print(all_drugs)
-
-
-    
-  
-
-# **COMENTADO
 
 print("INFO	Conecting to MongoDB...")
 mongoClient = MongoClient(ip_mongo + ":" + str(port_mongo),username=user,password=password,authSource='admin',authMechanism='SCRAM-SHA-1')
@@ -107,34 +72,18 @@ db = mongoClient[db_name]
 print("INFO	OK.")
 
 
-
-
-
 print("INFO	Importing to MongoDB...")
-
-
 anotation_colection = db["pharmgkb"]
 anotation_colection.drop()
 anotation_colection.insert_many(list(drugs_data))
 mongoClient.close()
-
 print("INFO	OK.")
 
 
-
-# **COMENTADO
-
-#SOLUCION DEL QUERY
-# {Gene: {$in: ["KRAS","ALK","CD274"]}}
-
-
 # print("INFO	Creating indexes in MongoDB...")
-
 # go_colection.create_index([ ("id", 1) ]) 
 # anotation_colection.create_index([ ("gene_symbol", 1) ]) 
-
 # print("INFO	OK.")
-
 
 
 print("INFO	Removing intermediate files...")
@@ -142,7 +91,4 @@ os.remove("README.pdf")
 os.remove("LICENSE.txt")
 os.remove("drugLabels.tsv")
 os.remove("drugLabels.byGene.tsv")
-
-
-
 print("INFO	OK.")

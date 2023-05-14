@@ -62,11 +62,6 @@ print("INFO	OK.")
 print("INFO	Processing Gene Ontology database...")
 
 go = open("go.obo", "r")
-
-# line = go.readline().strip()
-# while line != "[Term]":
-    # line = go.readline().strip()
-    
 all_terms= []
 term= {"is_obsolete": True}
 
@@ -106,15 +101,13 @@ go.close()
 print("INFO	OK.")
 
 
-
-
 print("INFO	Conecting to MongoDB...")
 mongoClient = MongoClient(ip_mongo + ":" + str(port_mongo),username=user,password=password,authSource='admin',authMechanism='SCRAM-SHA-1')
 db = mongoClient[db_name]
 print("INFO	OK.")
 
-print("INFO	Processing Gene Ontology anotations database (may take a while)...")
 
+print("INFO	Processing Gene Ontology anotations database (may take a while)...")
 from typing import List, Dict
 from pymongo.collation import Collation, CollationStrength
 def map_gene(gene: str) -> List[str]:
@@ -199,14 +192,10 @@ print("INFO	log.json was created containing all the rejected aliases")
 print("INFO	OK.")
 
 
-
 print("INFO	Importing to MongoDB...")
-
-
 anotation_colection = db["go_anotations"]
 anotation_colection.drop()
 anotation_colection.insert_many(list(all_genes.values()))
-
 
 go_colection = db["go"]
 go_colection.drop()
@@ -217,10 +206,8 @@ print("INFO	OK.")
 
 
 print("INFO	Creating indexes in MongoDB...")
-
 go_colection.create_index([ ("id", 1) ]) 
 anotation_colection.create_index([ ("gene_symbol", 1) ]) 
-
 mongoClient.close()
 print("INFO	OK.")
 
@@ -232,5 +219,4 @@ os.remove("goa_human_isoform.gaf.gz")
 os.remove("goa_human_isoform.gaf")
 os.remove("goa_human.gaf.gz")
 os.remove("goa_human.gaf")
-
 print("INFO	OK.")

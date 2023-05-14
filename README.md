@@ -307,37 +307,141 @@ Gets the list of related terms for a list of genes.
 - URL: /genes-to-terms
 - Method: POST  
 - Params: A body in Json format with the following content
-    -  `gene_ids`: list of genes for which you want to get the terms common (they must be a list, and have to be in HGNC gene symbol format)
+    -  `gene_ids`: list of genes for which you want to get the terms in common (they must be a list, and have to be in HGNC gene symbol format)
     -  `filter_type`: by default "intersection", in wich case it bring all the terms that are realted to all the genes, the other option is "union" wich brings all the terms that are related to **at least** on gene
-    -  `relation_type`: filters the realtion between genes and terms. By default it's ["enables","involved_in","part_of","located_in"]. It should always be a list containing any permutation of the default relations
+    -  `relation_type`: filters the relation between genes and terms. By default it's ["enables","involved_in","part_of","located_in"]. It should always be a list containing any permutation of the default relations
     -  `ontology_type`: filters the ontology type of the terms in the response. By default it's ["biological_process", "molecular_function", "cellular_component"]It should always be a list containing any permutation of the default relations
 
-******terminar
 - Success Response:
     - Code: 200
     - Content:
-        - `pathways`: list of elements of type Json. Each element corresponds to a different metabolic pathway.  
-            - `source`: database of the metabolic pathway found.
-            - `external_id`: pathway identifier in the source.    
-            - `pathway`: name of the pathway.
+		The response you get is a list. Each element of the list is a GO term that fulfills the conditions of the query. GO terms can contain name, definition, relations to other terms, etc.
+        - `relations_to_genes`: list of elements of type Json. Each element corresponds to a to a gene and how it's related to the term.  
+            - `gene`: name of the gene.
+            - `relation_type`: the type of relation between the gene and the GO term.
+            - `evidence`: evidence code to indicate how the annotation to a particular term is supported.    
     - Example:
-        - URL: http://localhost:8000/pathways-in-common
+        - URL: http://localhost:8000/genes-to-terms
         - body: 
-        `{    "gene_ids" : ["HLA-B" , "BRAF"]    }`
+        ```{    "gene_ids" : ["TMCO4"],
+				"relation_type": ["enables"],   
+				"ontology_type" : ["molecular_function"] }```
         - Response:
             ```json
+            [{
+        "alt_id": [
+            "0001948",
+            "0045308"
+        ],
+        "def": "\"Binding to a protein.\" [GOC:go_curators]",
+        "go_id": "0005515",
+        "is_a": "0005488",
+        "name": "protein binding",
+        "ontology_type": "molecular_function",
+        "relations_to_genes": [
             {
-                "pathways": [
-                    {
-                        "external_id": "hsa04650",
-                        "pathway": "Natural killer cell mediated cytotoxicity",
-                        "source": "KEGG"
-                    }
-                ]
+                "evidence": "IPI",
+                "gene": "TMCO4",
+                "relation_type": "enables"
             }
+        ],
+        "subset": [
+            "goslim_candida",
+            "goslim_chembl",
+            "goslim_metagenomics",
+            "goslim_pir",
+            "goslim_plant"
+        ],
+        "synonym": [
+            "\"glycoprotein binding\" NARROW []",
+            "\"protein amino acid binding\" EXACT []"
+        ]
+    }]
             ```  
+### Gene Ontology terms related to a list of genes
 
+Gets the list of related terms to a term.
 
+- URL: /related-terms
+- Method: POST
+- Params: A body in Json format with the following content
+	-  `term_id`: the term if of the term you want to search
+	-  `relations`: filters the non-hierarchical relations between terms. By default it's ["part_of","regulates","has_part"]. It should always be a list 
+    -  `ontology_type`: filters the ontology type of the terms in the response. By default it's ["biological_process", "molecular_function", "cellular_component"]It should always be a list containing any permutation of the default relations
+	-  `general_depth`: the search depth with the non-hierarchical relations
+	-  `hierarchical_depth_to_children`: the search depth with the hierarchical relations in the direction of the children
+	-  ``:
+- Success Response:
+    - Code: 200
+    - Content: The response you get is a list of GO terms related to the searched term that fulfills the conditions of the query. Each term has:
+		-`go_id`: id of the GO term
+		-`name`: name of the GO term
+		-`ontology_type`: the ontology that the GO term belongs to
+		- `relations`: dictionary of relations 
+            - `relation type`: list of terms related by that relation type to the term
+	- Example:
+        - URL: http://localhost:8000/related-terms
+         - body: 
+        ```{
+			"term_id": "0000079",
+			"general_depth" : 5
+		}```
+        - Response:
+            ```json
+            [
+    {'go_id': '0000079', 'name': 'regulation of cyclin-dependent protein serine/threonine kinase activity', 'ontology_type': 'biological_process', 'relations': {'regulates': ['0004693'
+            ]
+        }
+    },
+    {'go_id': '0004693', 'name': 'cyclin-dependent protein serine/threonine kinase activity', 'ontology_type': 'molecular_function', 'relations': {}
+    }
+]
+            ```  
+			
+### Cancer related drugs (PharmGKB)
+
+Gets the list of related drugs to a list of genes.
+
+- URL: /drugs-pharm-gkb
+- Method: POST
+- Params: A body in Json format with the following content
+	-  `gene_ids`: list of genes for whichthe related drugs
+- Success Response:
+    - Code: 200
+    - Content: The response you get is a list of genes containing the related drug information
+		-`pharmGKB_id`: Identifier assigned to this drug label by PharmGKB
+		-`name`: Name assigned to the label by PharmGKB
+		-`source`: The source that originally authored the label (e.g. FDA, EMA)
+		-`biomarker_flag`: "On" if drug in this label appears on the FDA Biomarker list; "Off (Formerly On)" if the label was on the FDA Biomarker list at one time; "Off (Never On)" if the label was never listed on the FDA Biomarker list (to PharmGKB's knowledge)
+		- `Testing Level`:  PGx testing level as annotated by PharmGKB based on definitions at https://www.pharmgkb.org/page/drugLabelLegend
+		- `Chemicals`: Related chemicals
+		- `Genes`: List of related genes
+		- `Variants-Haplotypes`: Related variants and/or haplotypes
+	- Example:
+        - URL: http://localhost:8000/related-terms
+         - body: 
+        ```{
+			"gene_ids" : ["JAK2"]
+		}```
+        - Response:
+            ```json
+          {
+    "JAK2": [
+        {
+            "Variants/Haplotypes": "rs77375493",
+            "biomarker_flag": "",
+            "chemicals": "ropeginterferon alfa-2b",
+            "genes": [
+                "JAK2"
+            ],
+            "name": "Annotation of EMA Label for ropeginterferon alfa-2b and JAK2",
+            "pharmgkb_id": "PA166272741",
+            "source": "EMA",
+            "testing_level": "Informative PGx"
+        }
+    ]
+}
+            ```  
 ## Error Responses
 
 The possible error codes are 400, 404 and 500. The content of each of them is a Json with a unique key called "error" where its value is a description of the problem that produces the error. For example:  
@@ -372,13 +476,3 @@ To run all the tests:
 1. Go to the `bioapi` folder.
 2. Run the `pytest` command.
 
-
-### Update genomic databases
-For the "Metabolic pathways (ConsensusPathDB)", "Gene nomenclature (HUGO Gene Nomenclature Committee)" and "Gene information (Ensembl)" databases, it is not necessary to make any modifications to any script. This is because the datasets are automatically downloaded in their most up-to-date versions when the bash file for each database is executed as described in the **Manually import the different databases** section of the DEPLOYING.md file.  
-If you need to update the "Gene expression (Genotype-Tissue Expression)" database, you should also follow the procedures in the section named above, but first you should edit the bash file as follows:  
-Modify the **gtex2mongodb.sh** file. Edit the variables *"expression_url"* and *"annotation_url"*.  
-In the *expession_url* variable, set the url corresponding to the GTEx "RNA-Seq Data" compressed file (gz compression). This file should contain the Gene TPMs values (Remember that Gene expression on the GTEx Portal are shown in Transcripts Per Million or TPMs).  
-In the *"annotation_url"* variable, set the url corresponding to the file that contains the annotated samples and allows finding the corresponding tissue type for each sample in the database.  
-By default, GTEx is being used in its version [GTEx Analysis V8 (dbGaP Accession phs000424.v8.p2)](https://gtexportal.org/home/datasets#datasetDiv1)
-
-**NOTE:** It is NOT necessary to drop the MongoDB database before upgrading (this applies to all databases). 
