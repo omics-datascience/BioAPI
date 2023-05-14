@@ -367,16 +367,16 @@ Gets the list of related terms to a term.
 - Params: A body in Json format with the following content
 	-  `term_id`: the term if of the term you want to search
 	-  `relations`: filters the non-hierarchical relations between terms. By default it's ["part_of","regulates","has_part"]. It should always be a list 
-	-`ontology_type`: filters the ontology type of the terms in the response. By default it's ["biological_process", "molecular_function", "cellular_component"]It should always be a list containing any permutation of the default relations
+	- `ontology_type`: filters the ontology type of the terms in the response. By default it's ["biological_process", "molecular_function", "cellular_component"]It should always be a list containing any permutation of the default relations
 	-  `general_depth`: the search depth with the non-hierarchical relations
 	-  `hierarchical_depth_to_children`: the search depth with the hierarchical relations in the direction of the children
 	-  `llenar`:por favor llenar
 - Success Response:
     - Code: 200
     - Content: The response you get is a list of GO terms related to the searched term that fulfills the conditions of the query. Each term has:
-		-`go_id`: id of the GO term
-		-`name`: name of the GO term
-		-`ontology_type`: the ontology that the GO term belongs to
+		- `go_id`: id of the GO term
+		- `name`: name of the GO term
+        - `ontology_type`: the ontology that the GO term belongs to
 		- `relations`: dictionary of relations 
             - `relation type`: list of terms related by that relation type to the term
 	- Example:
@@ -388,24 +388,24 @@ Gets the list of related terms to a term.
 		}`
         - Response:
 	```json
-		[
-		    {
-			"go_id": "0000079",
-			"name": "regulation of cyclin-dependent protein serine/threonine kinase activity",
-			"ontology_type": "biological_process",
-			"relations": {
-			    "regulates": [
-				"0004693"
-			    ]
-			}
-		    },
-		    {
-			"go_id": "0004693",
-			"name": "cyclin-dependent protein serine/threonine kinase activity",
-			"ontology_type": "molecular_function",
-			"relations": {}
-		    }
-		]
+        [
+            {
+            "go_id": "0000079",
+            "name": "regulation of cyclin-dependent protein serine/threonine kinase activity",
+            "ontology_type": "biological_process",
+            "relations": {
+                "regulates": [
+                "0004693"
+                ]
+            }
+            },
+            {
+            "go_id": "0004693",
+            "name": "cyclin-dependent protein serine/threonine kinase activity",
+            "ontology_type": "molecular_function",
+            "relations": {}
+            }
+        ]
 	```  
 			
 ### Cancer related drugs (PharmGKB)
@@ -419,10 +419,10 @@ Gets the list of related drugs to a list of genes.
 - Success Response:
     - Code: 200
     - Content: The response you get is a list of genes containing the related drug information
-		-`pharmGKB_id`: Identifier assigned to this drug label by PharmGKB
-		-`name`: Name assigned to the label by PharmGKB
-		-`source`: The source that originally authored the label (e.g. FDA, EMA)
-		-`biomarker_flag`: "On" if drug in this label appears on the FDA Biomarker list; "Off (Formerly On)" if the label was on the FDA Biomarker list at one time; "Off (Never On)" if the label was never listed on the FDA Biomarker list (to PharmGKB's knowledge)
+		- `pharmGKB_id`: Identifier assigned to this drug label by PharmGKB
+		- `name`: Name assigned to the label by PharmGKB
+		- `source`: The source that originally authored the label (e.g. FDA, EMA)
+		- `biomarker_flag`: "On" if drug in this label appears on the FDA Biomarker list; "Off (Formerly On)" if the label was on the FDA Biomarker list at one time; "Off (Never On)" if the label was never listed on the FDA Biomarker list (to PharmGKB's knowledge)
 		- `Testing Level`:  PGx testing level as annotated by PharmGKB based on definitions at https://www.pharmgkb.org/page/drugLabelLegend
 		- `Chemicals`: Related chemicals
 		- `Genes`: List of related genes
@@ -433,7 +433,7 @@ Gets the list of related drugs to a list of genes.
         `{"gene_ids" : ["JAK2"]}`
         - Response:
 	```json
-			  {
+			{
 		    "JAK2": [
 			{
 			    "Variants/Haplotypes": "rs77375493",
@@ -448,7 +448,7 @@ Gets the list of related drugs to a list of genes.
 			    "testing_level": "Informative PGx"
 			}
 		    ]
-		}
+		    }
 	```  
 ## Error Responses
 
