@@ -433,22 +433,22 @@ Gets the list of related drugs to a list of genes.
         `{"gene_ids" : ["JAK2"]}`
         - Response:
 	```json
-          {
-    "JAK2": [
-        {
-            "Variants/Haplotypes": "rs77375493",
-            "biomarker_flag": "",
-            "chemicals": "ropeginterferon alfa-2b",
-            "genes": [
-                "JAK2"
-            ],
-            "name": "Annotation of EMA Label for ropeginterferon alfa-2b and JAK2",
-            "pharmgkb_id": "PA166272741",
-            "source": "EMA",
-            "testing_level": "Informative PGx"
-        }
-    ]
-}
+			  {
+		    "JAK2": [
+			{
+			    "Variants/Haplotypes": "rs77375493",
+			    "biomarker_flag": "",
+			    "chemicals": "ropeginterferon alfa-2b",
+			    "genes": [
+				"JAK2"
+			    ],
+			    "name": "Annotation of EMA Label for ropeginterferon alfa-2b and JAK2",
+			    "pharmgkb_id": "PA166272741",
+			    "source": "EMA",
+			    "testing_level": "Informative PGx"
+			}
+		    ]
+		}
 	```  
 ## Error Responses
 
