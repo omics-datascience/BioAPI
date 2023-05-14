@@ -323,9 +323,11 @@ Gets the list of related terms for a list of genes.
     - Example:
         - URL: http://localhost:8000/genes-to-terms
         - body: 
-        ```{    "gene_ids" : ["TMCO4"],
+        ```
+		{    "gene_ids" : ["TMCO4"],
 				"relation_type": ["enables"],   
-				"ontology_type" : ["molecular_function"] }```
+				"ontology_type" : ["molecular_function"] }
+				```
         - Response:
             ```json
             [{
@@ -382,10 +384,12 @@ Gets the list of related terms to a term.
 	- Example:
         - URL: http://localhost:8000/related-terms
          - body: 
-        ```{
+        ```
+		{
 			"term_id": "0000079",
 			"general_depth" : 5
-		}```
+		}
+		```
         - Response:
             ```json
             [
@@ -420,9 +424,7 @@ Gets the list of related drugs to a list of genes.
 	- Example:
         - URL: http://localhost:8000/related-terms
          - body: 
-        ```{
-			"gene_ids" : ["JAK2"]
-		}```
+        `{"gene_ids" : ["JAK2"]}`
         - Response:
             ```json
           {
