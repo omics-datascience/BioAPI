@@ -267,7 +267,7 @@ This service gets gene expression in healthy tissue
         - URL: http://localhost:8000/expression-of-genes
         - body: `{ "tissue": "Skin",    "gene_ids": ["BRCA1", "BRCA2"] }`
         - Response:
-            ```json
+         	```json
             [
                 [
                     {
@@ -294,7 +294,7 @@ This service gets gene expression in healthy tissue
                     }
                 ]
             ]
-            ```  
+           	 ```  
             keep in mind:
             - As an example only three samples are shown. Note that in the GTEx database there may be more than 2500 samples for a given healthy tissue.
             - If one of the genes entered as a parameter corresponds to an invalid symbol, the response will omit the values for that gene. It is recommended to use the *"Genes symbols validator"* service to validate your genes before using this functionality.
@@ -323,43 +323,41 @@ Gets the list of related terms for a list of genes.
     - Example:
         - URL: http://localhost:8000/genes-to-terms
         - body: 
-        ```
-		{    "gene_ids" : ["TMCO4"],
+		`{    "gene_ids" : ["TMCO4"],
 				"relation_type": ["enables"],   
-				"ontology_type" : ["molecular_function"] }
-				```
+				"ontology_type" : ["molecular_function"] }`
         - Response:
-            ```json
-            [{
-        "alt_id": [
-            "0001948",
-            "0045308"
-        ],
-        "def": "\"Binding to a protein.\" [GOC:go_curators]",
-        "go_id": "0005515",
-        "is_a": "0005488",
-        "name": "protein binding",
-        "ontology_type": "molecular_function",
-        "relations_to_genes": [
-            {
-                "evidence": "IPI",
-                "gene": "TMCO4",
-                "relation_type": "enables"
-            }
-        ],
-        "subset": [
-            "goslim_candida",
-            "goslim_chembl",
-            "goslim_metagenomics",
-            "goslim_pir",
-            "goslim_plant"
-        ],
-        "synonym": [
-            "\"glycoprotein binding\" NARROW []",
-            "\"protein amino acid binding\" EXACT []"
-        ]
-    }]
-            ```  
+         	```json
+			[{
+				"alt_id": [
+				    "0001948",
+				    "0045308"
+				],
+				"def": "\"Binding to a protein.\" [GOC:go_curators]",
+				"go_id": "0005515",
+				"is_a": "0005488",
+				"name": "protein binding",
+				"ontology_type": "molecular_function",
+				"relations_to_genes": [
+				    {
+					"evidence": "IPI",
+					"gene": "TMCO4",
+					"relation_type": "enables"
+				    }
+				],
+				"subset": [
+				    "goslim_candida",
+				    "goslim_chembl",
+				    "goslim_metagenomics",
+				    "goslim_pir",
+				    "goslim_plant"
+				],
+				"synonym": [
+				    "\"glycoprotein binding\" NARROW []",
+				    "\"protein amino acid binding\" EXACT []"
+				]
+			    }]
+			```  
 ### Gene Ontology terms related to a list of genes
 
 Gets the list of related terms to a term.
@@ -369,10 +367,10 @@ Gets the list of related terms to a term.
 - Params: A body in Json format with the following content
 	-  `term_id`: the term if of the term you want to search
 	-  `relations`: filters the non-hierarchical relations between terms. By default it's ["part_of","regulates","has_part"]. It should always be a list 
-    -  `ontology_type`: filters the ontology type of the terms in the response. By default it's ["biological_process", "molecular_function", "cellular_component"]It should always be a list containing any permutation of the default relations
+	-`ontology_type`: filters the ontology type of the terms in the response. By default it's ["biological_process", "molecular_function", "cellular_component"]It should always be a list containing any permutation of the default relations
 	-  `general_depth`: the search depth with the non-hierarchical relations
 	-  `hierarchical_depth_to_children`: the search depth with the hierarchical relations in the direction of the children
-	-  ``:
+	-  `llenar`:por favor llenar
 - Success Response:
     - Code: 200
     - Content: The response you get is a list of GO terms related to the searched term that fulfills the conditions of the query. Each term has:
@@ -384,23 +382,20 @@ Gets the list of related terms to a term.
 	- Example:
         - URL: http://localhost:8000/related-terms
          - body: 
-        ```
-		{
+		`{
 			"term_id": "0000079",
 			"general_depth" : 5
-		}
-		```
+		}`
         - Response:
-            ```json
-            [
-    {'go_id': '0000079', 'name': 'regulation of cyclin-dependent protein serine/threonine kinase activity', 'ontology_type': 'biological_process', 'relations': {'regulates': ['0004693'
-            ]
-        }
-    },
-    {'go_id': '0004693', 'name': 'cyclin-dependent protein serine/threonine kinase activity', 'ontology_type': 'molecular_function', 'relations': {}
-    }
-]
-            ```  
+	```json
+		    [
+	    {'go_id': '0000079', 'name': 'regulation of cyclin-dependent protein serine/threonine kinase activity', 'ontology_type': 'biological_process', 'relations': {'regulates': ['0004693'
+		    ]
+		}
+	    },
+	    {'go_id': '0004693', 'name': 'cyclin-dependent protein serine/threonine kinase activity', 'ontology_type': 'molecular_function', 'relations': {}
+	    }]
+	```  
 			
 ### Cancer related drugs (PharmGKB)
 
@@ -426,7 +421,7 @@ Gets the list of related drugs to a list of genes.
          - body: 
         `{"gene_ids" : ["JAK2"]}`
         - Response:
-            ```json
+	```json
           {
     "JAK2": [
         {
@@ -443,7 +438,7 @@ Gets the list of related drugs to a list of genes.
         }
     ]
 }
-            ```  
+	```  
 ## Error Responses
 
 The possible error codes are 400, 404 and 500. The content of each of them is a Json with a unique key called "error" where its value is a description of the problem that produces the error. For example:  
