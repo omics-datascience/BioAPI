@@ -308,7 +308,7 @@ Gets the list of related terms for a list of genes.
 - Method: POST  
 - Params: A body in Json format with the following content
     -  `gene_ids`: list of genes for which you want to get the terms in common (they must be a list, and have to be in HGNC gene symbol format)
-    -  `filter_type`: by default "intersection", in wich case it bring all the terms that are realted to all the genes, the other option is "union" wich brings all the terms that are related to **at least** on gene
+    -  `filter_type`: by default "intersection", in which case it bring all the terms that are related to all the genes, the other option is "union" which brings all the terms that are related to **at least** on gene
     -  `relation_type`: filters the relation between genes and terms. By default it's ["enables","involved_in","part_of","located_in"]. It should always be a list containing any permutation of the default relations
     -  `ontology_type`: filters the ontology type of the terms in the response. By default it's ["biological_process", "molecular_function", "cellular_component"]It should always be a list containing any permutation of the default relations
 
@@ -415,7 +415,7 @@ Gets the list of related drugs to a list of genes.
 - URL: /drugs-pharm-gkb
 - Method: POST
 - Params: A body in Json format with the following content
-	-  `gene_ids`: list of genes for whichthe related drugs
+	-  `gene_ids`: list of genes for which the related drugs
 - Success Response:
     - Code: 200
     - Content: The response you get is a list of genes containing the related drug information

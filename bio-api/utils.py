@@ -1,43 +1,13 @@
-import pymongo
 
+from typing import List
+from pymongo.collation import Collation, CollationStrength
 
-def get_mongo_connection() -> Database:
-    """
-    Gets Mongo connection using config.txt file if DEBUG env var is 'true', or all the env variables in case of prod
-    (DEBUG = 'false')
-    :return: Database instance
-    """
-    try:
-        if IS_DEBUG:
-            host = Config.get('mongodb', 'host')
-            mongo_port = Config.get('mongodb', 'port')
-            user = Config.get('mongodb', 'user')
-            password = Config.get('mongodb', 'pass')
-            db = Config.get('mongodb', 'db_name')
-        else:
-            host = os.environ.get('MONGO_HOST')
-            mongo_port = os.environ.get('MONGO_PORT')
-            user = os.environ.get('MONGO_USER')
-            password = os.environ.get('MONGO_PASSWORD')
-            db = os.environ.get('MONGO_DB')
-
-            if not host or not mongo_port or not db:
-                logging.error(f'Host ({host}), port ({mongo_port}) or db ({db}) is invalid', exc_info=True)
-                exit(-1)
-
-        mongo_client = pymongo.MongoClient(f"mongodb://{user}:{password}@{host}:{mongo_port}/?authSource=admin")
-        return mongo_client[db]
-    except Exception as e:
-        logging.error("Database connection error." + str(e), exc_info=True)
-        exit(-1)
-
-mydb = get_mongo_connection()
-def map_gene(gene: str) -> List[str]:
+def map_gene(gene: str, database) -> List[str]:
     """
     Gets all the aliases for a specific gene
     :return List of aliases
     """
-    collection_hgnc = mydb["hgnc"]  # HGNC collection
+    collection_hgnc = database["hgnc"]  # HGNC collection
 
     dbs = ["hgnc_id", "symbol", "alias_symbol", "prev_symbol", "entrez_id", "ensembl_gene_id", "vega_id",
            "ucsc_id", "ena", "refseq_accession", "ccds_id", "uniprot_ids", "cosmic", "omim_id", "mirbase", "homeodb",

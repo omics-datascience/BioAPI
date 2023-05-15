@@ -11,6 +11,7 @@ from typing import List, Dict
 from flask import Flask, jsonify, make_response, abort, render_template, request
 from pymongo.database import Database
 from pymongo.collation import Collation, CollationStrength
+from utils import map_gene
 
 # Gets production flag
 IS_DEBUG: bool = os.environ.get('DEBUG', 'true') == 'true'
@@ -42,60 +43,61 @@ logging.info('BioAPI is up and running')
 # Common response header
 headers = {"Content-Type": "application/json"}
 
+from db import get_mongo_connection
+mydb = get_mongo_connection(IS_DEBUG,Config)
 
-def get_mongo_connection() -> Database:
-    """
-    Gets Mongo connection using config.txt file if DEBUG env var is 'true', or all the env variables in case of prod
-    (DEBUG = 'false')
-    :return: Database instance
-    """
-    try:
-        if IS_DEBUG:
-            host = Config.get('mongodb', 'host')
-            mongo_port = Config.get('mongodb', 'port')
-            user = Config.get('mongodb', 'user')
-            password = Config.get('mongodb', 'pass')
-            db = Config.get('mongodb', 'db_name')
-        else:
-            host = os.environ.get('MONGO_HOST')
-            mongo_port = os.environ.get('MONGO_PORT')
-            user = os.environ.get('MONGO_USER')
-            password = os.environ.get('MONGO_PASSWORD')
-            db = os.environ.get('MONGO_DB')
+# def get_mongo_connection() -> Database:
+    # """
+    # Gets Mongo connection using config.txt file if DEBUG env var is 'true', or all the env variables in case of prod
+    # (DEBUG = 'false')
+    # :return: Database instance
+    # """
+    # try:
+        # if IS_DEBUG:
+            # host = Config.get('mongodb', 'host')
+            # mongo_port = Config.get('mongodb', 'port')
+            # user = Config.get('mongodb', 'user')
+            # password = Config.get('mongodb', 'pass')
+            # db = Config.get('mongodb', 'db_name')
+        # else:
+            # host = os.environ.get('MONGO_HOST')
+            # mongo_port = os.environ.get('MONGO_PORT')
+            # user = os.environ.get('MONGO_USER')
+            # password = os.environ.get('MONGO_PASSWORD')
+            # db = os.environ.get('MONGO_DB')
 
-            if not host or not mongo_port or not db:
-                logging.error(f'Host ({host}), port ({mongo_port}) or db ({db}) is invalid', exc_info=True)
-                exit(-1)
+            # if not host or not mongo_port or not db:
+                # logging.error(f'Host ({host}), port ({mongo_port}) or db ({db}) is invalid', exc_info=True)
+                # exit(-1)
 
-        mongo_client = pymongo.MongoClient(f"mongodb://{user}:{password}@{host}:{mongo_port}/?authSource=admin")
-        return mongo_client[db]
-    except Exception as e:
-        logging.error("Database connection error." + str(e), exc_info=True)
-        exit(-1)
-
-
-mydb = get_mongo_connection()
+        # mongo_client = pymongo.MongoClient(f"mongodb://{user}:{password}@{host}:{mongo_port}/?authSource=admin")
+        # return mongo_client[db]
+    # except Exception as e:
+        # logging.error("Database connection error." + str(e), exc_info=True)
+        # exit(-1)
 
 
-def map_gene(gene: str) -> List[str]:
-    """
-    Gets all the aliases for a specific gene
-    :return List of aliases
-    """
-    collection_hgnc = mydb["hgnc"]  # HGNC collection
 
-    dbs = ["hgnc_id", "symbol", "alias_symbol", "prev_symbol", "entrez_id", "ensembl_gene_id", "vega_id",
-           "ucsc_id", "ena", "refseq_accession", "ccds_id", "uniprot_ids", "cosmic", "omim_id", "mirbase", "homeodb",
-           "snornabase", "bioparadigms_slc", "orphanet", "pseudogene", "horde_id", "merops", "imgt", "iuphar",
-           "kznf_gene_catalog", "mamit-trnadb", "cd", "lncrnadb", "enzyme_id", "intermediate_filament_db", "agr"]
 
-    # Generates query
-    or_search = [{db: gene} for db in dbs]
-    query = {'$or': or_search}
-    coll = Collation(locale='en', strength=CollationStrength.SECONDARY)
-    docs = collection_hgnc.find(query, collation=coll)
-    res = [doc["symbol"] for doc in docs]
-    return res
+# def map_gene(gene: str) -> List[str]:
+    # """
+    # Gets all the aliases for a specific gene
+    # :return List of aliases
+    # """
+    # collection_hgnc = mydb["hgnc"]  # HGNC collection
+
+    # dbs = ["hgnc_id", "symbol", "alias_symbol", "prev_symbol", "entrez_id", "ensembl_gene_id", "vega_id",
+           # "ucsc_id", "ena", "refseq_accession", "ccds_id", "uniprot_ids", "cosmic", "omim_id", "mirbase", "homeodb",
+           # "snornabase", "bioparadigms_slc", "orphanet", "pseudogene", "horde_id", "merops", "imgt", "iuphar",
+           # "kznf_gene_catalog", "mamit-trnadb", "cd", "lncrnadb", "enzyme_id", "intermediate_filament_db", "agr"]
+
+    # # Generates query
+    # or_search = [{db: gene} for db in dbs]
+    # query = {'$or': or_search}
+    # coll = Collation(locale='en', strength=CollationStrength.SECONDARY)
+    # docs = collection_hgnc.find(query, collation=coll)
+    # res = [doc["symbol"] for doc in docs]
+    # return res
 
 
 def get_potential_gene_symbols(query_string, limit_elements):
@@ -233,7 +235,6 @@ def get_expression_from_gtex(tissue: str, genes: List) -> List:
 def terms_related_to_one_gene(gene: str, relation_type: list= ["enables","involved_in","part_of","located_in"]):#-> Dict[str]
     collection_go_anotations = mydb["go_anotations"]
     anotation = dict(collection_go_anotations.find_one({"gene_symbol": gene}))
-    # print((anotastion))
     related_genes = {}
     if anotation != None:
         for relation in relation_type:
@@ -321,7 +322,6 @@ def  BFS_on_terms(term_id, relations: list = ["part_of","regulates","has_part"],
             #could be optimized by pooling all the next level neighbours and doing one db call per level
             #but on the other side you have to control for already visited nodes, so im not sure if its faster
             term = collection_go.find_one({"go_id": act}) 
-            print(term)
             if not term["ontology_type"] in ontology_type:
                 continue
             term =strip_term(term,relations)
@@ -374,7 +374,6 @@ def  BFS_on_terms(term_id, relations: list = ["part_of","regulates","has_part"],
 
 def cancer_drugs_related_to_gene(gene):
     collection_pharm = mydb["pharmgkb"]
-    print(collection_pharm.find({"genes":gene},{"_id":0}))
     return list(collection_pharm.find({"genes":gene},{"_id":0}))
 
 #app
@@ -421,7 +420,7 @@ def create_app():
 
             try:
                 with ThreadPoolExecutor(max_workers=THREAD_POOL_WORKERS) as executor:
-                    for gene_id, result in zip(gene_ids, executor.map(map_gene, gene_ids)):
+                    for gene_id, result in zip(gene_ids, executor.map(map_gene, gene_ids,[mydb for i in gene_ids])):
                         response[gene_id] = result
             except Exception as e:
                 abort(400, e)
@@ -472,7 +471,7 @@ def create_app():
     def genes_in_the_same_group(gene_id):
         response = {"gene_id": None, "groups": [], "locus_group": None, "locus_type": None}
         try:
-            mapped_gene = map_gene(gene_id)
+            mapped_gene = map_gene(gene_id, mydb)
             if len(mapped_gene) == 0:
                 abort(404, "invalid gene identifier")
             elif len(mapped_gene) >= 2:
