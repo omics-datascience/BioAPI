@@ -71,11 +71,13 @@ Alternatively (but **not recommended** due to high computational demands) you ca
 2. The ETL process is programmed in a single bash script for each database. Edit in the bash file of the database that you want to update the **user** and **password** parameters, using the same values that you set in the `docker-compose.yml` file. Bash files can be found in the *'databases'* folder, within the corresponding directories for each database:  
     - For Metabolic pathways ([ConsensusPathDB](http://cpdb.molgen.mpg.de/)) use "databases/cpdb" directory and the *cpdb2mongodb.sh* file.
     - For Gene nomenclature ([HUGO Gene Nomenclature Committee](https://www.genenames.org/)) use "databases/hgnc" directory and the *hgnc2mongodb.sh* file.
-    - For Gene expression ([Genotype-Tissue Expression (GTEx)](https://gtexportal.org/home/)) use "databases/gtex" directory and the *gtex2mongodb.sh*.
+    - For Gene expression ([Genotype-Tissue Expression (GTEx)](https://gtexportal.org/home/)) use "databases/gtex" directory and the *gtex2mongodb.sh* file.
     - For Gene information ([Ensembl (Biomart tool)](https://www.ensembl.org/biomart/martview/)) use "databases/ensembl_gene" directory and the *ensembl_gene2mongodb.sh* file.  
+	- For cancer related drugs ([Pharmacogenomics Knowledge Base (PharmGKB) ](https://www.pharmgkb.org/))  use "databases\pharmGKB" directory and the *pharmgkb2mongodb.sh* file.
+	- For Gene ontology ([Gene Ontology (GO)](http://geneontology.org/use/)) "databases\gene_ontology" directory and the *go2mongodb.sh* file. **For the process to work** the gene nomenclature database must be already imported
 3. Run bash files.  
     `./<file.sh>`  
-    where file.sh can be *cpdb2mongodb.sh*, *hgnc2mongodb.sh*, *gtex2mongodb.sh*, or *ensembl_gene2mongodb.sh*, as appropriate.  
+    where file.sh can be *cpdb2mongodb.sh*, *hgnc2mongodb.sh*, *gtex2mongodb.sh*, *go2mongodb.sh*, *pharmgkb2mongodb.sh*, or *ensembl_gene2mongodb.sh*, as appropriate.  
 
 ## Run BioAPI
 Use docker compose to get the BioAPI up:
