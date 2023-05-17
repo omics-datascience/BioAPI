@@ -275,18 +275,7 @@ def is_term_on_db(term_id):
     collection_go = mydb["go"]
     return collection_go.find_one({"go_id": term_id}) == None
 
-# old_ version
-# def terms_related_to_many_genes(gene_ids: list, filter_type = "intersection", relation_type: list= ["enables","involved_in","part_of","located_in"]):
-    # gene = gene_ids.pop()
-    # term_set= set(terms_related_to_one_gene(gene,relation_type))
-    # for gene in gene_ids:
-        # terms = terms_related_to_one_gene(gene,relation_type)
-        # if filter_type == "intersection":
-            # term_set= term_set.intersection(terms)
-        # elif filter_type == "union":
-            # term_set = term_set.union(terms)
 
-    # return term_set
 def terms_related_to_many_genes(gene_ids: list, filter_type = "intersection", relation_type: list= ["enables","involved_in","part_of","located_in"]):
     gene = gene_ids.pop()
     term_set= terms_related_to_one_gene(gene,relation_type)

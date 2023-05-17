@@ -14,15 +14,12 @@ from utils import map_gene
 
 
 ############# MongoDB Conf ############
-ip_mongo=sys.argv[2]
-port_mongo=sys.argv[3]
-user=sys.argv[4]
-password=sys.argv[5]
-db_name=sys.argv[6]
+ip_mongo=sys.argv[1]
+port_mongo=sys.argv[2]
+user=sys.argv[3]
+password=sys.argv[4]
+db_name=sys.argv[5]
 #######################################
-# url_go = sys.argv[1]
-# url_anotation1 = sys.argv[7]
-# url_anotation2 = sys.argv[8]
 
 url_go="http://purl.obolibrary.org/obo/go.obo"
 url_anotation1= "http://geneontology.org/gene-associations/goa_human_isoform.gaf.gz"
