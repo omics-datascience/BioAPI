@@ -354,7 +354,7 @@ This service retrieves information of actionable genes and drugs obtained from t
                 - `<cancer_types>`: type of cancer.
             - `<oncokb_cancer_gene>`: type of cancer gene. Oncogene and/or Tumor Suppressor Gene.  
             - `<refseq_transcript>`: gene transcript according to the RefSeq database.  
-            - `<sources>`: list of sources where there is evidence of the relationship of the gene with cancer. These may be different sequencing panels, the Sanger Cancer Gene Census, or [Vogelstein et al. (2013)](http://science.sciencemag.org/content/339/6127/1546.full).
+            - `<sources>`: list of sources where there is evidence of the relationship of the gene with cancer. These may be different sequencing panels, the [Sanger Cancer Gene Census](https://www.sanger.ac.uk/data/cancer-gene-census/), or [Vogelstein et al. (2013)](http://science.sciencemag.org/content/339/6127/1546.full).
 
     - Example:
         - URL: http://localhost:8000/information-of-oncokb
