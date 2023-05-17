@@ -12,7 +12,6 @@ sys.path.insert(0, '../../bio-api')
 from utils import map_gene
 
 
-print(list(sys.argv))
 
 ############# MongoDB Conf ############
 ip_mongo=sys.argv[2]
@@ -40,9 +39,10 @@ def pile_into_dict(dic,key,content):
 
 def pile_list_into_dict(dic,key,content):
     if key in dic:
-        dic[key].append(content)
+        dic[key].add(content)
     else:
-        dic[key]= [content]
+        dic[key]= set()
+        dic[key].add(content)
 
 def process_anotations(anotations,all_genes,rejected_aliases):
     line = anotations.readline().strip()
@@ -66,13 +66,17 @@ def process_anotations(anotations,all_genes,rejected_aliases):
                         if real_alias in all_genes: 
                             gene.pop("gene_symbol")
                             
+                            # print(gene)
                             for att in gene:
                                 if att in all_genes[real_alias]:
-                                    if isinstance(all_genes[real_alias][att],dict):
-                                        all_genes[real_alias][att]= [all_genes[real_alias][att]]
-                                    if isinstance(gene[att],dict):
-                                        gene[att] = [gene[att]]
-                                    all_genes[real_alias][att].extend(gene[att])
+                                    # print(all_genes[real_alias][att])
+                                    # if isinstance(all_genes[real_alias][att],dict):
+                                        # print("a")
+                                        # all_genes[real_alias][att]= [all_genes[real_alias][att]]
+                                    # if isinstance(gene[att],dict):
+                                        # print("aa")
+                                        # gene[att] = [gene[att]]
+                                    all_genes[real_alias][att].update(gene[att])
                                         
                                 else:
                                     all_genes[real_alias][att] = gene[att]
@@ -86,7 +90,7 @@ def process_anotations(anotations,all_genes,rejected_aliases):
                         rejected_aliases[gene["gene_symbol"]]=real_alias
                 gene_symbol = line[2]
                 gene={"gene_symbol":gene_symbol}
-            pile_list_into_dict(gene,line[3],{"go_id":line[4].split(":")[1],"evidence":(line[6])})
+            pile_list_into_dict(gene,line[3],(line[4].split(":")[1],line[6]))
 
 
 print("INFO	Downloading Gene Ontology database...")
@@ -161,10 +165,6 @@ print("INFO	OK.")
 
 
 print("INFO	Processing Gene Ontology anotations database (may take a while)...")
-from typing import List, Dict
-from pymongo.collation import Collation, CollationStrength
-
-
 
 
 
@@ -179,6 +179,18 @@ anotations = open("goa_human.gaf", "r")
 process_anotations(anotations,all_genes,rejected_aliases)
 anotations.close()
 
+all_genes= list(all_genes.values())
+for gene in all_genes:
+    for rel in gene.keys():
+        if isinstance(gene[rel],set):
+            lis = []
+            for ev in gene[rel]:
+                lis.append({"go_id": ev[0],"evidence": ev[1]})
+            gene[rel]=lis
+            
+        
+    
+
 with open('logs.json', 'w') as fp:
     json.dump(rejected_aliases, fp)
 print("INFO	log.json was created containing all the rejected aliases")
@@ -188,7 +200,7 @@ print("INFO	OK.")
 print("INFO	Importing to MongoDB...")
 anotation_colection = db["go_anotations"]
 anotation_colection.drop()
-anotation_colection.insert_many(list(all_genes.values()))
+anotation_colection.insert_many(all_genes)
 
 go_colection = db["go"]
 go_colection.drop()
