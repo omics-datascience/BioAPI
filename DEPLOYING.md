@@ -74,7 +74,7 @@ Alternatively (but **not recommended** due to high computational demands) you ca
     - For Gene expression ([Genotype-Tissue Expression (GTEx)](https://gtexportal.org/home/)) use "databases/gtex" directory and the *gtex2mongodb.sh* file.
     - For Gene information ([Ensembl (Biomart tool)](https://www.ensembl.org/biomart/martview/)) use "databases/ensembl_gene" directory and the *ensembl_gene2mongodb.sh* file.  
 	- For cancer related drugs ([Pharmacogenomics Knowledge Base (PharmGKB) ](https://www.pharmgkb.org/))  use "databases\pharmGKB" directory and the *pharmgkb2mongodb.sh* file.
-	- For Gene ontology ([Gene Ontology (GO)](http://geneontology.org/use/)) "databases\gene_ontology" directory and the *go2mongodb.sh* file. **For the process to work** the gene nomenclature database must be already imported
+	- For Gene ontology ([Gene Ontology (GO)](http://geneontology.org/use/)) "databases\gene_ontology" directory and the *go2mongodb.sh* file. **NOTE:** This import needs the "Gene nomenclature" databases (2) already imported to properly process the gene ontology databases
 3. Run bash files.  
     `./<file.sh>`  
     where file.sh can be *cpdb2mongodb.sh*, *hgnc2mongodb.sh*, *gtex2mongodb.sh*, *go2mongodb.sh*, *pharmgkb2mongodb.sh*, or *ensembl_gene2mongodb.sh*, as appropriate.  
