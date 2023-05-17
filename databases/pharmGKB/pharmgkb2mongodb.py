@@ -5,17 +5,19 @@ from pymongo import MongoClient
 import json
 import requests, zipfile, io
 import os
-
+import sys
 
 
 
 ############# MongoDB Conf ############
-ip_mongo="localhost"
-port_mongo=8888
-user="root"
-password="root"
-db_name="bio_api"
+ip_mongo=sys.argv[2]
+port_mongo=sys.argv[3]
+user=sys.argv[4]
+password=sys.argv[5]
+db_name=sys.argv[6]
 #######################################
+url = sys.argv[1]
+
 
 
 
@@ -32,7 +34,6 @@ def pile_into_dict(dic,key,content):
 
 
 print("INFO	Downloading PharmGKB database...")
-url = "https://api.pharmgkb.org/v1/download/file/data/drugLabels.zip"
 r = requests.get(url)
 print("INFO	OK.")
 print("INFO	Uncompresing...")

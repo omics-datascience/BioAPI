@@ -4,25 +4,30 @@ import gzip
 import shutil
 from pymongo import MongoClient
 import json
+import sys
 
 
-
-# import sys
-# # adding bioapi app folder to the system path
-# # sys.path.insert(0, '/../../bio-api/bioapi.py')
-# sys.path.insert(0, 'C:/Users/franc/OneDrive/Documents/GitHub/BioAPI/bio-api')
-# import bioapi 
-# print(bioapi.map_gene("BRCA1"))
+# adding bioapi app folder to the system path
+sys.path.insert(0, '../../bio-api')
+from utils import map_gene
 
 
+print(list(sys.argv))
 
 ############# MongoDB Conf ############
-ip_mongo="localhost"
-port_mongo=8888
-user="root"
-password="root"
-db_name="bio_api"
+ip_mongo=sys.argv[2]
+port_mongo=sys.argv[3]
+user=sys.argv[4]
+password=sys.argv[5]
+db_name=sys.argv[6]
 #######################################
+# url_go = sys.argv[1]
+# url_anotation1 = sys.argv[7]
+# url_anotation2 = sys.argv[8]
+
+url_go="http://purl.obolibrary.org/obo/go.obo"
+url_anotation1= "http://geneontology.org/gene-associations/goa_human_isoform.gaf.gz"
+url_anotation2= "http://geneontology.org/gene-associations/goa_human.gaf.gz"
 
 def pile_into_dict(dic,key,content):
     if key in dic:
@@ -39,14 +44,58 @@ def pile_list_into_dict(dic,key,content):
     else:
         dic[key]= [content]
 
+def process_anotations(anotations,all_genes,rejected_aliases):
+    line = anotations.readline().strip()
+    gene={}
+    gene_symbol= ""
+    for line in anotations:
+        if line[0]!="!":
+            line = line.strip().split("\t")
+
+            if gene_symbol == line[2]:
+                pass
+            else:
+                if gene_symbol != "":
+                    real_alias= map_gene(gene["gene_symbol"], db)
+                    if len(real_alias)==1 or gene["gene_symbol"] in real_alias: 
+                        if len(real_alias)!=1 and gene["gene_symbol"] in real_alias:
+                            rejected_aliases["accepted: "+gene["gene_symbol"]]=real_alias
+                            real_alias = gene["gene_symbol"]
+                        else:
+                            real_alias = real_alias[0]
+                        if real_alias in all_genes: 
+                            gene.pop("gene_symbol")
+                            
+                            for att in gene:
+                                if att in all_genes[real_alias]:
+                                    if isinstance(all_genes[real_alias][att],dict):
+                                        all_genes[real_alias][att]= [all_genes[real_alias][att]]
+                                    if isinstance(gene[att],dict):
+                                        gene[att] = [gene[att]]
+                                    all_genes[real_alias][att].extend(gene[att])
+                                        
+                                else:
+                                    all_genes[real_alias][att] = gene[att]
+                            # print(all_genes[real_alias])
+                        else:
+                            gene["gene_symbol"] = real_alias
+                            all_genes[gene["gene_symbol"]]=gene
+                            # print(all_genes)
+                            # print("agregado"+str(gene["gene_symbol"]))
+                    else:
+                        rejected_aliases[gene["gene_symbol"]]=real_alias
+                gene_symbol = line[2]
+                gene={"gene_symbol":gene_symbol}
+            pile_list_into_dict(gene,line[3],{"go_id":line[4].split(":")[1],"evidence":(line[6])})
+
 
 print("INFO	Downloading Gene Ontology database...")
-urllib.request.urlretrieve("http://purl.obolibrary.org/obo/go.obo", "go.obo")
+urllib.request.urlretrieve(url_go, "go.obo")
 print("INFO	OK.")
 
 print("INFO	Downloading Gene Ontology anotations database...")
-urllib.request.urlretrieve("http://geneontology.org/gene-associations/goa_human_isoform.gaf.gz", "goa_human_isoform.gaf.gz")
-urllib.request.urlretrieve("http://geneontology.org/gene-associations/goa_human.gaf.gz", "goa_human.gaf.gz")
+urllib.request.urlretrieve(url_anotation1, "goa_human_isoform.gaf.gz")
+urllib.request.urlretrieve(url_anotation2, "goa_human.gaf.gz")
 print("INFO	OK.")
 
 print("INFO	Uncompresing anotations")
@@ -74,7 +123,11 @@ for line in go:
             for r in relationships:
                 r= r.strip().split(" ")
                 pile_into_dict(term,r[0],r[1].split(":")[1])
-                
+        if "def" in term:
+            definition = term.pop("def").split("\"")
+            term["definition"] = definition[1]
+            term["definition_reference"] = definition[-1].strip("[] ")
+            
         atributes_with_ids = ["is_a","alt_id","disjoint_from","id"]
         
         for atr_name in atributes_with_ids:
@@ -110,69 +163,9 @@ print("INFO	OK.")
 print("INFO	Processing Gene Ontology anotations database (may take a while)...")
 from typing import List, Dict
 from pymongo.collation import Collation, CollationStrength
-def map_gene(gene: str) -> List[str]:
-    """
-    Gets all the aliases for a specific gene
-    :return List of aliases
-    """
-    collection_hgnc = db["hgnc"]  # HGNC collection
 
-    dbs = ["hgnc_id", "symbol", "alias_symbol", "prev_symbol", "entrez_id", "ensembl_gene_id", "vega_id",
-           "ucsc_id", "ena", "refseq_accession", "ccds_id", "uniprot_ids", "cosmic", "omim_id", "mirbase", "homeodb",
-           "snornabase", "bioparadigms_slc", "orphanet", "pseudogene", "horde_id", "merops", "imgt", "iuphar",
-           "kznf_gene_catalog", "mamit-trnadb", "cd", "lncrnadb", "enzyme_id", "intermediate_filament_db", "agr"]
 
-    # Generates query
-    or_search = [{db: gene} for db in dbs]
-    query = {'$or': or_search}
-    coll = Collation(locale='en', strength=CollationStrength.SECONDARY)
-    docs = collection_hgnc.find(query, collation=coll)
-    res = [doc["symbol"] for doc in docs]
-    return res
 
-def process_anotations(anotations,all_genes,rejected_aliases):
-    line = anotations.readline().strip()
-    gene={}
-    gene_symbol= ""
-    for line in anotations:
-        if line[0]!="!":
-            line = line.strip().split("\t")
-
-            if gene_symbol == line[2]:
-                pass
-            else:
-                if gene_symbol != "":
-                    real_alias= map_gene(gene["gene_symbol"])
-                    if len(real_alias)==1 or gene["gene_symbol"] in real_alias: 
-                        if len(real_alias)!=1 and gene["gene_symbol"] in real_alias:
-                            rejected_aliases["accepted: "+gene["gene_symbol"]]=real_alias
-                            real_alias = gene["gene_symbol"]
-                        else:
-                            real_alias = real_alias[0]
-                        if real_alias in all_genes: 
-                            gene.pop("gene_symbol")
-                            
-                            for att in gene:
-                                if att in all_genes[real_alias]:
-                                    if isinstance(all_genes[real_alias][att],dict):
-                                        all_genes[real_alias][att]= [all_genes[real_alias][att]]
-                                    if isinstance(gene[att],dict):
-                                        gene[att] = [gene[att]]
-                                    all_genes[real_alias][att].extend(gene[att])
-                                        
-                                else:
-                                    all_genes[real_alias][att] = gene[att]
-                            # print(all_genes[real_alias])
-                        else:
-                            gene["gene_symbol"] = real_alias
-                            all_genes[gene["gene_symbol"]]=gene
-                            # print(all_genes)
-                            # print("agregado"+str(gene["gene_symbol"]))
-                    else:
-                        rejected_aliases[gene["gene_symbol"]]=real_alias
-                gene_symbol = line[2]
-                gene={"gene_symbol":gene_symbol}
-            pile_list_into_dict(gene,line[3],{"go_id":line[4].split(":")[1],"evidence":(line[6])})
 
 
 anotations = open("goa_human_isoform.gaf", "r")

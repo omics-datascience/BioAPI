@@ -275,13 +275,17 @@ def terms_related_to_many_genes(gene_ids: list, filter_type = "intersection", re
         terms = terms_related_to_one_gene(gene,relation_type)
         if filter_type == "intersection":
             current_terms= term_set.keys() & terms.keys()
+            for cterm in current_terms:
+                if cterm in term_set:
+                    term_set[cterm].extend(terms[cterm])
+                else:
+                    term_set[cterm]=(terms[cterm])
         elif filter_type == "union":
-            current_terms= term_set.keys() | terms.keys()
-        for cterm in current_terms:
-            if cterm in term_set:
-                term_set[cterm].extend(terms[cterm])
-            else:
-                term_set[cterm]=(terms[cterm])
+            for cterm in terms:
+                if cterm in term_set:
+                    term_set[cterm].extend(terms[cterm])
+                else:
+                    term_set[cterm]=(terms[cterm])  
     return term_set
 
 def populate_terms_with_data(term_list, ontology_type: list = ["biological_process", "molecular_function", "cellular_component"]):
@@ -299,7 +303,7 @@ def strip_term(term,relations):
 
 # relations = ["part_of","regulates","has_part"]
 
-def  BFS_on_terms(term_id, relations: list = ["part_of","regulates","has_part"], general_depth= 0, hierarchical_depth_to_children= 0, ontology_type: list =["biological_process", "molecular_function", "cellular_component"]): #function for BFS
+def  BFS_on_terms(term_id, relations: list = ["part_of","regulates","has_part"], general_depth= 0, hierarchical_depth_to_children= 0, ontology_type: list =["biological_process", "molecular_function", "cellular_component"], to_root = True): #function for BFS
     collection_go = mydb["go"]
     graph = {}
     DEPTH_MARK = "*"
@@ -311,7 +315,7 @@ def  BFS_on_terms(term_id, relations: list = ["part_of","regulates","has_part"],
     queue.append(DEPTH_MARK)
     actual_depth = 0
 
-    while queue:          # Creating loop to visit each node
+    while queue:          # Creating loop to visit each conected with non-hierarchical relationship
         act = queue.pop(0) 
         if act == DEPTH_MARK:
             if actual_depth == general_depth or not queue:
@@ -332,6 +336,7 @@ def  BFS_on_terms(term_id, relations: list = ["part_of","regulates","has_part"],
                     visited.append(neighbour)
                     queue.append(neighbour)
     
+    #go to the ontology children
     terms= [term_id]
     next_level_terms = []
     for i in range(hierarchical_depth_to_children):
@@ -344,29 +349,35 @@ def  BFS_on_terms(term_id, relations: list = ["part_of","regulates","has_part"],
             else:
                 term =strip_term(t,["is_a"])
                 graph[term["go_id"]] = term
+                visited.append(t_id)
             next_level_terms.append(term["go_id"])
             
         terms = next_level_terms
         next_level_terms = []
     
-    #go to the ontology root   #To do
-    # terms= [term_id]
-    # while terms: 
-        # terms = collection_go.find({"id": { "$in": terms }} )
-        # while not terms.empty():
-            # t_id = t["id"]
-            # if t_id in visited:
-                # term =strip_term(t,["is_a"])
-                # graph[t_id]["relations"]['is_a']= term["relations"]["is_a"]
-            # else:
-                # term =strip_term(t,["is_a"])
-                # graph[term["id"]] = term
-            # if "is_a" in term["relations"]:
-                # next_level_terms.extend(term["relations"]["is_a"])
-            
-        # terms = next_level_terms
-        # next_level_terms = []
-    
+    #go to the ontology root
+    if to_root:
+        terms= [term_id]
+        next_level_terms = []
+        while terms: 
+            terms = collection_go.find({"go_id": { "$in": terms }} )
+            for t in terms:
+                if "is_a" in t:
+                    new_terms = t["is_a"]
+                    if isinstance(new_terms, list):
+                        next_level_terms.extend(new_terms)
+                    else:
+                        next_level_terms.append(new_terms)
+                t_id = t["go_id"]
+                if t_id in visited:
+                    term =strip_term(t,["is_a"])
+                    if "is_a" in t: graph[t_id]["relations"]['is_a']= term["relations"]["is_a"]
+                else:
+                    term =strip_term(t,["is_a"])
+                    graph[term["go_id"]] = term
+                    visited.append(t_id)
+            terms = next_level_terms
+            next_level_terms = []
     
     return (list(graph.values()))
 
@@ -639,7 +650,8 @@ def create_app():
                 for ot in arguments["ontology_type"]:
                     if not (ot in valid_ontology_types):
                         abort(400, str(ot)+" is not a valid ontology_type")
-            
+            if "to_root" in body:
+                arguments["to_root"] = bool(body["to_root"])
             response = BFS_on_terms(**arguments)
         return jsonify(response)
     # Error handling

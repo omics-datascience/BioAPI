@@ -15,8 +15,11 @@ BioMart data mining tool was used to obtain a gene-related dataset from Ensembl.
 3. Metabolic pathways: [ConsensusPathDB](http://cpdb.molgen.mpg.de/).  
 ConsensusPathDB-human integrates interaction networks in Homo sapiens including binary and complex protein-protein, genetic, metabolic, signaling, gene regulatory and drug-target interactions, as well as biochemical pathways. Data originate from currently 31 public resources for interactions (listed below) and interactions that we have curated from the literature. The interaction data are integrated in a complementary manner (avoiding redundancies), resulting in a seamless interaction network containing different types of interactions. Downloaded from its official website in September 2022.          
 4. Gene expression: [Genotype-Tissue Expression (GTEx)](https://gtexportal.org/home/).  
-The Genotype-Tissue Expression (GTEx) project is an ongoing effort to build a comprehensive public resource to study tissue-specific gene expression and regulation. Samples were collected from 54 non-diseased tissue sites across nearly 1000 individuals, primarily for molecular assays including WGS, WES, and RNA-Seq. GTEx is being used in its version [GTEx Analysis V8 (dbGaP Accession phs000424.v8.p2)](https://gtexportal.org/home/datasets#datasetDiv1) and was downloaded from its official website in September 2022.  
-
+The Genotype-Tissue Expression (GTEx) project is an ongoing effort to build a comprehensive public resource to study tissue-specific gene expression and regulation. Samples were collected from 54 non-diseased tissue sites across nearly 1000 individuals, primarily for molecular assays including WGS, WES, and RNA-Seq. GTEx is being used in its version [GTEx Analysis V8 (dbGaP Accession phs000424.v8.p2)](https://gtexportal.org/home/datasets#datasetDiv1) and was downloaded from its official website in September 2022.
+6. Gene Ontology [Gene Ontology (GO)](http://geneontology.org/).  
+It is a project to develop an up-to-date, comprehensive, computational model of biological systems, from the molecular level to larger pathways, cellular and organism-level systems. It provides structured and standardized annotations of gene products, in a hierarchical system of terms and relationships that describes the molecular functions, biological processes, and cellular components associated with genes and gene products. Downloaded from its official website in June 2023
+7. Cancer related drugs [Pharmacogenomics Knowledge Base (PharmGKB) ](https://www.pharmgkb.org/). 
+It is a resource that provides information about how human genetic variation affects response to medications. PharmGKB collects, curates and disseminates knowledge about clinically actionable gene-drug associations and genotype-phenotype relationships. Downloaded from its official website in June 2023
 
 ## Services included in BioAPI  
 
@@ -333,7 +336,8 @@ Gets the list of related terms for a list of genes.
 				    "0001948",
 				    "0045308"
 				],
-				"def": "\"Binding to a protein.\" [GOC:go_curators]",
+				"definition": "Binding to a protein.",
+				"definition_reference": "GOC:go_curators",
 				"go_id": "0005515",
 				"is_a": "0005488",
 				"name": "protein binding",
@@ -370,7 +374,7 @@ Gets the list of related terms to a term.
 	- `ontology_type`: filters the ontology type of the terms in the response. By default it's ["biological_process", "molecular_function", "cellular_component"]It should always be a list containing any permutation of the default relations
 	-  `general_depth`: the search depth with the non-hierarchical relations
 	-  `hierarchical_depth_to_children`: the search depth with the hierarchical relations in the direction of the children
-	-  `llenar`:por favor llenar
+	-  `to_root`: 0 for false 1 fot true. If true get all the terms in the hierarchical relations in the direction of the root
 - Success Response:
     - Code: 200
     - Content: The response you get is a list of GO terms related to the searched term that fulfills the conditions of the query. Each term has:
@@ -384,7 +388,8 @@ Gets the list of related terms to a term.
          - body: 
 		`{
 			"term_id": "0000079",
-			"general_depth" : 5
+			"general_depth" : 5,
+			"to_root" : 0
 		}`
         - Response:
 	```json
