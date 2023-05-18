@@ -121,40 +121,50 @@ From a list of valid genes, it obtains different information for the human refer
     - Example:
         - URL: http://localhost:8000/information-of-genes
         - body: 
-        `{    "gene_ids" : ["INVALIDGENE","MC1R", "ALK"]    }`
+        `{    "gene_ids" : ["INVALIDGENE","MIR365A", "ALK"]    }`
         - Response:
             ```json
             {
                 "ALK": {
-                    "band": "p23.1", 
-                    "chromosome": "2", 
-                    "civic_description": "ALK amplifications, fusions and mutations have been shown to be driving events in non-small cell lung cancer. While crizontinib has ...", 
-                    "end_GRCh37": 30144432, 
-                    "end_position": 29921586, 
-                    "ensembl_gene_id": "ENSG00000171094", 
-                    "entrezgene_id": 238, 
-                    "gene_biotype": "protein_coding", 
-                    "hgnc_symbol": "ALK", 
-                    "oncokb_cancer_gene": "Oncogene", 
-                    "percentage_gene_gc_content": 43.51, 
-                    "refseq_summary": "This gene encodes a receptor tyrosine kinase, which belongs to the insulin receptor superfamily. This protein comprises...", 
-                    "start_GRCh37": 29415640, 
-                    "start_position": 29192774, 
-                    "strand": -1
-                }, 
-                "MC1R": {
-                    "band": "q24.3", 
-                    "chromosome": "16", 
-                    "description": "melanocortin 1 receptor", 
-                    "end_GRCh37": 89987385, 
-                    "end_position": 89920973, 
-                    "ensembl_gene_id": "ENSG00000258839", 
-                    "entrezgene_id": 4157, 
-                    "gene_biotype": "protein_coding", 
-                    "percentage_gene_gc_content": 58.17, 
-                    "refseq_summary": "This intronless gene encodes the receptor protein for melanocyte-stimulating hormone (MSH). The encoded protein...", 
-                    "start_GRCh37": 89978527, 
-                    "start_position": 89912119, 
+                    "alias_symbol": [
+                        "CD246",
+                        "ALK1"
+                    ],
+                    "band": "p23.1",
+                    "chromosome": "2",
+                    "civic_description": "ALK amplifications, fusions and mutations have been shown to be driving events in non-small cell lung cancer...",
+                    "end_GRCh37": 30144432,
+                    "end_position": 29921586,
+                    "ensembl_gene_id": "ENSG00000171094",
+                    "entrez_id": "238",
+                    "gene_biotype": "protein_coding",
+                    "hgnc_id": "HGNC:427",
+                    "name": "ALK receptor tyrosine kinase",
+                    "omim_id": "105590",
+                    "oncokb_cancer_gene": "Oncogene",
+                    "percentage_gene_gc_content": 43.51,
+                    "refseq_summary": "This gene encodes a receptor tyrosine kinase, which belongs to the insulin receptor superfamily. This protein ...",
+                    "start_GRCh37": 29415640,
+                    "start_position": 29192774,
+                    "strand": -1,
+                    "uniprot_ids": "Q9UM73"
+                },
+                "MIR365A": {
+                    "alias_symbol": "hsa-mir-365-1",
+                    "band": "p13.12",
+                    "chromosome": "16",
+                    "end_GRCh37": 14403228,
+                    "end_position": 14309371,
+                    "ensembl_gene_id": "ENSG00000199130",
+                    "entrez_id": "100126355",
+                    "gene_biotype": "miRNA",
+                    "hgnc_id": "HGNC:33692",
+                    "name": "microRNA 365a",
+                    "omim_id": "614735",
+                    "percentage_gene_gc_content": 44.83,
+                    "refseq_summary": "microRNAs (miRNAs) are short (20-24 nt) non-coding RNAs that are involved in post-transcriptional regulation ...",
+                    "start_GRCh37": 14403142,
+                    "start_position": 14309285,
                     "strand": 1
                 }
             }
