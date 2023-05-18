@@ -218,6 +218,10 @@ def get_information_of_genes(genes: List[str]) -> Dict:
                 res[doc_hgnc["symbol"]]["uniprot_ids"] = doc_hgnc["uniprot_ids"]
             if "omim_id" in doc_hgnc:
                 res[doc_hgnc["symbol"]]["omim_id"] = doc_hgnc["omim_id"]
+            if "ensembl_gene_id" in doc_hgnc:
+                res[doc_hgnc["symbol"]]["ensembl_gene_id"] = doc_hgnc["ensembl_gene_id"]
+            if "entrez_id" in doc_hgnc:
+                res[doc_hgnc["symbol"]]["entrez_id"] = doc_hgnc["entrez_id"]
 
     for doc_oncokb in docs_oncokb:
         if doc_oncokb["hgnc_symbol"] in res:            

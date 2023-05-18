@@ -99,22 +99,25 @@ From a list of valid genes, it obtains different information for the human refer
     - Code: 200
     - Content:
         - `<gene_ids>`: Returns a Json with as many keys as there are valid genes in the body. For each gene, the value is a Json with the following format:
-            - `description` : Very brief description of the gene according to the Ensembl database
-            - `refseq_summary` : More complete description of the gene according to the RefSeq database (RefSeq : NCBI Reference Sequences)
-            - `civic_description` : Description of the clinical relevance of the gene according to the CiVIC (Clinical Interpretation of Variants in Cancer) database
-            - `gene_biotype` : gene type (example: protein_coding)
-            - `chromosome` : chromosome where the gene is located
-            - `start` : chromosomal position of gene starts for the reference genome GRCh38
-            - `end` : chromosomal position of gene ends for the reference genome GRCh38
-            - `start_GRCh37` : chromosomal position of gene starts for the reference genome GRCh37
-            - `end_GRCh37` : chromosomal position of gene ends for the reference genome GRCh37
-            - `percentage_gene_gc_content` : Ratio of guanine and cytosine nucleotides in the DNA sequence of the gene
-            - `strand` : DNA strand containing the coding sequence for the gene
-            - `band` : cytoband or specific location in the genome
-            - `oncokb_cancer_gene` : return "Oncogene" or "Tumor Suppressor Gene" only if the gene has this information in the OncoKB database 
+            - `alias_symbol`: alternative symbols for a known gene
+            - `percentage_gene_gc_content`: Ratio of guanine and cytosine nucleotides in the DNA sequence of the gene
+            - `oncokb_cancer_gene`: return "Oncogene" or "Tumor Suppressor Gene" only if the gene has this information in the OncoKB database
+            - `name`: gene name according to the HGNC database
+            - `band`: cytoband or specific location in the genome
+            - `chromosome`: chromosome where the gene is located
+            - `start_position`: chromosomal position of gene starts for the reference genome GRCh38
+            - `end_position`: chromosomal position of gene ends for the reference genome GRCh38
+            - `start_GRCh37`: chromosomal position of gene starts for the reference genome GRCh37
+            - `end_GRCh37`: chromosomal position of gene ends for the reference genome GRCh37
+            - `strand`: DNA strand containing the coding sequence for the gene
+            - `gene_biotype`: gene type (examples: protein_coding or miRNA)
+            - `refseq_summary`: complete description of the gene according to the RefSeq database (RefSeq : NCBI Reference Sequences)
+            - `civic_description`: Description of the clinical relevance of the gene according to the CiVIC (Clinical Interpretation of Variants in Cancer) database
+            - `hgnc_id`: Gene identifier in the HGNC database
+            - `uniprot_ids`: Gene identifier in the Uniprot database
+            - `omim_id`: Gene identifier in the OMIM database
             - `ensembl_gene_id` : Gene identifier in the Ensembl database
-            - `entrezgene_id` : Gene identifier in the NCBI Entrez database
-                    
+            - `entrez_id` : Gene identifier in the NCBI Entrez database       
     - Example:
         - URL: http://localhost:8000/information-of-genes
         - body: 
