@@ -296,6 +296,9 @@ def terms_related_to_many_genes(gene_ids: list, filter_type = "intersection", re
                     term_set[cterm].extend(terms[cterm])
                 else:
                     term_set[cterm]=(terms[cterm])
+            for t in term_set.copy():
+                if not t in current_terms:
+                    del term_set[t]
         elif filter_type == "union":
             for cterm in terms:
                 if cterm in term_set:
