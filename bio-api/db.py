@@ -1,7 +1,7 @@
 import pymongo
 from pymongo.database import Database
+import logging
 import os
-
 
 
 def get_mongo_connection(is_debug,Config) -> Database:

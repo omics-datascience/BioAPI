@@ -258,9 +258,12 @@ def get_expression_from_gtex(tissue: str, genes: List) -> List:
 
 def terms_related_to_one_gene(gene: str, relation_type: list= ["enables","involved_in","part_of","located_in"]):#-> Dict[str]
     collection_go_anotations = mydb["go_anotations"]
-    anotation = dict(collection_go_anotations.find_one({"gene_symbol": gene}))
-    related_genes = {}
-    if anotation != None:
+    
+    # anotation = dict(collection_go_anotations.find_one({"gene_symbol": gene}))
+    anotation = list(collection_go_anotations.find({"gene_symbol": gene}))
+    related_genes={}
+    if anotation != []:
+        anotation = anotation[0]
         for relation in relation_type:
             if relation in anotation:
                 for term in anotation[relation]:
@@ -288,11 +291,14 @@ def terms_related_to_many_genes(gene_ids: list, filter_type = "intersection", re
         terms = terms_related_to_one_gene(gene,relation_type)
         if filter_type == "intersection":
             current_terms= term_set.keys() & terms.keys()
+            new_set = {}
             for cterm in current_terms:
                 if cterm in term_set:
                     term_set[cterm].extend(terms[cterm])
+                    new_set[cterm] = term_set[cterm]
                 else:
-                    term_set[cterm]=(terms[cterm])
+                    new_set[cterm] = (terms[cterm])
+            term_set = new_set
         elif filter_type == "union":
             for cterm in terms:
                 if cterm in term_set:
@@ -665,7 +671,7 @@ def create_app():
             if "ontology_type" in body:
                 populate_arguments["ontology_type"] = body["ontology_type"]
                 if not isinstance(body["ontology_type"], list):
-                    abort(400, str(a)+" must be a list")
+                    abort(400, "ontology_type must be a list")
                 for ot in populate_arguments["ontology_type"]:
                     if not (ot in valid_ontology_types):
                         abort(400, str(ot)+" is not a valid ontology_type")

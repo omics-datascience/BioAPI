@@ -574,7 +574,7 @@ Gets the list of related drugs to a list of genes.
 		- `Genes`: List of related genes
 		- `Variants-Haplotypes`: Related variants and/or haplotypes
 	- Example:
-        - URL: http://localhost:8000/related-terms
+        - URL: http://localhost:8000/drugs-pharm-gkb
          - body: 
         `{"gene_ids" : ["JAK2"]}`
         - Response:
