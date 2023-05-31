@@ -1,16 +1,16 @@
-import re
-import os
-import json
-import gzip
-import logging
-from concurrent.futures import ThreadPoolExecutor
-import pymongo
 import configparser
+import gzip
+import json
+import logging
+import os
+import re
 import urllib.parse
-from typing import List, Dict
+from concurrent.futures import ThreadPoolExecutor
+from typing import List, Dict, Optional, Any
+
 from flask import Flask, jsonify, make_response, abort, render_template, request
-from pymongo.database import Database
-from pymongo.collation import Collation, CollationStrength
+
+from utils import map_gene
 
 # Gets production flag
 IS_DEBUG: bool = os.environ.get('DEBUG', 'true') == 'true'
@@ -42,60 +42,61 @@ logging.info('BioAPI is up and running')
 # Common response header
 headers = {"Content-Type": "application/json"}
 
+from db import get_mongo_connection
+mydb = get_mongo_connection(IS_DEBUG,Config)
 
-def get_mongo_connection() -> Database:
-    """
-    Gets Mongo connection using config.txt file if DEBUG env var is 'true', or all the env variables in case of prod
-    (DEBUG = 'false')
-    :return: Database instance
-    """
-    try:
-        if IS_DEBUG:
-            host = Config.get('mongodb', 'host')
-            mongo_port = Config.get('mongodb', 'port')
-            user = Config.get('mongodb', 'user')
-            password = Config.get('mongodb', 'pass')
-            db = Config.get('mongodb', 'db_name')
-        else:
-            host = os.environ.get('MONGO_HOST')
-            mongo_port = os.environ.get('MONGO_PORT')
-            user = os.environ.get('MONGO_USER')
-            password = os.environ.get('MONGO_PASSWORD')
-            db = os.environ.get('MONGO_DB')
+# def get_mongo_connection() -> Database:
+    # """
+    # Gets Mongo connection using config.txt file if DEBUG env var is 'true', or all the env variables in case of prod
+    # (DEBUG = 'false')
+    # :return: Database instance
+    # """
+    # try:
+        # if IS_DEBUG:
+            # host = Config.get('mongodb', 'host')
+            # mongo_port = Config.get('mongodb', 'port')
+            # user = Config.get('mongodb', 'user')
+            # password = Config.get('mongodb', 'pass')
+            # db = Config.get('mongodb', 'db_name')
+        # else:
+            # host = os.environ.get('MONGO_HOST')
+            # mongo_port = os.environ.get('MONGO_PORT')
+            # user = os.environ.get('MONGO_USER')
+            # password = os.environ.get('MONGO_PASSWORD')
+            # db = os.environ.get('MONGO_DB')
 
-            if not host or not mongo_port or not db:
-                logging.error(f'Host ({host}), port ({mongo_port}) or db ({db}) is invalid', exc_info=True)
-                exit(-1)
+            # if not host or not mongo_port or not db:
+                # logging.error(f'Host ({host}), port ({mongo_port}) or db ({db}) is invalid', exc_info=True)
+                # exit(-1)
 
-        mongo_client = pymongo.MongoClient(f"mongodb://{user}:{password}@{host}:{mongo_port}/?authSource=admin")
-        return mongo_client[db]
-    except Exception as e:
-        logging.error("Database connection error." + str(e), exc_info=True)
-        exit(-1)
-
-
-mydb = get_mongo_connection()
+        # mongo_client = pymongo.MongoClient(f"mongodb://{user}:{password}@{host}:{mongo_port}/?authSource=admin")
+        # return mongo_client[db]
+    # except Exception as e:
+        # logging.error("Database connection error." + str(e), exc_info=True)
+        # exit(-1)
 
 
-def map_gene(gene: str) -> List[str]:
-    """
-    Gets all the aliases for a specific gene
-    :return List of aliases
-    """
-    collection_hgnc = mydb["hgnc"]  # HGNC collection
 
-    dbs = ["hgnc_id", "symbol", "alias_symbol", "prev_symbol", "entrez_id", "ensembl_gene_id", "vega_id",
-           "ucsc_id", "ena", "refseq_accession", "ccds_id", "uniprot_ids", "cosmic", "omim_id", "mirbase", "homeodb",
-           "snornabase", "bioparadigms_slc", "orphanet", "pseudogene", "horde_id", "merops", "imgt", "iuphar",
-           "kznf_gene_catalog", "mamit-trnadb", "cd", "lncrnadb", "enzyme_id", "intermediate_filament_db", "agr"]
 
-    # Generates query
-    or_search = [{db: gene} for db in dbs]
-    query = {'$or': or_search}
-    coll = Collation(locale='en', strength=CollationStrength.SECONDARY)
-    docs = collection_hgnc.find(query, collation=coll)
-    res = [doc["symbol"] for doc in docs]
-    return res
+# def map_gene(gene: str) -> List[str]:
+    # """
+    # Gets all the aliases for a specific gene
+    # :return List of aliases
+    # """
+    # collection_hgnc = mydb["hgnc"]  # HGNC collection
+
+    # dbs = ["hgnc_id", "symbol", "alias_symbol", "prev_symbol", "entrez_id", "ensembl_gene_id", "vega_id",
+           # "ucsc_id", "ena", "refseq_accession", "ccds_id", "uniprot_ids", "cosmic", "omim_id", "mirbase", "homeodb",
+           # "snornabase", "bioparadigms_slc", "orphanet", "pseudogene", "horde_id", "merops", "imgt", "iuphar",
+           # "kznf_gene_catalog", "mamit-trnadb", "cd", "lncrnadb", "enzyme_id", "intermediate_filament_db", "agr"]
+
+    # # Generates query
+    # or_search = [{db: gene} for db in dbs]
+    # query = {'$or': or_search}
+    # coll = Collation(locale='en', strength=CollationStrength.SECONDARY)
+    # docs = collection_hgnc.find(query, collation=coll)
+    # res = [doc["symbol"] for doc in docs]
+    # return res
 
 
 def get_potential_gene_symbols(query_string, limit_elements):
@@ -183,26 +184,50 @@ def get_information_of_genes(genes: List[str]) -> Dict:
     res = {}
     collection_gene_grch37 = mydb["gene_grch37"]
     collection_gene_grch38 = mydb["gene_grch38"]
+    collection_gene_oncokb = mydb["oncokb_gene_cancer_list"]
+    collection_hgnc = mydb["hgnc"]
 
     # Generates query
     query = {"hgnc_symbol": {"$in": genes}}
-    projection = {'_id': 0, 'description': 1, 'hgnc_symbol': 1, 'gene_biotype': 1, 'chromosome_name': 1,
-                  'start_position': 1, 'end_position': 1}
+    projection = {'_id': 0, 'description':0, 'hgnc_id': 0, 'entrezgene_id':0, 'ensembl_gene_id':0} # saco los identificadores porque los obtengo desde la coleccion hgnc
+
     docs_grch37 = collection_gene_grch37.find(query, projection)
     docs_grch38 = collection_gene_grch38.find(query, projection)
+    docs_oncokb = collection_gene_oncokb.find(query, projection)
+    docs_hgnc = collection_hgnc.find({"symbol": {"$in": genes}})
 
     for doc_grch38 in docs_grch38:
-        res[doc_grch38["hgnc_symbol"]] = {}
-        res[doc_grch38["hgnc_symbol"]]["description"] = doc_grch38["description"]
-        res[doc_grch38["hgnc_symbol"]]["type"] = doc_grch38["gene_biotype"]
-        res[doc_grch38["hgnc_symbol"]]["chromosome"] = str(doc_grch38["chromosome_name"])
-        res[doc_grch38["hgnc_symbol"]]["start"] = str(doc_grch38["start_position"])
-        res[doc_grch38["hgnc_symbol"]]["end"] = str(doc_grch38["end_position"])
+        res[doc_grch38["hgnc_symbol"]] = doc_grch38
+        res[doc_grch38["hgnc_symbol"]]["chromosome"] = str(res[doc_grch38["hgnc_symbol"]].pop("chromosome_name"))
+        res[doc_grch38["hgnc_symbol"]].pop("hgnc_symbol")   
 
     for doc_grch37 in docs_grch37:
         if doc_grch37["hgnc_symbol"] in res:
-            res[doc_grch37["hgnc_symbol"]]["start_GRCh37"] = str(doc_grch37["start_position"])
-            res[doc_grch37["hgnc_symbol"]]["end_GRCh37"] = str(doc_grch37["end_position"])
+            res[doc_grch37["hgnc_symbol"]]["start_GRCh37"] = doc_grch37["start_position"]
+            res[doc_grch37["hgnc_symbol"]]["end_GRCh37"] = doc_grch37["end_position"]
+
+    for doc_hgnc in docs_hgnc:
+        if doc_hgnc["symbol"] in res:
+            res[doc_hgnc["symbol"]]["hgnc_id"] = doc_hgnc["hgnc_id"]
+            if "name" in doc_hgnc:
+                res[doc_hgnc["symbol"]]["name"] = doc_hgnc["name"]
+            if "alias_symbol" in doc_hgnc:
+                res[doc_hgnc["symbol"]]["alias_symbol"] = doc_hgnc["alias_symbol"]
+            if "uniprot_ids" in doc_hgnc:
+                res[doc_hgnc["symbol"]]["uniprot_ids"] = doc_hgnc["uniprot_ids"]
+            if "omim_id" in doc_hgnc:
+                res[doc_hgnc["symbol"]]["omim_id"] = doc_hgnc["omim_id"]
+            if "ensembl_gene_id" in doc_hgnc:
+                res[doc_hgnc["symbol"]]["ensembl_gene_id"] = doc_hgnc["ensembl_gene_id"]
+            if "entrez_id" in doc_hgnc:
+                res[doc_hgnc["symbol"]]["entrez_id"] = doc_hgnc["entrez_id"]
+
+    for doc_oncokb in docs_oncokb:
+        if doc_oncokb["hgnc_symbol"] in res:            
+            if doc_oncokb["oncogene"]:
+                res[doc_oncokb["hgnc_symbol"]]["oncokb_cancer_gene"] = "Oncogene"
+            elif doc_oncokb["tumor_suppressor_gene"]:
+                res[doc_oncokb["hgnc_symbol"]]["oncokb_cancer_gene"] = "Tumor Suppressor Gene"
 
     return res
 
@@ -228,22 +253,215 @@ def get_expression_from_gtex(tissue: str, genes: List) -> List:
     return list(temp.values())
 
 
-def get_data_from_oncokb(genes: List) -> Dict[str, List]:
+# GO functions
+
+def terms_related_to_one_gene(gene: str, relation_type: Optional[List[str]] = None) -> Dict[str, List]:
+    if relation_type is None:
+        relation_type = ["enables", "involved_in", "part_of", "located_in"]
+    collection_go_anotations = mydb["go_anotations"]
+    
+    notation = list(collection_go_anotations.find({"gene_symbol": gene}))
+    related_genes = {}
+    if notation:
+        notation = notation[0]
+        for relation in relation_type:
+            if relation in notation:
+                for term in notation[relation]:
+                    aux = {"evidence": term["evidence"], "gene": gene, "relation_type":relation}
+                    if term["go_id"] in related_genes:
+                        related_genes[term["go_id"]].append(aux)
+                    else:
+                        related_genes[term["go_id"]]= [aux]
+
+    return related_genes
+
+def is_term_on_db(term_id) -> bool:
+    """Checks if a term is on the database"""
+    collection_go = mydb["go"]
+    return collection_go.find_one({"go_id": term_id}) is None
+
+
+def terms_related_to_many_genes(gene_ids: list, filter_type = "intersection",
+                                relation_type: Optional[List[str]] = None):
+    if relation_type is None:
+        relation_type = ["enables", "involved_in", "part_of", "located_in"]
+
+    gene = gene_ids.pop()
+    term_set= terms_related_to_one_gene(gene,relation_type)
+    for gene in gene_ids:
+        terms = terms_related_to_one_gene(gene,relation_type)
+        if filter_type == "intersection":
+            current_terms = term_set.keys() & terms.keys()
+            new_set = {}
+            for cterm in current_terms:
+                if cterm in term_set:
+                    term_set[cterm].extend(terms[cterm])
+                    new_set[cterm] = term_set[cterm]
+                else:
+                    new_set[cterm] = (terms[cterm])
+            term_set = new_set
+        elif filter_type == "union":
+            for cterm in terms:
+                if cterm in term_set:
+                    term_set[cterm].extend(terms[cterm])
+                else:
+                    term_set[cterm]=(terms[cterm])  
+    return term_set
+
+def populate_terms_with_data(term_list, ontology_type: Optional[List[str]] = None):
+    if ontology_type is None:
+        ontology_type = ["biological_process", "molecular_function", "cellular_component"]
+    collection_go = mydb["go"]
+    terms = (list(collection_go.find({"go_id": { "$in": term_list }, "ontology_type": { "$in": ontology_type }},{"_id":0})))
+    return terms
+
+def strip_term(term,relations):
+    new_term = {"go_id": term["go_id"], "name": term["name"], "ontology_type": term["ontology_type"], "relations": {}}
+    for r in relations:
+        if r in term:
+            if not isinstance(term[r], list): term[r] = [term[r]]
+            new_term["relations"][r]= term[r]
+    return new_term
+
+
+def bfs_on_terms(term_id, relations: Optional[List[str]] = None, general_depth: int = 0,
+                 hierarchical_depth_to_children: int = 0, ontology_type: Optional[List[str]] = None,
+                 to_root: bool = True):
+    if relations is None:
+        relations = ["part_of", "regulates", "has_part"]
+
+    if ontology_type is None:
+        ontology_type = ["biological_process", "molecular_function", "cellular_component"]
+
+    collection_go = mydb["go"]
+    graph = {}
+    depth_mark = "*"
+    
+    visited = [] # List for visited nodes.
+    queue = []     #Initialize a queue
+    visited.append(term_id)
+    queue.append(term_id)
+    queue.append(depth_mark)
+    actual_depth = 0
+
+    while queue:          # Creating loop to visit each conected with non-hierarchical relationship
+        act = queue.pop(0) 
+        if act == depth_mark:
+            if actual_depth == general_depth or not queue:
+                break
+            queue.append(depth_mark)
+            actual_depth += 1  
+        else:
+            #could be optimized by pooling all the next level neighbours and doing one db call per level
+            #but on the other side you have to control for already visited nodes, so im not sure if its faster
+            term = collection_go.find_one({"go_id": act}) 
+            if not term["ontology_type"] in ontology_type:
+                continue
+            term =strip_term(term,relations)
+            graph[term["go_id"]] = term
+            for rel in term["relations"].values():
+                for neighbour in rel:
+                  if neighbour not in visited:
+                    visited.append(neighbour)
+                    queue.append(neighbour)
+    
+    #go to the ontology children
+    terms= [term_id]
+    next_level_terms = []
+    for i in range(hierarchical_depth_to_children):
+        terms = collection_go.find({"is_a": { "$in": terms }} )
+        for t in terms:
+            t_id = t["go_id"]
+            if t_id in visited:
+                term =strip_term(t,["is_a"])
+                graph[t_id]["relations"]['is_a']= term["relations"]["is_a"]
+            else:
+                term =strip_term(t,["is_a"])
+                graph[term["go_id"]] = term
+                visited.append(t_id)
+            next_level_terms.append(term["go_id"])
+            
+        terms = next_level_terms
+        next_level_terms = []
+    
+    #go to the ontology root
+    if to_root:
+        terms= [term_id]
+        next_level_terms = []
+        while terms: 
+            terms = collection_go.find({"go_id": { "$in": terms }} )
+            for t in terms:
+                if "is_a" in t:
+                    new_terms = t["is_a"]
+                    if isinstance(new_terms, list):
+                        next_level_terms.extend(new_terms)
+                    else:
+                        next_level_terms.append(new_terms)
+                t_id = t["go_id"]
+                if t_id in visited:
+                    term =strip_term(t,["is_a"])
+                    if "is_a" in t: graph[t_id]["relations"]['is_a']= term["relations"]["is_a"]
+                else:
+                    term =strip_term(t,["is_a"])
+                    graph[term["go_id"]] = term
+                    visited.append(t_id)
+            terms = next_level_terms
+            next_level_terms = []
+    
+    return list(graph.values())
+
+# pharmGKB
+
+def cancer_drugs_related_to_gene(gene):
+    collection_pharm = mydb["pharmgkb"]
+    return list(collection_pharm.find({"genes":gene},{"_id":0}))
+
+#app
+
+def get_data_from_oncokb(genes: List) -> Dict[str, Any]:
     """
     Gets all data associated with a gene list.
     :param genes: List of genes to filter.
     :return: Dict of genes with their associated drugs and information according to OncoKB database.
     """
-    collection = mydb["oncokb_biomarker_drug_associations"]  # Connects to collection
-    query = {'gene': {'$in': genes}}
+    collection_accionability_gene = mydb["oncokb_biomarker_drug_associations"]  
+    collection_cancer_gene = mydb["oncokb_gene_cancer_list"] 
+    query1 = {'gene': {'$in': genes}}
+    query2 = {'hgnc_symbol': {'$in': genes}}
     projection = {'_id': 0}
-    docs = collection.find(query, projection)
+    docs_acciobility = collection_accionability_gene.find(query1, projection)
+    docs_cancer = collection_cancer_gene.find(query2, projection)
     res = {}
-    for doc in docs:
-        gen = doc.pop("gene")
+    for doc_a in docs_acciobility:
+        gen = doc_a.pop("gene")
+        classification = doc_a.pop("classification").lower()
         if gen not in res:
-            res[gen] = []
-        res[gen].append(doc)
+            res[gen] = {}
+        if classification not in res[gen]:
+            res[gen][classification] = []
+        res[gen][classification].append(doc_a)
+
+    for doc_c in docs_cancer:
+        gen = doc_c.pop("hgnc_symbol")
+        if gen not in res:
+            res[gen] = {}
+        res[gen]["oncokb_cancer_gene"] = []
+        if doc_c["oncogene"]:
+            res[gen]["oncokb_cancer_gene"].append("Oncogene")
+        if doc_c["tumor_suppressor_gene"]:
+            res[gen]["oncokb_cancer_gene"].append("Tumor Suppressor Gene")
+        
+        if len(res[gen]["oncokb_cancer_gene"]) == 0:
+            res[gen].pop("oncokb_cancer_gene")
+        
+        sources = []
+        for key in doc_c:
+            if doc_c[key] == 1:
+                if key not in ["oncogene", "tumor_suppressor_gene"]:
+                    sources.append(key)
+        res[gen]["sources"] = sources
+
+        res[gen]["refseq_transcript"] = doc_c["refseq_transcript"]
 
     return res
 
@@ -290,7 +508,7 @@ def create_app():
 
             try:
                 with ThreadPoolExecutor(max_workers=THREAD_POOL_WORKERS) as executor:
-                    for gene_id, result in zip(gene_ids, executor.map(map_gene, gene_ids)):
+                    for gene_id, result in zip(gene_ids, executor.map(map_gene, gene_ids, [mydb for _ in gene_ids])):
                         response[gene_id] = result
             except Exception as e:
                 abort(400, e)
@@ -341,7 +559,7 @@ def create_app():
     def genes_in_the_same_group(gene_id):
         response = {"gene_id": None, "groups": [], "locus_group": None, "locus_type": None}
         try:
-            mapped_gene = map_gene(gene_id)
+            mapped_gene = map_gene(gene_id, mydb)
             if len(mapped_gene) == 0:
                 abort(404, "invalid gene identifier")
             elif len(mapped_gene) >= 2:
@@ -433,7 +651,89 @@ def create_app():
             response.headers['Content-Encoding'] = 'gzip'
             return response
         return jsonify(expression_data)
+        
     
+    @flask_app.route("/genes-to-terms", methods=['POST'])
+    def genes_to_go_terms():
+        """Recieves a list of genes and returns the related terms
+        """
+        
+        valid_filter_types = ["union", "intersection"]
+        valid_ontology_types =["biological_process", "molecular_function", "cellular_component"]
+        response = {}
+        gene_term_arguments= {}
+        if request.method == 'POST':
+            body = request.get_json()
+            if "gene_ids" not in body:
+                abort(400, "gene_ids is mandatory")
+            if "relation_type" in body:
+                gene_term_arguments["relation_type"] = body["relation_type"]
+            gene_term_arguments['gene_ids'] = body['gene_ids']
+            for a in gene_term_arguments:
+                if not isinstance(gene_term_arguments[a], list):
+                    abort(400, str(a)+" must be a list")
+            if "filter_type" in body:
+                if not body["filter_type"] in valid_filter_types:
+                    abort(400, "filter_type is invalid. should be one of this options: "+ str(valid_filter_types))
+                gene_term_arguments["filter_type"] = body["filter_type"]
+            terms= terms_related_to_many_genes(**gene_term_arguments)
+            populate_arguments= {}
+            if "ontology_type" in body:
+                populate_arguments["ontology_type"] = body["ontology_type"]
+                if not isinstance(body["ontology_type"], list):
+                    abort(400, "ontology_type must be a list")
+                for ot in populate_arguments["ontology_type"]:
+                    if not (ot in valid_ontology_types):
+                        abort(400, str(ot)+" is not a valid ontology_type")
+            response = populate_terms_with_data(list(terms), **populate_arguments)
+            for i in range(len(response)):
+                response[i]["relations_to_genes"]= terms[response[i]["go_id"]]
+        # return make_response(response, 200, headers)
+        return jsonify(response)
+    
+    @flask_app.route("/related-terms", methods=['POST'])
+    def related_terms():
+        """Receives a term and returns the related terms"""
+        valid_ontology_types = ["biological_process", "molecular_function", "cellular_component"]
+        response = {}
+        arguments = {}
+        if request.method == 'POST':
+            body = request.get_json()
+            if "term_id" not in body:
+                abort(400, "term_id is mandatory")
+            if is_term_on_db(body["term_id"]):
+                abort(400, "term_id is not on database")
+            arguments["term_id"] = body["term_id"]
+
+            try:
+                if "general_depth" in body:
+                    arguments["general_depth"] = int(body["general_depth"])
+                    if arguments["general_depth"] < 0:
+                        abort(400, "depth should be a positive integer")
+                if "hierarchical_depth_to_children" in body:
+                    arguments["hierarchical_depth_to_children"] = int(body["hierarchical_depth_to_children"])
+                    if arguments["hierarchical_depth_to_children"] < 0:
+                        abort(400, "hierarchical depth should be a positive integer")
+            except ValueError:
+                abort(400, "depth should be an integer")
+
+            if "relations" in body:
+                arguments["relations"] = body["relations"]
+                if type(arguments["relations"]) != list:
+                    abort(400, "relations must be a list")
+
+            if "ontology_type" in body:
+                arguments["ontology_type"] = body["ontology_type"]
+                if type(arguments["ontology_type"]) != list:
+                    abort(400, "ontology_type must be a list")
+                for ot in arguments["ontology_type"]:
+                    if not (ot in valid_ontology_types):
+                        abort(400, str(ot)+" is not a valid ontology_type")
+
+            if "to_root" in body:
+                arguments["to_root"] = bool(body["to_root"])
+            response = bfs_on_terms(**arguments)
+        return jsonify(response)
 
     @flask_app.route("/information-of-oncokb", methods=['POST'])
     def oncokb_data():
@@ -454,6 +754,21 @@ def create_app():
         return jsonify(data)
 
     # Error handling
+    @flask_app.route("/drugs-pharm-gkb", methods=['POST'])
+    def cancer_drugs_related_to_genes():
+        """Recieves genes and returns the related drugs
+        """
+        response= {}
+        if request.method == 'POST':
+            body = request.get_json()
+            if "gene_ids" not in body:
+                abort(400, "gene_ids is mandatory")
+            if type(body["gene_ids"]) != list:
+                    abort(400, "gene_ids must be a list")
+            for gene in body["gene_ids"]:
+                response[gene] = cancer_drugs_related_to_gene(gene)
+        return jsonify(response)
+    
     @flask_app.errorhandler(400)
     def bad_request(e):
         return jsonify(error=str(e)), 400

@@ -3,8 +3,8 @@
 ############# MongoDB Conf ############
 ip_mongo=localhost
 port_mongo=27017
-user=root
-password=root
+user=
+password=
 db=bio_api
 #######################################
 CIVIC_URL="https://civicdb.org/downloads/nightly/nightly-GeneSummaries.tsv"

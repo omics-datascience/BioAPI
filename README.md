@@ -17,10 +17,13 @@ HGNC is the resource for approved human gene nomenclature. Downloaded from its o
 3. Metabolic pathways: [ConsensusPathDB](http://cpdb.molgen.mpg.de/).  
 ConsensusPathDB-human integrates interaction networks in Homo sapiens including binary and complex protein-protein, genetic, metabolic, signaling, gene regulatory and drug-target interactions, as well as biochemical pathways. Data originate from currently 31 public resources for interactions (listed below) and interactions that we have curated from the literature. The interaction data are integrated in a complementary manner (avoiding redundancies), resulting in a seamless interaction network containing different types of interactions. Downloaded from its official website in September 2022.          
 4. Gene expression: [Genotype-Tissue Expression (GTEx)](https://gtexportal.org/home/).  
-The Genotype-Tissue Expression (GTEx) project is an ongoing effort to build a comprehensive public resource to study tissue-specific gene expression and regulation. Samples were collected from 54 non-diseased tissue sites across nearly 1000 individuals, primarily for molecular assays including WGS, WES, and RNA-Seq. GTEx is being used in its version [GTEx Analysis V8 (dbGaP Accession phs000424.v8.p2)](https://gtexportal.org/home/datasets#datasetDiv1) and was downloaded from its official website in September 2022.  
+The Genotype-Tissue Expression (GTEx) project is an ongoing effort to build a comprehensive public resource to study tissue-specific gene expression and regulation. Samples were collected from 54 non-diseased tissue sites across nearly 1000 individuals, primarily for molecular assays including WGS, WES, and RNA-Seq. GTEx is being used in its version [GTEx Analysis V8 (dbGaP Accession phs000424.v8.p2)](https://gtexportal.org/home/datasets#datasetDiv1) and was downloaded from its official website in September 2022.
 5. Actionable and Cancer genes: [OncoKB](https://www.oncokb.org/).  
 OncoKB™ is a precision oncology knowledge base developed at Memorial Sloan Kettering Cancer Center that contains biological and clinical information about genomic alterations in cancer. Alteration- and tumor type-specific therapeutic implications are classified using the OncoKB™ [Levels of Evidence system](https://www.oncokb.org/levels), which assigns clinical actionability to individual mutational events. Downloaded from its official website in April 2023.  
-
+6. Gene Ontology [Gene Ontology (GO)](http://geneontology.org/).  
+It is a project to develop an up-to-date, comprehensive, computational model of biological systems, from the molecular level to larger pathways, cellular and organism-level systems. It provides structured and standardized annotations of gene products, in a hierarchical system of terms and relationships that describes the molecular functions, biological processes, and cellular components associated with genes and gene products. Downloaded from its official website in June 2023
+7. Cancer related drugs [Pharmacogenomics Knowledge Base (PharmGKB) ](https://www.pharmgkb.org/). 
+It is a resource that provides information about how human genetic variation affects response to medications. PharmGKB collects, curates and disseminates knowledge about clinically actionable gene-drug associations and genotype-phenotype relationships. Downloaded from its official website in June 2023
 
 ## Services included in BioAPI  
 
@@ -86,7 +89,7 @@ Service that takes a string of any length and returns a list of genes that conta
 
 ### Genes information
 
-From a list of valid genes, obtain their descriptions, types and chromosomal coordinates for the reference human genomes GRCh37 and GRCh37.  
+From a list of valid genes, it obtains different information for the human reference genomes GRCh38 and GRCh37.  
 
 - URL: /information-of-genes
 - Method: POST  
@@ -95,43 +98,80 @@ From a list of valid genes, obtain their descriptions, types and chromosomal coo
 - Success Response:
     - Code: 200
     - Content:
-        - `<gene_ids>`: Returns a Json with as many keys as there are genes in the body. For each gene, the value is a Json with the following format:
-            -   `description` : gene description
-            -   `type` : gene type (example: protein_coding)
-            -   `chromosome` : chromosome where the gene is located
-            -   `start` : chromosomal position of gene starts for the reference genome GRCh38
-            -   `end` : chromosomal position of gene ends for the reference genome GRCh38
-            -   `start_GRCh37` : chromosomal position of gene starts for the reference genome GRCh37
-            -   `end_GRCh37` : chromosomal position of gene ends for the reference genome GRCh37
+        - `<gene_ids>`: Returns a Json with as many keys as there are valid genes in the body. For each gene, the value is a Json with the following format:
+            - `alias_symbol`: alternative symbols for a known gene
+            - `percentage_gene_gc_content`: Ratio of guanine and cytosine nucleotides in the DNA sequence of the gene
+            - `oncokb_cancer_gene`: return "Oncogene" or "Tumor Suppressor Gene" only if the gene has this information in the OncoKB database
+            - `name`: gene name according to the HGNC database
+            - `band`: cytoband or specific location in the genome
+            - `chromosome`: chromosome where the gene is located
+            - `start_position`: chromosomal position of gene starts for the reference genome GRCh38
+            - `end_position`: chromosomal position of gene ends for the reference genome GRCh38
+            - `start_GRCh37`: chromosomal position of gene starts for the reference genome GRCh37
+            - `end_GRCh37`: chromosomal position of gene ends for the reference genome GRCh37
+            - `strand`: DNA strand containing the coding sequence for the gene
+            - `gene_biotype`: gene type (examples: protein_coding or miRNA)
+            - `refseq_summary`: complete description of the gene according to the RefSeq database (RefSeq : NCBI Reference Sequences)
+            - `civic_description`: Description of the clinical relevance of the gene according to the CiVIC (Clinical Interpretation of Variants in Cancer) database
+            - `hgnc_id`: Gene identifier in the HGNC database
+            - `uniprot_ids`: Gene identifier in the Uniprot database
+            - `omim_id`: Gene identifier in the OMIM database
+            - `ensembl_gene_id` : Gene identifier in the Ensembl database
+            - `entrez_id` : Gene identifier in the NCBI Entrez database       
     - Example:
         - URL: http://localhost:8000/information-of-genes
         - body: 
-        `{    "gene_ids" : ["ACTN4","ACTR3C"]    }`
+        `{    "gene_ids" : ["INVALIDGENE","MIR365A", "ALK"]    }`
         - Response:
             ```json
             {
-                "ACTN4": 
-                {
-                    "description": "actinin alpha 4 [Source:HGNC Symbol;Acc:HGNC:166]",
-                    "chromosome": "19",
-                    "end": "38731589",
-                    "end_GRCh37": "39222223",
-                    "start": "38647649",
-                    "start_GRCh37": "39138289",
-                    "type": "protein_coding"
+                "ALK": {
+                    "alias_symbol": [
+                        "CD246",
+                        "ALK1"
+                    ],
+                    "band": "p23.1",
+                    "chromosome": "2",
+                    "civic_description": "ALK amplifications, fusions and mutations have been shown to be driving events in non-small cell lung cancer...",
+                    "end_GRCh37": 30144432,
+                    "end_position": 29921586,
+                    "ensembl_gene_id": "ENSG00000171094",
+                    "entrez_id": "238",
+                    "gene_biotype": "protein_coding",
+                    "hgnc_id": "HGNC:427",
+                    "name": "ALK receptor tyrosine kinase",
+                    "omim_id": "105590",
+                    "oncokb_cancer_gene": "Oncogene",
+                    "percentage_gene_gc_content": 43.51,
+                    "refseq_summary": "This gene encodes a receptor tyrosine kinase, which belongs to the insulin receptor superfamily. This protein ...",
+                    "start_GRCh37": 29415640,
+                    "start_position": 29192774,
+                    "strand": -1,
+                    "uniprot_ids": "Q9UM73"
                 },
-                "ACTR3C": 
-                {
-                    "description": "actin related protein 3C [Source:HGNC Symbol;Acc:HGNC:37282]",
-                    "chromosome": "7",
-                    "end": "150323725",
-                    "end_GRCh37": "150020814",
-                    "start": "150243916",
-                    "start_GRCh37": "149941005",
-                    "type": "protein_coding"
+                "MIR365A": {
+                    "alias_symbol": "hsa-mir-365-1",
+                    "band": "p13.12",
+                    "chromosome": "16",
+                    "end_GRCh37": 14403228,
+                    "end_position": 14309371,
+                    "ensembl_gene_id": "ENSG00000199130",
+                    "entrez_id": "100126355",
+                    "gene_biotype": "miRNA",
+                    "hgnc_id": "HGNC:33692",
+                    "name": "microRNA 365a",
+                    "omim_id": "614735",
+                    "percentage_gene_gc_content": 44.83,
+                    "refseq_summary": "microRNAs (miRNAs) are short (20-24 nt) non-coding RNAs that are involved in post-transcriptional regulation ...",
+                    "start_GRCh37": 14403142,
+                    "start_position": 14309285,
+                    "strand": 1
                 }
             }
             ```  
+            Keep in mind: 
+             - If a gene passed in the body is not found in the database (invalid gene symbol), it will not appear in the response.
+             - If one of the fields for a gene has no value, it will not appear in the response.
 
 
 ### Gene Groups
@@ -271,7 +311,7 @@ This service gets gene expression in healthy tissue
         - URL: http://localhost:8000/expression-of-genes
         - body: `{ "tissue": "Skin",    "gene_ids": ["BRCA1", "BRCA2"] }`
         - Response:
-            ```json
+         	```json
             [
                 [
                     {
@@ -298,7 +338,7 @@ This service gets gene expression in healthy tissue
                     }
                 ]
             ]
-            ```  
+           	 ```  
             keep in mind:
             - As an example only three samples are shown. Note that in the GTEx database there may be more than 2500 samples for a given healthy tissue.
             - If one of the genes entered as a parameter corresponds to an invalid symbol, the response will omit the values for that gene. It is recommended to use the *"Genes symbols validator"* service to validate your genes before using this functionality.
@@ -314,31 +354,248 @@ This service retrieves information of actionable genes and drugs obtained from t
 - Success Response:
     - Code: 200
     - Content:
-        The response you get is a dict. Each key of the list is a gene with information in OncoKB. For each key gene, the value is a list. Each item in the list is a Dict containing the following information obtained from OncoKB.  
-        - `<drugs>`: drug associated with specific gene alteration.
-        - `<alterations>`: specific cancer gene alterations.
-        - `<cancer_types>`: type of cancer according to OncoTree [nomenclature](http://oncotree.mskcc.org/).
-        - `<classification>`: clinical implications of the drug (therapeutic, diagnostic, and prognostic).
-        - `<level_of_evidence>`: [Level of evidence](https://www.oncokb.org/levels#version=V2) of the drug or gene according to OncoKB version 2.
+        - `<gene_ids>`: Returns a Json with as many keys as there are valid genes in the body. For each gene, the value is a Json with the following format:  
+            - `<therapeutic>`: Evidence of the gene for therapeutic. The value is a list of elements of the Json type, where each element is a different evidence with the following structure:  
+                - `<drugs>`: therapeutic drug.  
+                - `<level_of_evidence>`: level of therapeutic evidence.
+                - `<alterations>`: specific cancer gene alterations.
+                - `<cancer_types>`: type of cancer.
+            - `<diagnostic>`: Evidence of the gene for diagnosis (for hematologic malignancies only). The value is a list of elements of the Json type, where each element is a different evidence with the following structure:  
+                - `<level_of_evidence>`: level of diagnostic evidence.
+                - `<alterations>`: specific cancer gene alterations.
+                - `<cancer_types>`: type of cancer.
+            - `<prognostic>`: Evidence of the gene for prognostic (for hematologic malignancies only). The value is a list of elements of the Json type, where each element is a different evidence with the following structure:  
+                - `<level_of_evidence>`: level of prognostic evidence.
+                - `<alterations>`: specific cancer gene alterations.
+                - `<cancer_types>`: type of cancer.
+            - `<oncokb_cancer_gene>`: type of cancer gene. Oncogene and/or Tumor Suppressor Gene.  
+            - `<refseq_transcript>`: gene transcript according to the RefSeq database.  
+            - `<sources>`: list of sources where there is evidence of the relationship of the gene with cancer. These may be different sequencing panels, the [Sanger Cancer Gene Census](https://www.sanger.ac.uk/data/cancer-gene-census/), or [Vogelstein et al. (2013)](http://science.sciencemag.org/content/339/6127/1546.full).
+
     - Example:
         - URL: http://localhost:8000/information-of-oncokb
         - body: `{ "gene_ids": ["ATM"] }`
         - Response:
             ```json
             {
-                "ATM": [
-                    {
-                        "alterations": "Oncogenic Mutations",
-                        "cancer_types": "Prostate Cancer, NOS, Prostate Cancer",
-                        "classification": "Therapeutic",
-                        "drugs": "Olaparib",
-                        "level_of_evidence": "1"
-                    }
-                ]
+                "ALK": {
+                    "diagnostic": [
+                        {
+                            "alterations": "Fusions",
+                            "cancer_types": "Anaplastic Large-Cell Lymphoma ALK Positive",
+                            "level_of_evidence": "Dx1"
+                        },
+                        {
+                            "alterations": "Fusions",
+                            "cancer_types": "ALK Positive Large B-Cell Lymphoma",
+                            "level_of_evidence": "Dx1"
+                        }
+                    ],
+                    "oncokb_cancer_gene": [
+                        "Oncogene"
+                    ],
+                    "refseq_transcript": "NM_004304.4",
+                    "sources": [
+                        "oncokb_annotated",
+                        "msk_impact",
+                        "msk_impact_heme",
+                        "foundation_one_cdx",
+                        "foundation_one_heme",
+                        "vogelstein",
+                        "sanger_cgc"
+                    ],
+                    "therapeutic": [
+                        {
+                            "alterations": "Fusions",
+                            "cancer_types": "Anaplastic Large-Cell Lymphoma ALK Positive",
+                            "drugs": "Crizotinib",
+                            "level_of_evidence": "1"
+                        }
+                    ]
+                },
+                "ATM": {
+                    "oncokb_cancer_gene": [
+                        "Tumor Suppressor Gene"
+                    ],
+                    "refseq_transcript": "NM_000051.3",
+                    "sources": [
+                        "oncokb_annotated",
+                        "msk_impact",
+                        "msk_impact_heme",
+                        "foundation_one_cdx",
+                        "foundation_one_heme",
+                        "vogelstein",
+                        "sanger_cgc"
+                    ],
+                    "therapeutic": [
+                        {
+                            "alterations": "Oncogenic Mutations",
+                            "cancer_types": "Prostate Cancer, NOS, Prostate Cancer",
+                            "drugs": "Olaparib",
+                            "level_of_evidence": "1"
+                        }
+                    ]
+                }
             }
             ```  
+            Keep in mind: 
+             - If a gene passed in the body is not found in the database, it will not appear in the response.
+             - If one of the fields for a gene has no value in the database, it will not appear in the response.
+             - Values for cancer types use the [OncoTree nomenclature](http://oncotree.mskcc.org/).
 
 
+### Gene Ontology terms related to a list of genes
+
+Gets the list of related terms for a list of genes.
+
+- URL: /genes-to-terms
+- Method: POST  
+- Params: A body in Json format with the following content
+    -  `gene_ids`: list of genes for which you want to get the terms in common (they must be a list, and have to be in HGNC gene symbol format)
+    -  `filter_type`: by default "intersection", in which case it bring all the terms that are related to all the genes, the other option is "union" which brings all the terms that are related to **at least** on gene
+    -  `relation_type`: filters the relation between genes and terms. By default it's ["enables","involved_in","part_of","located_in"]. It should always be a list containing any permutation of the default relations
+    -  `ontology_type`: filters the ontology type of the terms in the response. By default it's ["biological_process", "molecular_function", "cellular_component"]It should always be a list containing any permutation of the default relations
+
+- Success Response:
+    - Code: 200
+    - Content:
+		The response you get is a list. Each element of the list is a GO term that fulfills the conditions of the query. GO terms can contain name, definition, relations to other terms, etc.
+        - `relations_to_genes`: list of elements of type Json. Each element corresponds to a to a gene and how it's related to the term.  
+            - `gene`: name of the gene.
+            - `relation_type`: the type of relation between the gene and the GO term.
+            - `evidence`: evidence code to indicate how the annotation to a particular term is supported.    
+    - Example:
+        - URL: http://localhost:8000/genes-to-terms
+        - body: 
+		`{    "gene_ids" : ["TMCO4"],
+				"relation_type": ["enables"],   
+				"ontology_type" : ["molecular_function"] }`
+        - Response:
+         	```json
+			[{
+				"alt_id": [
+				    "0001948",
+				    "0045308"
+				],
+				"definition": "Binding to a protein.",
+				"definition_reference": "GOC:go_curators",
+				"go_id": "0005515",
+				"is_a": "0005488",
+				"name": "protein binding",
+				"ontology_type": "molecular_function",
+				"relations_to_genes": [
+				    {
+					"evidence": "IPI",
+					"gene": "TMCO4",
+					"relation_type": "enables"
+				    }
+				],
+				"subset": [
+				    "goslim_candida",
+				    "goslim_chembl",
+				    "goslim_metagenomics",
+				    "goslim_pir",
+				    "goslim_plant"
+				],
+				"synonym": [
+				    "\"glycoprotein binding\" NARROW []",
+				    "\"protein amino acid binding\" EXACT []"
+				]
+			    }]
+			```  
+### Gene Ontology terms related to a list of genes
+
+Gets the list of related terms to a term.
+
+- URL: /related-terms
+- Method: POST
+- Params: A body in Json format with the following content
+	-  `term_id`: the term if of the term you want to search
+	-  `relations`: filters the non-hierarchical relations between terms. By default it's ["part_of","regulates","has_part"]. It should always be a list 
+	- `ontology_type`: filters the ontology type of the terms in the response. By default it's ["biological_process", "molecular_function", "cellular_component"]It should always be a list containing any permutation of the default relations
+	-  `general_depth`: the search depth with the non-hierarchical relations
+	-  `hierarchical_depth_to_children`: the search depth with the hierarchical relations in the direction of the children
+	-  `to_root`: 0 for false 1 fot true. If true get all the terms in the hierarchical relations in the direction of the root
+- Success Response:
+    - Code: 200
+    - Content: The response you get is a list of GO terms related to the searched term that fulfills the conditions of the query. Each term has:
+		- `go_id`: id of the GO term
+		- `name`: name of the GO term
+        - `ontology_type`: the ontology that the GO term belongs to
+		- `relations`: dictionary of relations 
+            - `relation type`: list of terms related by that relation type to the term
+	- Example:
+        - URL: http://localhost:8000/related-terms
+         - body: 
+		`{
+			"term_id": "0000079",
+			"general_depth" : 5,
+			"to_root" : 0
+		}`
+        - Response:
+	```json
+        [
+            {
+            "go_id": "0000079",
+            "name": "regulation of cyclin-dependent protein serine/threonine kinase activity",
+            "ontology_type": "biological_process",
+            "relations": {
+                "regulates": [
+                "0004693"
+                ]
+            }
+            },
+            {
+            "go_id": "0004693",
+            "name": "cyclin-dependent protein serine/threonine kinase activity",
+            "ontology_type": "molecular_function",
+            "relations": {}
+            }
+        ]
+	```  
+			
+### Cancer related drugs (PharmGKB)
+
+Gets the list of related drugs to a list of genes.
+
+- URL: /drugs-pharm-gkb
+- Method: POST
+- Params: A body in Json format with the following content
+	-  `gene_ids`: list of genes for which the related drugs
+- Success Response:
+    - Code: 200
+    - Content: The response you get is a list of genes containing the related drug information
+		- `pharmGKB_id`: Identifier assigned to this drug label by PharmGKB
+		- `name`: Name assigned to the label by PharmGKB
+		- `source`: The source that originally authored the label (e.g. FDA, EMA)
+		- `biomarker_flag`: "On" if drug in this label appears on the FDA Biomarker list; "Off (Formerly On)" if the label was on the FDA Biomarker list at one time; "Off (Never On)" if the label was never listed on the FDA Biomarker list (to PharmGKB's knowledge)
+		- `Testing Level`:  PGx testing level as annotated by PharmGKB based on definitions at https://www.pharmgkb.org/page/drugLabelLegend
+		- `Chemicals`: Related chemicals
+		- `Genes`: List of related genes
+		- `Variants-Haplotypes`: Related variants and/or haplotypes
+	- Example:
+        - URL: http://localhost:8000/drugs-pharm-gkb
+         - body: 
+        `{"gene_ids" : ["JAK2"]}`
+        - Response:
+	```json
+			{
+		    "JAK2": [
+			{
+			    "Variants/Haplotypes": "rs77375493",
+			    "biomarker_flag": "",
+			    "chemicals": "ropeginterferon alfa-2b",
+			    "genes": [
+				"JAK2"
+			    ],
+			    "name": "Annotation of EMA Label for ropeginterferon alfa-2b and JAK2",
+			    "pharmgkb_id": "PA166272741",
+			    "source": "EMA",
+			    "testing_level": "Informative PGx"
+			}
+		    ]
+		    }
+	```  
 ## Error Responses
 
 The possible error codes are 400, 404 and 500. The content of each of them is a Json with a unique key called "error" where its value is a description of the problem that produces the error. For example:  
@@ -372,3 +629,4 @@ To run all the tests:
 
 1. Go to the `bioapi` folder.
 2. Run the `pytest` command.
+

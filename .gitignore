@@ -27,3 +27,4 @@ borrar.py
 .pydevproject
 .venv/
 databases/gene_info/.Rhistory
+databases/pharmGKB/CREATED_*

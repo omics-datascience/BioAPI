@@ -1,6 +1,6 @@
 import json
 
-URL_BASE = '/information-of-oncokb'
+URL_BASE = '/drugs-pharm-gkb'
 
 headers = {
     'Content-Type': 'application/json'
@@ -9,15 +9,16 @@ headers = {
 
 def test_valid_response_format(client):
     """Tests valid response format"""
-    gene = "ALK"
+    gene = "JAK2"
     data = {
         "gene_ids": [gene]
     }
     response = client.post(f'{URL_BASE}', data=json.dumps(data), headers=headers)
-    res = json.loads(response.data)
     assert response.status_code == 200
+    res = json.loads(response.data)
     assert type(res) == dict
-    assert type(res[gene]) == dict
+    assert type(res[gene]) == list
+    assert type(res[gene][0]) == dict
 
 
 def test_invalid_body_format(client):

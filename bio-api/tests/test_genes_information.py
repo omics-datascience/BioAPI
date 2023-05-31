@@ -20,7 +20,23 @@ def test_response_format(client):
     assert type(res) == dict
     assert len(res) == 1
     assert type(res[valid_id1]) == dict
-    assert len(res[valid_id1]) == 7
+
+def test_oncokb_civic_and_refseq_data(client):
+    """"Test a correct data reading from oncokb and refseq"""
+    valid_id = "ALK"
+    data = {
+        "gene_ids": [valid_id]
+    }
+    response = client.post(f'{URL_BASE}', data=json.dumps(data), headers=headers)
+    res = json.loads(response.data)
+    assert response.status_code == 200
+    assert type(res) == dict
+    assert "oncokb_cancer_gene" in res[valid_id]
+    assert type(res[valid_id]["oncokb_cancer_gene"]) == str
+    assert "refseq_summary" in res[valid_id]
+    assert type(res[valid_id]["refseq_summary"]) == str
+    assert "civic_description" in res[valid_id]
+    assert type(res[valid_id]["civic_description"]) == str    
 
 
 def test_an_invalid_body_format(client):

@@ -23,6 +23,7 @@ Below are the steps to perform a production deploy of BioAPI.
         - `deploy.resources.limits.memory`: By default, 6GB of memory is allocated for MongoDB. Modify this value if you need it.  
     - BioAPI Server:
         - `MONGO_USER` and `MONGO_PASSWORD`: These variables are the username and password for BioAPI to access MongoDB. These credentials must be the same ones that were set for the MongoDB server.
+        - `DEBUG`: By default, use 'false' value. If you change this value to 'true', then Bioapi will be use the configuration for database connection and ports for the API that you set in `config.txt` file.
 3. (Optional) Optimize Mongo by changing the configuration in the `config/mongo/mongod.conf` file and uncommenting the reference in the `docker-compose.yml` and/or `docker-compose.dev.yml`.
 4. Start up all the services with Docker Compose running `docker compose up -d` to check that It's all working, and read the instructions in the following section to import the genomics databases.
 
@@ -62,7 +63,7 @@ To import all databases in MongoDB:
 
 ### Manually import the different databases
 
-Alternatively (but **not recommended** due to high computational demands) you can run a separate ETL process to download from source, process and import the databases into MongoDB. 
+Alternatively (but **not recommended** due to high computational demands) you can run a separate ETL process to download from source, process and import the databases into MongoDB.
 
 1. Install the necessary requirements:  
     - [R languaje](https://www.r-project.org/). Version 4.1.2 or later (Only necessary if you want to update the Gene information database from Ensembl)
@@ -71,12 +72,14 @@ Alternatively (but **not recommended** due to high computational demands) you ca
 2. The ETL process is programmed in a single bash script for each database. Edit in the bash file of the database that you want to update the **user** and **password** parameters, using the same values that you set in the `docker-compose.yml` file. Bash files can be found in the *'databases'* folder, within the corresponding directories for each database:  
     - For Metabolic pathways ([ConsensusPathDB](http://cpdb.molgen.mpg.de/)) use "databases/cpdb" directory and the *cpdb2mongodb.sh* file.
     - For Gene nomenclature ([HUGO Gene Nomenclature Committee](https://www.genenames.org/)) use "databases/hgnc" directory and the *hgnc2mongodb.sh* file.
-    - For Gene expression ([Genotype-Tissue Expression (GTEx)](https://gtexportal.org/home/)) use "databases/gtex" directory and the *gtex2mongodb.sh*.
+    - For Gene expression ([Genotype-Tissue Expression (GTEx)](https://gtexportal.org/home/)) use "databases/gtex" directory and the *gtex2mongodb.sh* file.
     - For Gene information ([Ensembl genomic data](https://www.ensembl.org/biomart/martview/), [RefSeq gene summaries](https://www.ncbi.nlm.nih.gov/refseq/), and [CiVIC gene descriptions](https://civicdb.org/welcome)) use "databases/gene_info" directory and the *geneinfo2mongodb.sh* file.  
     - For Oncokb cancer genes and drug information, it is necessary to download some datasets from their [official site](https://www.oncokb.org/actionableGenes) (**registration required**). You need to download the _Therapeutic, Diagnostic, and Prognostic_ dataset from [Actionable Genes page](https://www.oncokb.org/actionableGenes) by clicking the _Association button_. Place it within the directory "databases/oncokb" with the name "oncokb_biomarker_drug_associations.tsv". Then, download the dataset from the [Cancer Genes](https://www.oncokb.org/cancerGenes) page by clicking the _Cancer Gene List_ button. Place it within the same directory as above, with the name "cancerGeneList.tsv". Finally, execute the `oncokb2mongodb.sh` script to load both datasets into MongoDB.
+    - For cancer related drugs ([Pharmacogenomics Knowledge Base (PharmGKB) ](https://www.pharmgkb.org/))  use "databases\pharmGKB" directory and the *pharmgkb2mongodb.sh* file.
+	- For Gene ontology ([Gene Ontology (GO)](http://geneontology.org/use/)) "databases\gene_ontology" directory and the *go2mongodb.sh* file. **NOTE:** This import needs the "Gene nomenclature" databases (2) already imported to properly process the gene ontology databases
 3. Run bash files.  
     `./<file.sh>`  
-    where file.sh can be *cpdb2mongodb.sh*, *hgnc2mongodb.sh*, *gtex2mongodb.sh*, or *ensembl_gene2mongodb.sh*, as appropriate.  
+    where file.sh can be *cpdb2mongodb.sh*, *hgnc2mongodb.sh*, *gtex2mongodb.sh*, *go2mongodb.sh*, *pharmgkb2mongodb.sh*, or *ensembl_gene2mongodb.sh*, as appropriate.  
 
 ## Run BioAPI
 Use docker compose to get the BioAPI up:
@@ -107,7 +110,7 @@ Where  *\<service\>* could be `nginx`, `web` or `mongo`.
 
 ## Update genomic databases
 If new versions are released for the genomic databases included in BioAPI, you can update them by following the instructions below:  
-- For the "Metabolic pathways (ConsensusPathDB)", "Gene nomenclature (HUGO Gene Nomenclature Committee)", "Gene information (from Ensembl and CiVIC)" and "Cancer and Accionable genes (OncoKB)" databases, it is not necessary to make any modifications to any script. This is because the datasets are automatically downloaded in their most up-to-date versions when the bash file for each database is executed as described in the **Manually import the different databases** section of this file.  
+- For the "Metabolic pathways (ConsensusPathDB)", "Gene nomenclature (HUGO Gene Nomenclature Committee)", "Gene ontology (GO)", "Cancer related drugs (PharmGKB)","Gene information (from Ensembl and CiVIC)" and "Cancer and Accionable genes (OncoKB)" databases, it is not necessary to make any modifications to any script. This is because the datasets are automatically downloaded in their most up-to-date versions when the bash file for each database is executed as described in the **Manually import the different databases** section of this file.  
 **Important notes**: 
   - For OncoKB the download is not automatic since it requires registration, but the steps to download them manually are explained in the same section mentioned above.  
   - For RefSeq gene summaries, the R package [GeneSummary](https://bioconductor.org/packages/release/data/annotation/html/GeneSummary.html) is used. The update of the database will depend on the version that the package includes.   
