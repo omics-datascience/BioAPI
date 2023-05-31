@@ -228,11 +228,11 @@ def get_expression_from_gtex(tissue: str, genes: List) -> List:
     return list(temp.values())
 
 
-def get_data_from_oncokb(genes: List) -> List:
+def get_data_from_oncokb(genes: List) -> Dict[str, List]:
     """
-    Gets all data associated with a gene list
-    :param genes: List of genes to filter
-    :return: Dict of genes with their associated drugs and information according to OncoKB database
+    Gets all data associated with a gene list.
+    :param genes: List of genes to filter.
+    :return: Dict of genes with their associated drugs and information according to OncoKB database.
     """
     collection = mydb["oncokb_biomarker_drug_associations"]  # Connects to collection
     query = {'gene': {'$in': genes}}
@@ -240,8 +240,7 @@ def get_data_from_oncokb(genes: List) -> List:
     docs = collection.find(query, projection)
     res = {}
     for doc in docs:
-        gen = doc["gene"]
-        doc.pop("gene")
+        gen = doc.pop("gene")
         if gen not in res:
             res[gen] = []
         res[gen].append(doc)
