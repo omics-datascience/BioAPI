@@ -20,7 +20,7 @@ services:
 
     # BioAPI server
     web:
-        image: omicsdatascience/bio-api:0.1.5
+        image: omicsdatascience/bio-api:0.1.6
         environment:
             DEBUG: 'false'
             # MongoDB's credentials must be the same as 'mongo' service above
