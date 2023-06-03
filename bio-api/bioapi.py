@@ -4,13 +4,10 @@ import json
 import gzip
 import logging
 from concurrent.futures import ThreadPoolExecutor
-import pymongo
 import configparser
 import urllib.parse
 from typing import List, Dict
 from flask import Flask, jsonify, make_response, abort, render_template, request
-from pymongo.database import Database
-from pymongo.collation import Collation, CollationStrength
 from utils import map_gene
 
 # Gets production flag
@@ -151,8 +148,8 @@ def search_gene_group(gen):  # AGREGAR LO QUE PASA SI NO PERTENECE A NINGUN gene
                 results['gene_group'] = document['gene_group']
                 results['gene_group_id'] = document['gene_group_id']
             else:
-                results['gene_group'] = [document['gene_group']]
-                results['gene_group_id'] = [document['gene_group_id']]
+                results['gene_group'] = [document['gene_group']] # type: ignore
+                results['gene_group_id'] = [document['gene_group_id']] # type: ignore
 
     return results
 
@@ -408,7 +405,7 @@ def cancer_drugs_related_to_gene(gene):
 
 #app
 
-def get_data_from_oncokb(genes: List) -> List:
+def get_data_from_oncokb(genes: List) -> Dict:
     """
     Gets all data associated with a gene list
     :param genes: List of genes to filter
@@ -451,7 +448,8 @@ def get_data_from_oncokb(genes: List) -> List:
                     sources.append(key)
         res[gen]["sources"] = sources
 
-        res[gen]["refseq_transcript"] = doc_c["refseq_transcript"]
+        if "refseq_transcript" in doc_c:
+            res[gen]["refseq_transcript"] = doc_c["refseq_transcript"]
 
     return res
 
@@ -488,7 +486,7 @@ def create_app():
         In case it is not found it returns an empty list for the specific not found gene."""
         response = {}
         if request.method == 'POST':
-            body = request.get_json()
+            body = request.get_json() # type: ignore
             if "gene_ids" not in body:
                 abort(400, "gene_ids is mandatory")
 
@@ -498,7 +496,7 @@ def create_app():
 
             try:
                 with ThreadPoolExecutor(max_workers=THREAD_POOL_WORKERS) as executor:
-                    for gene_id, result in zip(gene_ids, executor.map(map_gene, gene_ids,[mydb for i in gene_ids])):
+                    for gene_id, result in zip(gene_ids, executor.map(map_gene, gene_ids,[mydb for i in gene_ids])): # type: ignore
                         response[gene_id] = result
             except Exception as e:
                 abort(400, e)
@@ -511,11 +509,11 @@ def create_app():
         if "query" not in request.args:
             abort(400, "'query' parameter is mandatory")
         else:
-            query = request.args.get('query')
+            query = request.args.get('query') # type: ignore
 
         limit = 50
         if "limit" in request.args:
-            limit_arg = request.args.get('limit')
+            limit_arg = request.args.get('limit') # type: ignore
             if limit_arg.isnumeric():
                 limit = int(limit_arg)
             else:
@@ -530,7 +528,7 @@ def create_app():
     @flask_app.route("/information-of-genes", methods=['POST'])
     def information_of_genes():
         """Receives a list of gene IDs and returns information about them."""
-        body = request.get_json()
+        body = request.get_json() # type: ignore
         if "gene_ids" not in body:
             abort(400, "gene_ids is mandatory")
 
@@ -569,9 +567,10 @@ def create_app():
                 for i in range(0, len(gene_group['gene_group_id'])):
                     g = {
                         "gene_group_id": gene_group['gene_group_id'][i],
-                        "gene_group": gene_group['gene_group'][i],
                         "genes": search_genes_in_same_group(gene_group['gene_group_id'][i])
                     }
+                    if gene_group['gene_group'] is not None:
+                        g["gene_group"] = gene_group['gene_group'][i]
                     response["groups"].append(g)
 
         except (TypeError, ValueError, KeyError) as e:
@@ -580,14 +579,14 @@ def create_app():
 
     @flask_app.route("/pathway-genes/<pathway_source>/<pathway_id>", methods=['GET'])
     def pathway_genes(pathway_source, pathway_id):
-        if pathway_source not in PATHWAYS_SOURCES:
+        if pathway_source.lower() not in PATHWAYS_SOURCES:
             abort(404, f'{pathway_source} is an invalid pathway source')
         response = {"genes": get_genes_of_pathway(pathway_id, pathway_source)}
         return make_response(response, 200, headers)
 
     @flask_app.route("/pathways-in-common", methods=['POST'])
     def pathways_in_common():
-        body = request.get_json()
+        body = request.get_json() # type: ignore
         if "gene_ids" not in body:
             abort(400, "gene_ids is mandatory")
 
@@ -607,7 +606,7 @@ def create_app():
 
     @flask_app.route("/expression-of-genes", methods=['POST'])
     def expression_data_from_gtex():
-        body = request.get_json()
+        body = request.get_json() # type: ignore
 
         if "gene_ids" not in body:
             abort(400, "gene_ids is mandatory")
@@ -653,7 +652,7 @@ def create_app():
         response = {}
         gene_term_arguments= {}
         if request.method == 'POST':
-            body = request.get_json()
+            body = request.get_json() # type: ignore
             if "gene_ids" not in body:
                 abort(400, "gene_ids is mandatory")
             if "relation_type" in body:
@@ -689,7 +688,7 @@ def create_app():
         response = {}
         arguments= {}
         if request.method == 'POST':
-            body = request.get_json()
+            body = request.get_json() # type: ignore
             if "term_id" not in body:
                 abort(400, "term_id is mandatory")
             if is_term_on_db(body["term_id"]):
@@ -724,7 +723,7 @@ def create_app():
 
     @flask_app.route("/information-of-oncokb", methods=['POST'])
     def oncokb_data():
-        body = request.get_json()
+        body = request.get_json() # type: ignore
 
         if "gene_ids" not in body:
             abort(400, "gene_ids is mandatory")
@@ -747,7 +746,7 @@ def create_app():
         """
         response= {}
         if request.method == 'POST':
-            body = request.get_json()
+            body = request.get_json() # type: ignore
             if "gene_ids" not in body:
                 abort(400, "gene_ids is mandatory")
             if type(body["gene_ids"]) != list:
