@@ -1,16 +1,15 @@
-import configparser
-import gzip
-import json
-import logging
-import os
 import re
-import urllib.parse
+import os
+import json
+import gzip
+import logging
 from concurrent.futures import ThreadPoolExecutor
-from typing import List, Dict, Optional, Any
-from gprofiler import GProfiler
+import configparser
+import urllib.parse
+from typing import List, Dict
 from flask import Flask, jsonify, make_response, abort, render_template, request
-
 from utils import map_gene
+from gprofiler import GProfiler
 
 # Gets production flag
 IS_DEBUG: bool = os.environ.get('DEBUG', 'true') == 'true'
