@@ -83,7 +83,7 @@ def test_invalid_body_format(client):
     response = client.post(f'{URL_BASE}', data=json.dumps(data), headers=headers)
     res = json.loads(response.data)
     assert response.status_code == 400
-    assert "filter_type is invalid. should be one of this options:" in res["error"]
+    assert "filter_type is invalid" in res["error"]
     
     #invalid ontology_type
     data = {

@@ -452,18 +452,36 @@ Gets the list of related terms for a list of genes.
 - Method: POST  
 - Params: A body in Json format with the following content
     -  `gene_ids`: list of genes for which you want to get the terms in common (they must be a list, and have to be in HGNC gene symbol format)
-    -  `filter_type`: by default "intersection", in which case it bring all the terms that are related to all the genes, the other option is "union" which brings all the terms that are related to **at least** on gene
-    -  `relation_type`: filters the relation between genes and terms. By default it's ["enables","involved_in","part_of","located_in"]. It should always be a list containing any permutation of the default relations
-    -  `ontology_type`: filters the ontology type of the terms in the response. By default it's ["biological_process", "molecular_function", "cellular_component"]It should always be a list containing any permutation of the default relations
+    -  `filter_type`: by default "intersection", in which case it bring all the terms that are related to all the genes, another option is "union" which brings all the terms that are related to **at least** on gene. The third option is "enrichment", it does a gene enrichment analysis on the input of genes with [g:Profiler library](https://biit.cs.ut.ee/gprofiler/page/docs). This filter type has 2 extra parameters:
+        -  `p_value_threshold`: 0.05 by default. It's the p-value threshold for significance, results with smaller p-value are tagged
+as significant. Must be a float. Not recommended to set it higher than 0.05.
+        -  `correction_method`:  The enrichment default correction method is "analytical" which uses multiple testing correction and applies g:Profiler tailor-made algorithm [g:SCS](https://biit.cs.ut.ee/gprofiler/page/docs#significance_threhshold) for reducing significance scores. Alternatively, one may select "bonferroni" correction or "false_discovery_rate" (Benjamini-Hochberg FDR).
+    -  `relation_type`: filters the relation between genes and terms. By default it's ["enables","involved_in","part_of","located_in"]. It should always be a list containing any permutation of the default relations. Only valid on `filter_type` intersection and union. should not be present on "enrichment"
+    -  `ontology_type`: filters the ontology type of the terms in the response. By default it's ["biological_process", "molecular_function", "cellular_component"]. It should always be a list containing any permutation of the default relations
 
 - Success Response:
     - Code: 200
     - Content:
 		The response you get is a list. Each element of the list is a GO term that fulfills the conditions of the query. GO terms can contain name, definition, relations to other terms, etc.
+        - `go_id`: Unique identifier. 
+        - `name`: human-readable term name. 
+        - `ontology_type`: Denotes which of the three sub-ontologies (cellular component, biological process or molecular function) the term belongs to. 
+        - `definition`: A textual description of what the term represents, plus reference(s) to the source of the information. 
+        - relations to other terms: Each go term can be related to many other terms wit a [variety of relations](http://geneontology.org/docs/ontology-relations/). 
+        - `synonyms`: Alternative words or phrases closely related in meaning to the term name, with indication of the relationship between the name and synonym given by the synonym scope. 
+        - `subset`: Indicates that the term belongs to a designated subset of terms. 
         - `relations_to_genes`: list of elements of type Json. Each element corresponds to a to a gene and how it's related to the term.  
             - `gene`: name of the gene.
-            - `relation_type`: the type of relation between the gene and the GO term.
-            - `evidence`: evidence code to indicate how the annotation to a particular term is supported.    
+            - `relation_type`: the type of relation between the gene and the GO term. When `filter_type` is enrichment, extra relation will be gather from g:Profiler database. These relations will be shown as "relation obtained from gProfiler".
+            - `evidence`: evidence code to indicate how the annotation to a particular term is supported.
+        - `enrichment_metrics`: .  
+            - `p_value`: Hypergeometric p-value after correction for multiple testing. 
+            - `intersection_size`: The number of genes in the query that are annotated to the corresponding term.
+            - `effective_domain_size`: The total number of genes "in the universe " which is used as one of the four parameters for the hypergeometric probability function of statistical significance.  
+            - `query_size`: The number of genes that were included in the query.   
+            - `term_size`: The number of genes that are annotated to the term.    
+            - `precision`: The proportion of genes in the input list that are annotated to the function. Defined as intersection_size/query_size. 
+            - `recall`: The proportion of functionally annotated genes that the query recovers. Defined as intersection_size/term_size.
     - Example:
         - URL: http://localhost:8000/genes-to-terms
         - body: 

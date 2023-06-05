@@ -9,7 +9,7 @@ services:
             MONGO_INITDB_ROOT_PASSWORD: 'root'
             MONGO_INITDB_DATABASE: bio_api
         ports:
-            - 27017:27017
+            - 8888:27017
         volumes:
             # Mounts initialize script as read-only
             - mongo_data:/data/db
@@ -19,7 +19,7 @@ services:
         deploy:
             resources:
                 limits:
-                    memory: 6g
+                    memory: 4g
 
 volumes:
     mongo_data:
