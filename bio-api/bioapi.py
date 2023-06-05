@@ -6,7 +6,7 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 import configparser
 import urllib.parse
-from typing import List, Dict
+from typing import List, Dict, Optional, Any
 from flask import Flask, jsonify, make_response, abort, render_template, request
 from utils import map_gene
 from gprofiler import GProfiler
