@@ -6,9 +6,10 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 import configparser
 import urllib.parse
-from typing import List, Dict
+from typing import List, Dict, Optional, Any
 from flask import Flask, jsonify, make_response, abort, render_template, request
 from utils import map_gene
+from gprofiler import GProfiler
 
 # Gets production flag
 IS_DEBUG: bool = os.environ.get('DEBUG', 'true') == 'true'
@@ -304,11 +305,63 @@ def terms_related_to_many_genes(gene_ids: list, filter_type = "intersection", re
                     term_set[cterm]=(terms[cterm])  
     return term_set
 
+
+def genes_evidence(gene_ids: list):
+    collection_go_anotations = mydb["go_anotations"]
+    anotation_list = list(collection_go_anotations.find({"gene_symbol": {"$in":gene_ids}},{"_id":0}))
+    res = {}
+    for anotation in anotation_list:
+        gene = anotation.pop("gene_symbol")
+        for relation_type in anotation.keys():
+            for evidence in anotation[relation_type]:
+                if evidence["go_id"] in res:
+                    res[evidence["go_id"]].append({"evidence": evidence["evidence"], "gene": gene, "relation_type":relation_type})
+                else:
+                    res[evidence["go_id"]] = [{"evidence": evidence["evidence"], "gene": gene, "relation_type":relation_type}]
+    return res
+
+def enrich(gene_ids: list, filter_type = "enrich", p_value_threshold = 0.05, correction_method = "analytical"):
+    gp = GProfiler(return_dataframe=False)
+    enrichment = gp.profile(organism='hsapiens',
+                            query=gene_ids,
+                            sources= ['GO'],
+                            user_threshold = p_value_threshold,
+                            significance_threshold_method = correction_method,
+                            all_results= False,
+                            no_evidences=False)
+    metrics={}
+    relations={}
+    for term in enrichment:
+        if ("native" in term) and ("GO:" in term["native"]):
+            go_id = term["native"].split(":")[1]
+            metrics[go_id]= {"p_value" : term["p_value"],
+                        "term_size" : term["term_size"],
+                        "query_size" : term["query_size"],
+                        "intersection_size" : term["intersection_size"],
+                        "effective_domain_size" : term["effective_domain_size"],
+                        "precision" : term["precision"],
+                        "recall" : term["recall"]}
+            
+            for i in range(len(term["intersections"])):
+                gene = term["intersections"][i]
+                evlist = []
+                for evcode in term["evidences"][i]:
+                    evlist.append({"evidence": evcode, "gene": gene, "relation_type":"relation obtained from gProfiler"})
+            relations[go_id] = evlist
+    return metrics, relations
+
+
+def populate_terms_with_data(term_list, ontology_type: Optional[List[str]] = None):
+    if ontology_type is None:
+        ontology_type = ["biological_process", "molecular_function", "cellular_component"]
+
+
 def populate_terms_with_data(term_list, ontology_type: list = ["biological_process", "molecular_function", "cellular_component"]):
     collection_go = mydb["go"]
     terms = (list(collection_go.find({"go_id": { "$in": term_list }, "ontology_type": { "$in": ontology_type }},{"_id":0})))
     return terms
 
+  
 def strip_term(term,relations):
     new_term = {"go_id": term["go_id"], "name": term["name"], "ontology_type": term["ontology_type"], "relations": {}}
     for r in relations:
@@ -647,26 +700,28 @@ def create_app():
         """Recieves a list of genes and returns the related terms
         """
         
-        valid_filter_types = ["union", "intersection"]
-        valid_ontology_types =["biological_process", "molecular_function", "cellular_component"]
+        valid_filter_types = ["union", "intersection", "enrichment"]
+        valid_ontology_types = ["biological_process", "molecular_function", "cellular_component"]
+        valid_correction_methods = ["analytical", "false_discovery_rate", "bonferroni"]
         response = {}
         gene_term_arguments= {}
+        populate_arguments= {}
         if request.method == 'POST':
             body = request.get_json() # type: ignore
             if "gene_ids" not in body:
                 abort(400, "gene_ids is mandatory")
-            if "relation_type" in body:
-                gene_term_arguments["relation_type"] = body["relation_type"]
             gene_term_arguments['gene_ids'] = body['gene_ids']
+            if "relation_type" in body:
+                if ("filter_type" in body) and (body["filter_type"] == "enrichment"):
+                    abort(400, "relation_type filter is not valid on gene enrichment analysis, all the available relation types will be used.")
+                gene_term_arguments["relation_type"] = body["relation_type"]
             for a in gene_term_arguments:
                 if not isinstance(gene_term_arguments[a], list):
                     abort(400, str(a)+" must be a list")
             if "filter_type" in body:
                 if not body["filter_type"] in valid_filter_types:
-                    abort(400, "filter_type is invalid. should be one of this options: "+ str(valid_filter_types))
+                    abort(400, "filter_type is invalid. Should be one of this options: "+ str(valid_filter_types))
                 gene_term_arguments["filter_type"] = body["filter_type"]
-            terms= terms_related_to_many_genes(**gene_term_arguments)
-            populate_arguments= {}
             if "ontology_type" in body:
                 populate_arguments["ontology_type"] = body["ontology_type"]
                 if not isinstance(body["ontology_type"], list):
@@ -674,9 +729,43 @@ def create_app():
                 for ot in populate_arguments["ontology_type"]:
                     if not (ot in valid_ontology_types):
                         abort(400, str(ot)+" is not a valid ontology_type")
-            response = populate_terms_with_data(list(terms), **populate_arguments)
+            
+            if "p_value_threshold" in body:
+                if body["filter_type"] != "enrichment":
+                    abort(400, "p_value_threshold is only valid on gene enrichment analysis")
+                try:
+                    p_value_threshold = float(body["p_value_threshold"])
+                except ValueError:
+                    abort(400, "p_value_threshold should be an float")
+                gene_term_arguments["p_value_threshold"] = p_value_threshold
+                        
+            if "correction_method" in body:
+                if body["filter_type"] != "enrichment":
+                    abort(400, "correction_method is only valid on gene enrichment analysis")
+                if not body["correction_method"] in valid_correction_methods:
+                    abort(400, "correction_method is invalid. Should be one of this options: "+ str(valid_correction_methods))
+                gene_term_arguments["correction_method"] = body["correction_method"]
+            
+            
+            if ("filter_type" in body) and (body["filter_type"] == "enrichment"):
+                enrichment_metrics, enrichment_evidence = enrich(**gene_term_arguments)
+                terms= list(enrichment_metrics)
+                evidence= genes_evidence(gene_term_arguments['gene_ids'])
+            else:
+                evidence= terms_related_to_many_genes(**gene_term_arguments)
+                terms= list(evidence)
+                
+                
+            response = populate_terms_with_data(terms, **populate_arguments)
+
             for i in range(len(response)):
-                response[i]["relations_to_genes"]= terms[response[i]["go_id"]]
+                if body["filter_type"] == "enrichment":
+                    response[i]["enrichment_metrics"]= enrichment_metrics[response[i]["go_id"]]
+                    response[i]["relations_to_genes"]= enrichment_evidence[response[i]["go_id"]]
+                    if response[i]["go_id"] in evidence:
+                        response[i]["relations_to_genes"].extend(evidence[response[i]["go_id"]])
+                else:
+                    response[i]["relations_to_genes"]= evidence[response[i]["go_id"]]
         # return make_response(response, 200, headers)
         return jsonify(response)
     
