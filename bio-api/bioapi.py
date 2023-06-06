@@ -355,7 +355,12 @@ def terms_related_to_many_genes(gene_ids: list, filter_type: str = "intersection
     return term_set
 
 
-def genes_evidence(gene_ids: list):
+def genes_evidence(gene_ids: List[str]) -> Dict[str, List[Dict[str, Any]]]:
+    """
+    TODO: document
+    :param gene_ids:
+    :return:
+    """
     collection_go_anotations = mydb["go_anotations"]
     annotation_list = list(collection_go_anotations.find({"gene_symbol": {"$in":gene_ids}},{"_id":0}))
     res = {}
@@ -382,10 +387,10 @@ def enrich(gene_ids: list, filter_type = "enrich", p_value_threshold = 0.05, cor
     gp = GProfiler(return_dataframe=False)
     enrichment = gp.profile(organism='hsapiens',
                             query=gene_ids,
-                            sources= ['GO'],
-                            user_threshold = p_value_threshold,
-                            significance_threshold_method = correction_method,
-                            all_results= False,
+                            sources=['GO'],
+                            user_threshold=p_value_threshold,
+                            significance_threshold_method=correction_method,
+                            all_results=False,
                             no_evidences=False)
     metrics={}
     relations={}

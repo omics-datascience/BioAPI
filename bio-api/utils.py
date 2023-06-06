@@ -1,10 +1,14 @@
 from typing import List
 from pymongo.collation import Collation, CollationStrength
+from pymongo.database import Database
 
-def map_gene(gene: str, database) -> List[str]:
+
+def map_gene(gene: str, database: Database) -> List[str]:
     """
-    Gets all the aliases for a specific gene
-    :return List of aliases
+    Gets all the aliases for a specific gene.
+    :param gene: Gene to search.
+    :param database: Database instance.
+    :return: List of aliases.
     """
     collection_hgnc = database["hgnc"]  # HGNC collection
 

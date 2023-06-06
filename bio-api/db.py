@@ -1,10 +1,11 @@
-import pymongo
-from pymongo.database import Database
-import logging
 import os
+import pymongo
+import logging
+from configparser import ConfigParser
+from pymongo.database import Database
 
 
-def get_mongo_connection(is_debug,Config) -> Database:
+def get_mongo_connection(is_debug: bool, config: ConfigParser) -> Database:
     """
     Gets Mongo connection using config.txt file if DEBUG env var is 'true', or all the env variables in case of prod
     (DEBUG = 'false')
@@ -12,11 +13,11 @@ def get_mongo_connection(is_debug,Config) -> Database:
     """
     try:
         if is_debug:
-            host = Config.get('mongodb', 'host')
-            mongo_port = Config.get('mongodb', 'port')
-            user = Config.get('mongodb', 'user')
-            password = Config.get('mongodb', 'pass')
-            db = Config.get('mongodb', 'db_name')
+            host = config.get('mongodb', 'host')
+            mongo_port = config.get('mongodb', 'port')
+            user = config.get('mongodb', 'user')
+            password = config.get('mongodb', 'pass')
+            db = config.get('mongodb', 'db_name')
         else:
             host = os.environ.get('MONGO_HOST')
             mongo_port = os.environ.get('MONGO_PORT')
