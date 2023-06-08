@@ -316,6 +316,11 @@ def terms_related_to_one_gene(gene: str, relation_type: Optional[List[str]] = No
 
 
 def is_term_on_db(term_id):
+    """
+    TODO: document
+    :param term_id:
+    :return:
+    """
     collection_go = mydb["go"]
     return collection_go.find_one({"go_id": term_id}) is None
 
@@ -415,6 +420,12 @@ def enrich(gene_ids: list, filter_type = "enrich", p_value_threshold = 0.05, cor
 
 
 def populate_terms_with_data(term_list, ontology_type: Optional[List[str]] = None):
+    """
+    TODO: document
+    :param term_list:
+    :param ontology_type:
+    :return:
+    """
     if ontology_type is None:
         ontology_type = ["biological_process", "molecular_function", "cellular_component"]
     collection_go = mydb["go"]
@@ -423,6 +434,12 @@ def populate_terms_with_data(term_list, ontology_type: Optional[List[str]] = Non
 
   
 def strip_term(term,relations):
+    """
+    TODO: document
+    :param term:
+    :param relations:
+    :return:
+    """
     new_term = {"go_id": term["go_id"], "name": term["name"], "ontology_type": term["ontology_type"], "relations": {}}
     for r in relations:
         if r in term:
@@ -458,7 +475,7 @@ def bfs_on_terms(term_id, relations: Optional[List[str]] = None, general_depth= 
     queue.append(depth_mark)
     actual_depth = 0
 
-    while queue:          # Creating loop to visit each conected with non-hierarchical relationship
+    while queue:          # Creating loop to visit each connected with non-hierarchical relationship
         act = queue.pop(0) 
         if act == depth_mark:
             if actual_depth == general_depth or not queue:
