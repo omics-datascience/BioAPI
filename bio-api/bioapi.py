@@ -288,7 +288,7 @@ def get_expression_from_gtex(tissue: str, genes: List[str]) -> List:
     return list(temp.values())
 
 
-def terms_related_to_one_gene(gene: str, relation_type: Optional[List[str]] = None) -> Dict[List[Dict[str, Any]]]:
+def terms_related_to_one_gene(gene: str, relation_type: Optional[List[str]] = None) -> Dict[str, List[Dict[str, Any]]]:
     """
     TODO: add documentation
     :param gene:
