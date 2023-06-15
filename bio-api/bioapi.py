@@ -601,7 +601,7 @@ def create_app():
     @flask_app.route("/gene-symbols-finder/", methods=['GET'])
     def gene_symbol_finder():
         """Takes a string of any length and returns a list of genes that contain that search criteria."""
-        query = None  # To prevent MyPy warning
+        query = ""  # To prevent MyPy warning
         if "query" not in request.args:
             abort(400, "'query' parameter is mandatory")
         else:
