@@ -28,3 +28,5 @@ borrar.py
 .venv/
 databases/gene_info/.Rhistory
 databases/pharmGKB/CREATED_*
+databases/string/protein.links.full.txt.gz
+databases/gene_ontology/logs.json

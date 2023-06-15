@@ -528,20 +528,20 @@ Gets the list of related terms to a term.
 - URL: /related-terms
 - Method: POST
 - Params: A body in Json format with the following content
-	-  `term_id`: the term if of the term you want to search
-	-  `relations`: filters the non-hierarchical relations between terms. By default it's ["part_of","regulates","has_part"]. It should always be a list 
-	- `ontology_type`: filters the ontology type of the terms in the response. By default it's ["biological_process", "molecular_function", "cellular_component"]It should always be a list containing any permutation of the default relations
-	-  `general_depth`: the search depth with the non-hierarchical relations
-	-  `hierarchical_depth_to_children`: the search depth with the hierarchical relations in the direction of the children
+	-  `term_id`: The term ID of the term you want to search
+	-  `relations`: Filters the non-hierarchical relations between terms. By default it's ["part_of","regulates","has_part"]. It should always be a list 
+	- `ontology_type`: Filters the ontology type of the terms in the response. By default it's ["biological_process", "molecular_function", "cellular_component"]It should always be a list containing any permutation of the default relations
+	-  `general_depth`: The search depth for the non-hierarchical relations
+	-  `hierarchical_depth_to_children`: The search depth for the hierarchical relations in the direction of the children
 	-  `to_root`: 0 for false 1 fot true. If true get all the terms in the hierarchical relations in the direction of the root
 - Success Response:
     - Code: 200
     - Content: The response you get is a list of GO terms related to the searched term that fulfills the conditions of the query. Each term has:
-		- `go_id`: id of the GO term
-		- `name`: name of the GO term
-        - `ontology_type`: the ontology that the GO term belongs to
-		- `relations`: dictionary of relations 
-            - `relation type`: list of terms related by that relation type to the term
+		- `go_id`: ID of the GO term
+		- `name`: Name of the GO term
+        - `ontology_type`: The ontology that the GO term belongs to
+		- `relations`: Dictionary of relations 
+            - `relation type`: List of terms related by that relation type to the term
 	- Example:
         - URL: http://localhost:8000/related-terms
          - body: 
