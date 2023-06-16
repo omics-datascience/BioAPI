@@ -9,23 +9,16 @@ import sys
 
 
 
-############# MongoDB Conf ############
-# ip_mongo=sys.argv[1]
-# port_mongo=sys.argv[2]
-# user=sys.argv[3]
-# password=sys.argv[4]
-# db_name=sys.argv[5]
-#######################################
-url1="https://stringdb-static.org/download/protein.links.full.v11.5/9606.protein.links.full.v11.5.txt.gz"
-url2= "https://stringdb-static.org/download/protein.info.v11.5/9606.protein.info.v11.5.txt.gz"
+############ MongoDB Conf ############
+ip_mongo=sys.argv[1]
+port_mongo=sys.argv[2]
+user=sys.argv[3]
+password=sys.argv[4]
+db_name=sys.argv[5]
+######################################
+# url1="https://stringdb-static.org/download/protein.links.full.v11.5/9606.protein.links.full.v11.5.txt.gz"
+url2= sys.argv[6]
 
-############# MongoDB Conf ############
-ip_mongo="localhost"
-port_mongo=8888
-user="root"
-password="root"
-db_name="bio_api"
-############# Database URL ############
 
 
 
@@ -46,7 +39,7 @@ print("INFO	Downloading protein network...")
 urllib.request.urlretrieve(url2, "protein.aliases.txt.gz")
 print("INFO	OK.")
 
-print("INFO	Decompresing files")
+print("INFO	Decompressing files")
 with gzip.open('protein.links.full.txt.gz', 'rb') as f_in:
     with open('protein.links.full.txt', 'wb') as f_out:
         shutil.copyfileobj(f_in, f_out)

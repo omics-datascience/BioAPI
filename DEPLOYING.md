@@ -66,7 +66,7 @@ To import all databases in MongoDB:
 Alternatively (but **not recommended** due to high computational demands) you can run a separate ETL process to download from source, process and import the databases into MongoDB.
 
 1. Install the necessary requirements:  
-    - [R languaje](https://www.r-project.org/). Version 4.1.2 or later (Only necessary if you want to update the Gene information database from Ensembl)
+    - [R language](https://www.r-project.org/). Version 4.1.2 or later (Only necessary if you want to update the Gene information database from Ensembl)
     - Some python packages. They can be installed using:  
         `pip install -r config/genomic_db_conf/requirements.txt`  
 2. The ETL process is programmed in a single bash script for each database. Edit in the bash file of the database that you want to update the **user** and **password** parameters, using the same values that you set in the `docker-compose.yml` file. Bash files can be found in the *'databases'* folder, within the corresponding directories for each database:  
@@ -110,7 +110,7 @@ Where  *\<service\>* could be `nginx`, `web` or `mongo`.
 
 ## Update genomic databases
 If new versions are released for the genomic databases included in BioAPI, you can update them by following the instructions below:  
-- For the "Metabolic pathways (ConsensusPathDB)", "Gene nomenclature (HUGO Gene Nomenclature Committee)", "Gene ontology (GO)", "Cancer related drugs (PharmGKB)","Gene information (from Ensembl and CiVIC)" and "Cancer and Accionable genes (OncoKB)" databases, it is not necessary to make any modifications to any script. This is because the datasets are automatically downloaded in their most up-to-date versions when the bash file for each database is executed as described in the **Manually import the different databases** section of this file.  
+- For the "Metabolic pathways (ConsensusPathDB)", "Gene nomenclature (HUGO Gene Nomenclature Committee)", "Gene ontology (GO)", "Cancer related drugs (PharmGKB)","Gene information (from Ensembl and CiVIC)" and "Cancer and Actionable genes (OncoKB)" databases, it is not necessary to make any modifications to any script. This is because the datasets are automatically downloaded in their most up-to-date versions when the bash file for each database is executed as described in the **Manually import the different databases** section of this file.  
 **Important notes**: 
   - For OncoKB the download is not automatic since it requires registration, but the steps to download them manually are explained in the same section mentioned above.  
   - For RefSeq gene summaries, the R package [GeneSummary](https://bioconductor.org/packages/release/data/annotation/html/GeneSummary.html) is used. The update of the database will depend on the version that the package includes.   
