@@ -3,6 +3,7 @@ import os
 import json
 import gzip
 import logging
+from db import get_mongo_connection
 from concurrent.futures import ThreadPoolExecutor
 import configparser
 import urllib.parse
@@ -41,71 +42,16 @@ logging.info('BioAPI is up and running')
 # Common response header
 headers = {"Content-Type": "application/json"}
 
-from db import get_mongo_connection
-mydb = get_mongo_connection(IS_DEBUG,Config)
+mydb = get_mongo_connection(IS_DEBUG, Config)
 
 
-# TODO: if it's not used, remove!!!
-# def get_mongo_connection() -> Database:
-    # """
-    # Gets Mongo connection using config.txt file if DEBUG env var is 'true', or all the env variables in case of prod
-    # (DEBUG = 'false')
-    # :return: Database instance
-    # """
-    # try:
-        # if IS_DEBUG:
-            # host = Config.get('mongodb', 'host')
-            # mongo_port = Config.get('mongodb', 'port')
-            # user = Config.get('mongodb', 'user')
-            # password = Config.get('mongodb', 'pass')
-            # db = Config.get('mongodb', 'db_name')
-        # else:
-            # host = os.environ.get('MONGO_HOST')
-            # mongo_port = os.environ.get('MONGO_PORT')
-            # user = os.environ.get('MONGO_USER')
-            # password = os.environ.get('MONGO_PASSWORD')
-            # db = os.environ.get('MONGO_DB')
-
-            # if not host or not mongo_port or not db:
-                # logging.error(f'Host ({host}), port ({mongo_port}) or db ({db}) is invalid', exc_info=True)
-                # exit(-1)
-
-        # mongo_client = pymongo.MongoClient(f"mongodb://{user}:{password}@{host}:{mongo_port}/?authSource=admin")
-        # return mongo_client[db]
-    # except Exception as e:
-        # logging.error("Database connection error." + str(e), exc_info=True)
-        # exit(-1)
-
-
-
-
-# def map_gene(gene: str) -> List[str]:
-    # """
-    # Gets all the aliases for a specific gene
-    # :return List of aliases
-    # """
-    # collection_hgnc = mydb["hgnc"]  # HGNC collection
-
-    # dbs = ["hgnc_id", "symbol", "alias_symbol", "prev_symbol", "entrez_id", "ensembl_gene_id", "vega_id",
-           # "ucsc_id", "ena", "refseq_accession", "ccds_id", "uniprot_ids", "cosmic", "omim_id", "mirbase", "homeodb",
-           # "snornabase", "bioparadigms_slc", "orphanet", "pseudogene", "horde_id", "merops", "imgt", "iuphar",
-           # "kznf_gene_catalog", "mamit-trnadb", "cd", "lncrnadb", "enzyme_id", "intermediate_filament_db", "agr"]
-
-    # # Generates query
-    # or_search = [{db: gene} for db in dbs]
-    # query = {'$or': or_search}
-    # coll = Collation(locale='en', strength=CollationStrength.SECONDARY)
-    # docs = collection_hgnc.find(query, collation=coll)
-    # res = [doc["symbol"] for doc in docs]
-    # return res
-
-
-def get_potential_gene_symbols(query_string, limit_elements):
+def get_potential_gene_symbols(query_string: str, limit_elements: int = 50) -> List[str]:
     """
-    TODO: document and add types
-    :param query_string:
-    :param limit_elements:
-    :return:
+    Takes a string of any length and returns a list of genes that contain that search criteria.
+
+    :param query_string: The query string
+    :param limit_elements: The number of elements to return
+    :return: A list of genes that contain that search criteria
     """
     er = re.compile("^" + re.escape(query_string), re.IGNORECASE)
     collection_hgnc = mydb["hgnc"]  # HGNC collection
@@ -138,11 +84,12 @@ def get_potential_gene_symbols(query_string, limit_elements):
     return res
 
 
-def search_gene_group(gen):  # AGREGAR LO QUE PASA SI NO PERTENECE A NINGUN gene_group_id (EJ gen:AADACP1)
+def search_gene_group(gen: str) -> Dict[str, Any]:
     """
-    TODO: document
-    :param gen:
-    :return:
+    Get the gene and locus group from HGNC DB for a specific approved gene symbol
+
+    :param gen: an approved gene symbol
+    :return: a dictionary with the gene and locus group information
     """
     results = {'locus_group': None, 'locus_type': None, 'gene_group': None, 'gene_group_id': None}
     collection_hgnc = mydb["hgnc"]  # HGNC collection
@@ -162,17 +109,18 @@ def search_gene_group(gen):  # AGREGAR LO QUE PASA SI NO PERTENECE A NINGUN gene
                 results['gene_group'] = document['gene_group']
                 results['gene_group_id'] = document['gene_group_id']
             else:
-                results['gene_group'] = [document['gene_group']] # type: ignore
-                results['gene_group_id'] = [document['gene_group_id']] # type: ignore
+                results['gene_group'] = [document['gene_group']]  # type: ignore
+                results['gene_group_id'] = [document['gene_group_id']]  # type: ignore
 
     return results
 
 
-def search_genes_in_same_group(group_id: int):
+def search_genes_in_same_group(group_id: int) -> List[str]:
     """
-    TODO: document
-    :param group_id:
-    :return:
+    From a gene group id in HGNC DB, get a list of all genes in the same group.
+
+    :param group_id: a valid gene group id from HGNC DB
+    :return: a list of all genes that are in the group
     """
     collection_hgnc = mydb["hgnc"]  # HGNC collection
     query = {'gene_group_id': group_id}
@@ -181,12 +129,13 @@ def search_genes_in_same_group(group_id: int):
     return [doc["symbol"] for doc in docs]
 
 
-def get_genes_of_pathway(pathway_id, pathway_source):
+def get_genes_of_pathway(pathway_id: str, pathway_source: str) -> List[str]:
     """
-    TODO: document and add types
-    :param pathway_id:
-    :param pathway_source:
-    :return:
+    From a gene group id in HGNC DB, get a list of all genes in the same group.
+
+    :param pathway_source: the pathway database
+    :param pathway_id: an pathway id to search in the database
+    :return: a list of all genes in the pathway
     """
     collection_cpdb = mydb["cpdb"]  # CPDB collection
     ps = re.compile("^" + pathway_source + "$", re.IGNORECASE)
@@ -195,11 +144,12 @@ def get_genes_of_pathway(pathway_id, pathway_source):
     return doc["hgnc_symbol_ids"] if doc is not None else []
 
 
-def get_pathways_of_gene(gene):
+def get_pathways_of_gene(gene: str) -> List[str]:
     """
-    TODO: document and add types
-    :param gene:
-    :return:
+    Get all pathways and sources for a given gene symbols.
+
+    :param gene: apprved gene symbol
+    :return: list of pathways
     """
     collection_cpdb = mydb["cpdb"]  # CPDB collection
     query = {'hgnc_symbol_ids': gene}
@@ -208,11 +158,12 @@ def get_pathways_of_gene(gene):
     return [str(doc) for doc in docs]
 
 
-def get_information_of_genes(genes: List[str]) -> Dict:
+def get_information_of_genes(genes: List[str]) -> Dict[str, Dict[str, Any]]:
     """
-    TODO: document
-    :param genes:
-    :return:
+    This function receives a list of gene symbols and returns information about them from different bioinformatics databases.
+
+    :param genes: list of gene symbols
+    :return: dictionary with information about gene symbols (each key is a gene and each value is another dictionary with its information)
     """
     res = {}
     collection_gene_grch37 = mydb["gene_grch37"]
@@ -267,12 +218,13 @@ def get_information_of_genes(genes: List[str]) -> Dict:
     return res
 
 
-def get_expression_from_gtex(tissue: str, genes: List[str]) -> List:
+def get_expression_from_gtex(tissue: str, genes: List[str]) -> List[Dict[str, float]]:
     """
-    Gets all the expressions for a specific tissue and a list of genes
+    Gets all the expressions for a specific tissue and a list of genes.
+
     :param tissue: Tissue to filter
     :param genes: List of genes to filter
-    :return: List of expressions
+    :return: List of expressions values. Each element of the list contains the expression values for each gene
     """
     collection = mydb["gtex_" + tissue]  # Connects to specific tissue's collection
     query = {'gene': {'$in': genes}}
@@ -298,7 +250,7 @@ def terms_related_to_one_gene(gene: str, relation_type: Optional[List[str]] = No
     if relation_type is None:
         relation_type = ["enables", "involved_in", "part_of", "located_in"]
     collection_go_annotations = mydb["go_anotations"]
-    
+
     annotation = list(collection_go_annotations.find({"gene_symbol": gene}))
     related_genes = {}
     if annotation:
@@ -547,12 +499,12 @@ def cancer_drugs_related_to_gene(gene):
     collection_pharm = mydb["pharmgkb"]
     return list(collection_pharm.find({"genes":gene},{"_id":0}))
 
-# App
 
-def get_data_from_oncokb(genes: List[str]) -> Dict:
+def get_data_from_oncokb(genes: List[str]) -> Dict[str, Dict[str, Any]]:
     """
-    Gets all data associated with a gene list.
-    :param genes: List of genes to filter.
+    Gets all data from OncoKB database associated with a gene list.
+
+    :param genes: List of gene symbols.
     :return: Dict of genes with their associated drugs and information according to OncoKB database
     """
     collection_actionability_gene = mydb["oncokb_biomarker_drug_associations"]
@@ -581,10 +533,10 @@ def get_data_from_oncokb(genes: List[str]) -> Dict:
             res[gen]["oncokb_cancer_gene"].append("Oncogene")
         if doc_c["tumor_suppressor_gene"]:
             res[gen]["oncokb_cancer_gene"].append("Tumor Suppressor Gene")
-        
+
         if len(res[gen]["oncokb_cancer_gene"]) == 0:
             res[gen].pop("oncokb_cancer_gene")
-        
+
         sources = []
         for key in doc_c:
             if doc_c[key] == 1:
@@ -649,7 +601,7 @@ def create_app():
     @flask_app.route("/gene-symbols-finder/", methods=['GET'])
     def gene_symbol_finder():
         """Takes a string of any length and returns a list of genes that contain that search criteria."""
-        query = None  # To prevent MyPy warning
+        query = ""  # To prevent MyPy warning
         if "query" not in request.args:
             abort(400, "'query' parameter is mandatory")
         else:
@@ -672,7 +624,8 @@ def create_app():
     @flask_app.route("/information-of-genes", methods=['POST'])
     def information_of_genes():
         """Receives a list of gene IDs and returns information about them."""
-        body = request.get_json() # type: ignore
+        body = request.get_json()  # type: ignore
+        response = {}
         if "gene_ids" not in body:
             abort(400, "gene_ids is mandatory")
 
@@ -683,7 +636,6 @@ def create_app():
         try:
             response = get_information_of_genes(gene_ids)
         except Exception as e:
-            response = {}  # To prevent mypy warnings
             abort(400, e)
         return make_response(response, 200, headers)
 
@@ -725,7 +677,7 @@ def create_app():
     def pathway_genes(pathway_source, pathway_id):
         if pathway_source.lower() not in PATHWAYS_SOURCES:
             abort(404, f'{pathway_source} is an invalid pathway source')
-        response = {"genes": get_genes_of_pathway(pathway_id, pathway_source)}
+        response = {"genes": get_genes_of_pathway(str(pathway_id), pathway_source)}
         return make_response(response, 200, headers)
 
     @flask_app.route("/pathways-in-common", methods=['POST'])
@@ -750,7 +702,7 @@ def create_app():
 
     @flask_app.route("/expression-of-genes", methods=['POST'])
     def expression_data_from_gtex():
-        body = request.get_json() # type: ignore
+        body = request.get_json()  # type: ignore
 
         if "gene_ids" not in body:
             abort(400, "gene_ids is mandatory")
