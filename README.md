@@ -463,25 +463,25 @@ as significant. Must be a float. Not recommended to set it higher than 0.05.
     - Code: 200
     - Content:
 		The response you get is a list. Each element of the list is a GO term that fulfills the conditions of the query. GO terms can contain name, definition, relations to other terms, etc.
-        - `go_id`: Unique identifier. 
-        - `name`: human-readable term name. 
-        - `ontology_type`: Denotes which of the three sub-ontologies (cellular component, biological process or molecular function) the term belongs to. 
-        - `definition`: A textual description of what the term represents, plus reference(s) to the source of the information. 
+        - `<go_id>`: Unique identifier. 
+        - `<name>`: human-readable term name. 
+        - `<ontology_type>`: Denotes which of the three sub-ontologies (cellular component, biological process or molecular function) the term belongs to. 
+        - `<definition>`: A textual description of what the term represents, plus reference(s) to the source of the information. 
         - relations to other terms: Each go term can be related to many other terms wit a [variety of relations](http://geneontology.org/docs/ontology-relations/). 
-        - `synonyms`: Alternative words or phrases closely related in meaning to the term name, with indication of the relationship between the name and synonym given by the synonym scope. 
-        - `subset`: Indicates that the term belongs to a designated subset of terms. 
-        - `relations_to_genes`: list of elements of type Json. Each element corresponds to a to a gene and how it's related to the term.  
-            - `gene`: name of the gene.
-            - `relation_type`: the type of relation between the gene and the GO term. When `filter_type` is enrichment, extra relation will be gather from g:Profiler database. These relations will be shown as "relation obtained from gProfiler".
-            - `evidence`: evidence code to indicate how the annotation to a particular term is supported.
-        - `enrichment_metrics`: .  
-            - `p_value`: Hypergeometric p-value after correction for multiple testing. 
-            - `intersection_size`: The number of genes in the query that are annotated to the corresponding term.
-            - `effective_domain_size`: The total number of genes "in the universe " which is used as one of the four parameters for the hypergeometric probability function of statistical significance.  
-            - `query_size`: The number of genes that were included in the query.   
-            - `term_size`: The number of genes that are annotated to the term.    
-            - `precision`: The proportion of genes in the input list that are annotated to the function. Defined as intersection_size/query_size. 
-            - `recall`: The proportion of functionally annotated genes that the query recovers. Defined as intersection_size/term_size.
+        - `<synonyms>`: Alternative words or phrases closely related in meaning to the term name, with indication of the relationship between the name and synonym given by the synonym scope. 
+        - `<subset>`: Indicates that the term belongs to a designated subset of terms. 
+        - `<relations_to_genes>`: list of elements of type Json. Each element corresponds to a to a gene and how it's related to the term.  
+            - `<gene>`: name of the gene.
+            - `<relation_type>`: the type of relation between the gene and the GO term. When `filter_type` is enrichment, extra relation will be gather from g:Profiler database. These relations will be shown as "relation obtained from gProfiler".
+            - `<evidence>`: evidence code to indicate how the annotation to a particular term is supported.
+        - `<enrichment_metrics>`: .  
+            - `<p_value>`: Hypergeometric p-value after correction for multiple testing. 
+            - `<intersection_size>`: The number of genes in the query that are annotated to the corresponding term.
+            - `<effective_domain_size>`: The total number of genes "in the universe " which is used as one of the four parameters for the hypergeometric probability function of statistical significance.  
+            - `<query_size>`: The number of genes that were included in the query.   
+            - `<term_size>`: The number of genes that are annotated to the term.    
+            - `<precision>`: The proportion of genes in the input list that are annotated to the function. Defined as intersection_size/query_size. 
+            - `<recall>`: The proportion of functionally annotated genes that the query recovers. Defined as intersection_size/term_size.
     - Example:
         - URL: http://localhost:8000/genes-to-terms
         - body: 
@@ -528,20 +528,20 @@ Gets the list of related terms to a term.
 - URL: /related-terms
 - Method: POST
 - Params: A body in Json format with the following content
-	-  `term_id`: the term if of the term you want to search
-	-  `relations`: filters the non-hierarchical relations between terms. By default it's ["part_of","regulates","has_part"]. It should always be a list 
-	- `ontology_type`: filters the ontology type of the terms in the response. By default it's ["biological_process", "molecular_function", "cellular_component"]It should always be a list containing any permutation of the default relations
-	-  `general_depth`: the search depth with the non-hierarchical relations
-	-  `hierarchical_depth_to_children`: the search depth with the hierarchical relations in the direction of the children
+	-  `term_id`: The term ID of the term you want to search
+	-  `relations`: Filters the non-hierarchical relations between terms. By default it's ["part_of","regulates","has_part"]. It should always be a list 
+	- `ontology_type`: Filters the ontology type of the terms in the response. By default it's ["biological_process", "molecular_function", "cellular_component"]It should always be a list containing any permutation of the default relations
+	-  `general_depth`: The search depth for the non-hierarchical relations
+	-  `hierarchical_depth_to_children`: The search depth for the hierarchical relations in the direction of the children
 	-  `to_root`: 0 for false 1 fot true. If true get all the terms in the hierarchical relations in the direction of the root
 - Success Response:
     - Code: 200
     - Content: The response you get is a list of GO terms related to the searched term that fulfills the conditions of the query. Each term has:
-		- `go_id`: id of the GO term
-		- `name`: name of the GO term
-        - `ontology_type`: the ontology that the GO term belongs to
-		- `relations`: dictionary of relations 
-            - `relation type`: list of terms related by that relation type to the term
+		- `<go_id>`: ID of the GO term
+		- `<name>`: Name of the GO term
+        - `<ontology_type>`: The ontology that the GO term belongs to
+		- `<relations>`: Dictionary of relations 
+            - `<relation type>`: List of terms related by that relation type to the term
 	- Example:
         - URL: http://localhost:8000/related-terms
          - body: 
@@ -574,7 +574,7 @@ Gets the list of related terms to a term.
 			
 ### Cancer related drugs (PharmGKB)
 
-Gets the list of related drugs to a list of genes.
+Gets a list of related drugs to a list of genes.
 
 - URL: /drugs-pharm-gkb
 - Method: POST
@@ -583,14 +583,14 @@ Gets the list of related drugs to a list of genes.
 - Success Response:
     - Code: 200
     - Content: The response you get is a list of genes containing the related drug information
-		- `pharmGKB_id`: Identifier assigned to this drug label by PharmGKB
-		- `name`: Name assigned to the label by PharmGKB
-		- `source`: The source that originally authored the label (e.g. FDA, EMA)
-		- `biomarker_flag`: "On" if drug in this label appears on the FDA Biomarker list; "Off (Formerly On)" if the label was on the FDA Biomarker list at one time; "Off (Never On)" if the label was never listed on the FDA Biomarker list (to PharmGKB's knowledge)
-		- `Testing Level`:  PGx testing level as annotated by PharmGKB based on definitions at https://www.pharmgkb.org/page/drugLabelLegend
-		- `Chemicals`: Related chemicals
-		- `Genes`: List of related genes
-		- `Variants-Haplotypes`: Related variants and/or haplotypes
+		- `<pharmGKB_id>`: Identifier assigned to this drug label by PharmGKB
+		- `<name>`: Name assigned to the label by PharmGKB
+		- `<source>`: The source that originally authored the label (e.g. FDA, EMA)
+		- `<biomarker_flag>`: "On" if drug in this label appears on the FDA Biomarker list; "Off (Formerly On)" if the label was on the FDA Biomarker list at one time; "Off (Never On)" if the label was never listed on the FDA Biomarker list (to PharmGKB's knowledge)
+		- `<Testing Level>`:  PGx testing level as annotated by PharmGKB based on definitions at https://www.pharmgkb.org/page/drugLabelLegend
+		- `<Chemicals>`: Related chemicals
+		- `<Genes>`: List of related genes
+		- `<Variants-Haplotypes>`: Related variants and/or haplotypes
 	- Example:
         - URL: http://localhost:8000/drugs-pharm-gkb
          - body: 
@@ -613,7 +613,57 @@ Gets the list of related drugs to a list of genes.
 			}
 		    ]
 		    }
-	```  
+	``` 
+
+### Predicted functional associations network (String)
+
+Gets a list of genes and relations related to a gene.
+- URL: /string-relations
+- Method: POST
+- Params: A body in Json format with the following content
+	-  `gene_id`: target gene
+    -  `min_combined_score`: the minimun combined scored allowed int the relations. Possible scores go from 1 to 1000
+- Success Response:
+    - Code: 200
+    - Content: The response you get is a list of relations containing the targeted gene
+		- `<gene_1>`: Gene 1 in the bidirectional relatioship
+		- `<gene_2>`: Gene 2 in the bidirectional relatioship
+        - `<neighborhood`>: Optional. Values range from 1 to 1000
+        - `<neighborhood_transferred`>: Optional. Values range from 1 to 1000
+        - `<fusion`>: Optional. Values range from 1 to 1000
+        - `<cooccurence`>: Optional. Values range from 1 to 1000
+        - `<homology`>: Optional. Values range from 1 to 1000
+        - `<coexpression`>: Optional. Values range from 1 to 1000
+        - `<coexpression_transferred`>: Optional. Values range from 1 to 1000
+        - `<experiments`>: Optional. Values range from 1 to 1000
+        - `<experiments_transferred`>: Optional. Values range from 1 to 1000
+        - `<database`>: Optional. Values range from 1 to 1000
+        - `<database_transferred`>: Optional. Values range from 1 to 1000
+        - `<textmining`>: Optional. Values range from 1 to 1000
+        - `<textmining_transferred`>: Optional. Values range from 1 to 1000
+        - `<combined_score`>: Values range from 1 to 1000
+
+    - Example:
+        - URL: http://localhost:8000/string-relations
+         - body: 
+            `{  "gene_id" : "MX2", "min_combined_score": 996  }`
+        - Response:
+	```json
+        [
+        {
+            "coexpression": 558,
+            "coexpression_transferred": 825,
+            "combined_score": 997,
+            "database": 900,
+            "experiments_transferred": 149,
+            "gene_1": "OASL",
+            "gene_2": "MX2",
+            "textmining": 652,
+            "textmining_transferred": 257
+        }
+        ]
+	``` 
+
 ## Error Responses
 
 The possible error codes are 400, 404 and 500. The content of each of them is a Json with a unique key called "error" where its value is a description of the problem that produces the error. For example:  

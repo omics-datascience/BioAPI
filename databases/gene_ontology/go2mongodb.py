@@ -63,26 +63,15 @@ def process_anotations(anotations,all_genes,rejected_aliases):
                         if real_alias in all_genes: 
                             gene.pop("gene_symbol")
                             
-                            # print(gene)
                             for att in gene:
                                 if att in all_genes[real_alias]:
-                                    # print(all_genes[real_alias][att])
-                                    # if isinstance(all_genes[real_alias][att],dict):
-                                        # print("a")
-                                        # all_genes[real_alias][att]= [all_genes[real_alias][att]]
-                                    # if isinstance(gene[att],dict):
-                                        # print("aa")
-                                        # gene[att] = [gene[att]]
                                     all_genes[real_alias][att].update(gene[att])
                                         
                                 else:
                                     all_genes[real_alias][att] = gene[att]
-                            # print(all_genes[real_alias])
                         else:
                             gene["gene_symbol"] = real_alias
                             all_genes[gene["gene_symbol"]]=gene
-                            # print(all_genes)
-                            # print("agregado"+str(gene["gene_symbol"]))
                     else:
                         rejected_aliases[gene["gene_symbol"]]=real_alias
                 gene_symbol = line[2]
@@ -99,7 +88,7 @@ urllib.request.urlretrieve(url_anotation1, "goa_human_isoform.gaf.gz")
 urllib.request.urlretrieve(url_anotation2, "goa_human.gaf.gz")
 print("INFO	OK.")
 
-print("INFO	Uncompresing anotations")
+print("INFO	Decompressing anotations")
 with gzip.open('goa_human_isoform.gaf.gz', 'rb') as f_in:
     with open('goa_human_isoform.gaf', 'wb') as f_out:
         shutil.copyfileobj(f_in, f_out)
@@ -129,9 +118,9 @@ for line in go:
             term["definition"] = definition[1]
             term["definition_reference"] = definition[-1].strip("[] ")
             
-        atributes_with_ids = ["is_a","alt_id","disjoint_from","id"]
+        attributes_with_ids = ["is_a","alt_id","disjoint_from","id"]
         
-        for atr_name in atributes_with_ids:
+        for atr_name in attributes_with_ids:
             if atr_name in term:
                 atr = term[atr_name]
                 if isinstance(atr, list):
@@ -155,7 +144,7 @@ go.close()
 print("INFO	OK.")
 
 
-print("INFO	Conecting to MongoDB...")
+print("INFO	Connecting to MongoDB...")
 mongoClient = MongoClient(ip_mongo + ":" + str(port_mongo),username=user,password=password,authSource='admin',authMechanism='SCRAM-SHA-1')
 db = mongoClient[db_name]
 print("INFO	OK.")
