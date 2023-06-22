@@ -563,9 +563,7 @@ def associated_string_genes(gene_symbol:str, min_combined_score:int=400)-> List:
     res.extend(list(relations))
     for i in relations:
         gene_list.append(i["gene_1"])
-    print(gene_symbol)
-    print(gene_list)
-    print(res)
+    #relations between related genes
     # relations = string_collection.find({"gene_1": { "$in": gene_list},"gene_2": { "$in": gene_list} ,"combined_score": { "$gt": cut_off }},{"_id":0})
     # res.extend(list(relations))
     return res
@@ -772,8 +770,9 @@ def create_app():
             if "gene_ids" not in body:
                 abort(400, "gene_ids is mandatory")
             gene_term_arguments['gene_ids'] = body['gene_ids']
+            is_enriching = ("filter_type" in body) and (body["filter_type"] == "enrichment")
             if "relation_type" in body:
-                if ("filter_type" in body) and (body["filter_type"] == "enrichment"):
+                if  is_enriching:
                     abort(400, "relation_type filter is not valid on gene enrichment analysis, all the available relation types will be used.")
                 gene_term_arguments["relation_type"] = body["relation_type"]
             for a in gene_term_arguments:
@@ -790,10 +789,9 @@ def create_app():
                 for ot in populate_arguments["ontology_type"]:
                     if not (ot in valid_ontology_types):
                         abort(400, str(ot)+" is not a valid ontology_type")
-            
             if "p_value_threshold" in body:
                 p_value_threshold = None  # To prevent MyPy warning
-                if body["filter_type"] != "enrichment":
+                if not is_enriching:
                     abort(400, "p_value_threshold is only valid on gene enrichment analysis")
                 try:
                     p_value_threshold = float(body["p_value_threshold"])
@@ -802,7 +800,7 @@ def create_app():
                 gene_term_arguments["p_value_threshold"] = p_value_threshold
                         
             if "correction_method" in body:
-                if body["filter_type"] != "enrichment":
+                if not is_enriching:
                     abort(400, "correction_method is only valid on gene enrichment analysis")
                 if not body["correction_method"] in valid_correction_methods:
                     abort(400, "correction_method is invalid. Should be one of this options: "+ str(valid_correction_methods))
@@ -811,7 +809,8 @@ def create_app():
             # To prevent MyPy warning
             enrichment_metrics = {}
             enrichment_evidence = {}
-            if ("filter_type" in body) and (body["filter_type"] == "enrichment"):
+            if is_enriching:
+                gene_term_arguments.pop("filter_type")
                 enrichment_metrics, enrichment_evidence = enrich(**gene_term_arguments)
                 terms= list(enrichment_metrics)
                 evidence = genes_evidence(gene_term_arguments['gene_ids'])
@@ -823,7 +822,7 @@ def create_app():
             response = populate_terms_with_data(terms, **populate_arguments)
 
             for i in range(len(response)):
-                if body["filter_type"] == "enrichment":
+                if is_enriching:
                     # It's safe to use 'enrichment_metrics' and 'enrichment_evidence' here
                     response[i]["enrichment_metrics"] = enrichment_metrics[response[i]["go_id"]]
                     response[i]["relations_to_genes"] = enrichment_evidence[response[i]["go_id"]]
@@ -913,7 +912,11 @@ def create_app():
         if "gene_id" not in body:
             abort(400, "gene_id is mandatory")
         gene_id = body["gene_id"]
-        if "min_combined_score" in body and type(body["min_combined_score"]) is int:
+        if "min_combined_score" in body:
+            try:
+                min_combined_score = int(body["min_combined_score"])
+            except:
+                abort(400, "min_combined_score must be number")
             optionals["min_combined_score"]= body["min_combined_score"]
         res= associated_string_genes(gene_id,**optionals)
         return jsonify(res)

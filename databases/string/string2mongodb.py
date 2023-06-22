@@ -17,7 +17,7 @@ password=sys.argv[4]
 db_name=sys.argv[5]
 ######################################
 # url1="https://stringdb-static.org/download/protein.links.full.v11.5/9606.protein.links.full.v11.5.txt.gz"
-url2= sys.argv[6]
+# url2= sys.argv[6]
 
 
 
@@ -34,24 +34,20 @@ def pile_into_dict(dic,key,content):
 
 
 
-print("INFO	Downloading protein network...")
-# urllib.request.urlretrieve(url1, "protein.info.txt.gz")
-urllib.request.urlretrieve(url2, "protein.aliases.txt.gz")
-print("INFO	OK.")
 
 print("INFO	Decompressing files")
 with gzip.open('protein.links.full.txt.gz', 'rb') as f_in:
     with open('protein.links.full.txt', 'wb') as f_out:
         shutil.copyfileobj(f_in, f_out)
-with gzip.open('protein.aliases.txt.gz', 'rb') as f_in:
-    with open('protein.aliases.txt', 'wb') as f_out:
+with gzip.open('protein.info.txt.gz', 'rb') as f_in:
+    with open('protein.info.txt', 'wb') as f_out:
         shutil.copyfileobj(f_in, f_out)
 print("INFO	OK.")
 
 
 
 print("INFO	Processing String aliases...")
-protein_to_gene = open("protein.aliases.txt", "r")
+protein_to_gene = open("protein.info.txt", "r")
 alias_dict= {}
 skipped_first_line = False
 for line in protein_to_gene:
@@ -153,6 +149,5 @@ for gene_symbol in alias_dict.values():
 
 print("INFO	Removing intermediate files...")
 os.remove("protein.links.full.txt")
-os.remove("protein.aliases.txt.gz")
-os.remove("protein.aliases.txt")
+os.remove("protein.info.txt")
 print("INFO	OK.")
