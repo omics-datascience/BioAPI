@@ -7,13 +7,13 @@ This document is focused on the **development** of the system. If you are lookin
 
 ## Integrated databases
 
-BioAPI obtains information from different bioinformatic databases. These databases were installed locally to reduce data search time. The databases currently integrated to BioAPI are:
+BioAPI obtains information from different bioinformatics databases. These databases were installed locally to reduce data search time. The databases currently integrated to BioAPI are:
 1. Gene nomenclature: [HUGO Gene Nomenclature Committee](https://www.genenames.org/).  
 HGNC is the resource for approved human gene nomenclature. Downloaded from its official website in September 2022.  
 2. Gene information:  
- - [ENSEMBL](http://www.ensembl.org/biomart/martview): BioMart data mining tool was used to obtain a gene-related dataset from Ensembl. Ensembl is a genome browser for vertebrate genomes that supports research in comparative genomics, evolution, sequence variation and transcriptional regulation. Ensembl annotate genes, computes multiple alignments, predicts regulatory function and collects disease data. Downloaded using *BioMart data mining tool* in September 2022.
- - [RefSeq](https://www.ncbi.nlm.nih.gov/refseq/): The summary of each human gene was obtained from the RefSeq database. RefSeq (Reference Sequence) is the public database of annotated and curated nucleic acid (DNA and RNA) and protein sequences from the National Center for Biotechnology Information (NCBI). To obtain the summaries, the R package called [GeneSummary](https://bioconductor.org/packages/release/data/annotation/html/GeneSummary.html) was used, which obtains the abstracts from version 214 of RefSeq.
- - [CiVIC](https://civicdb.org/welcome): A description of the genes oriented to clinical interpretation in cancer was obtained from the CiVIC database, an open-source platform supporting crowdsourced and expert-moderated cancer variant curation. The database was downloaded from its official website in April 2023.  
+ - [ENSEMBL](http://www.ensembl.org/biomart/martview): BioMart data mining tool was used to obtain a gene-related dataset from Ensembl. Ensembl is a genome browser for vertebrate genomes that supports research in comparative genomics, evolution, sequence variation and transcriptional regulation. Ensembl annotates genes, computes multiple alignments, predicts regulatory function and collects disease data. Downloaded using *BioMart data mining tool* in September 2022.
+ - [RefSeq](https://www.ncbi.nlm.nih.gov/refseq/): the summary of each human gene was obtained from the RefSeq database. RefSeq (Reference Sequence) is the public database of annotated and curated nucleic acid (DNA and RNA) and protein sequences from the National Center for Biotechnology Information (NCBI). To obtain the summaries, the R package called [GeneSummary](https://bioconductor.org/packages/release/data/annotation/html/GeneSummary.html) was used, which obtains the abstracts from version 214 of RefSeq.
+ - [CiVIC](https://civicdb.org/welcome): a description of the genes oriented to clinical interpretation in cancer was obtained from the CiVIC database, an open-source platform supporting crowd sourced and expert-moderated cancer variant curation. The database was downloaded from its official website in April 2023.  
 3. Metabolic pathways: [ConsensusPathDB](http://cpdb.molgen.mpg.de/).  
 ConsensusPathDB-human integrates interaction networks in Homo sapiens including binary and complex protein-protein, genetic, metabolic, signaling, gene regulatory and drug-target interactions, as well as biochemical pathways. Data originate from currently 31 public resources for interactions (listed below) and interactions that we have curated from the literature. The interaction data are integrated in a complementary manner (avoiding redundancies), resulting in a seamless interaction network containing different types of interactions. Downloaded from its official website in September 2022.          
 4. Gene expression: [Genotype-Tissue Expression (GTEx)](https://gtexportal.org/home/).  
@@ -622,12 +622,12 @@ Gets a list of genes and relations related to a gene.
 - Method: POST
 - Params: A body in Json format with the following content
 	-  `gene_id`: target gene
-    -  `min_combined_score`: the minimun combined scored allowed int the relations. Possible scores go from 1 to 1000
+    -  `min_combined_score`: the minimum combined scored allowed int the relations. Possible scores go from 1 to 1000
 - Success Response:
     - Code: 200
     - Content: The response you get is a list of relations containing the targeted gene
-		- `<gene_1>`: Gene 1 in the bidirectional relatioship
-		- `<gene_2>`: Gene 2 in the bidirectional relatioship
+		- `<gene_1>`: Gene 1 in the bidirectional relationship
+		- `<gene_2>`: Gene 2 in the bidirectional relationship
         - `<neighborhood`>: Optional. Values range from 1 to 1000
         - `<neighborhood_transferred`>: Optional. Values range from 1 to 1000
         - `<fusion`>: Optional. Values range from 1 to 1000
