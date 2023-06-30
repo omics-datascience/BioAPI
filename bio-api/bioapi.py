@@ -16,10 +16,10 @@ from gprofiler import GProfiler
 IS_DEBUG: bool = os.environ.get('DEBUG', 'true') == 'true'
 
 # Number of threads to use in Pool
-THREAD_POOL_WORKERS = 8
+PROCESS_POOL_WORKERS: int = int(os.getenv('PROCESS_POOL_WORKERS', 4))
 
 # BioAPI version
-VERSION = '1.0.0'
+VERSION = '1.0.1'
 
 # Valid pathways sources
 PATHWAYS_SOURCES = ["kegg", "biocarta", "ehmn", "humancyc", "inoh", "netpath", "pid", "reactome",
@@ -619,7 +619,7 @@ def create_app():
                 abort(400, "gene_ids must be a list")
 
             try:
-                with ThreadPoolExecutor(max_workers=THREAD_POOL_WORKERS) as executor:
+                with ThreadPoolExecutor(max_workers=PROCESS_POOL_WORKERS) as executor:
                     for gene_id, result in zip(gene_ids, executor.map(map_gene, gene_ids, [mydb for _ in gene_ids])):
                         response[gene_id] = result
             except Exception as e:
