@@ -9,4 +9,4 @@ pass: root
 db_name: bio_api
 
 [log]
-file: bioapi.log
+file: /logs/bioapi.log

@@ -16,6 +16,9 @@ RUN pip install -r /config/requirements.txt
 # Flask app
 ADD ./bio-api /app
 
+# Creates logs directory
+RUN mkdir /logs
+
 # Needed to make docker-compose `command` work
 WORKDIR /app
 

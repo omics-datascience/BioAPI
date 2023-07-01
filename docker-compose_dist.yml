@@ -21,6 +21,8 @@ services:
     # BioAPI server
     web:
         image: omicsdatascience/bio-api:1.0.0
+        volumes:
+            - bioapi_logs:/logs
         environment:
             DEBUG: 'false'
             # MongoDB's credentials must be the same as 'mongo' service above
@@ -47,3 +49,4 @@ volumes:
     mongo_config:
         external: true
         name: 'bio_api_mongo_config'
+    bioapi_logs:
