@@ -20,7 +20,7 @@ services:
 
     # BioAPI server
     web:
-        image: omicsdatascience/bio-api:1.0.0
+        image: omicsdatascience/bio-api:1.0.2
         volumes:
             - bioapi_logs:/logs
         environment:
