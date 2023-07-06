@@ -24,6 +24,8 @@ OncoKB™ is a precision oncology knowledge base developed at Memorial Sloan Ket
 It is a project to develop an up-to-date, comprehensive, computational model of biological systems, from the molecular level to larger pathways, cellular and organism-level systems. It provides structured and standardized annotations of gene products, in a hierarchical system of terms and relationships that describes the molecular functions, biological processes, and cellular components associated with genes and gene products. Downloaded from its official website in June 2023
 7. Cancer related drugs [Pharmacogenomics Knowledge Base (PharmGKB) ](https://www.pharmgkb.org/). 
 It is a resource that provides information about how human genetic variation affects response to medications. PharmGKB collects, curates and disseminates knowledge about clinically actionable gene-drug associations and genotype-phenotype relationships. Downloaded from its official website in June 2023
+8. Predicted functional associations network [STRING] (https://string-db.org/)
+It is a database of known and predicted protein-protein interactions. The interactions include direct (physical) and indirect (functional) associations; they stem from computational prediction, from knowledge transfer between organisms, and from interactions aggregated from other (primary) databases.
 
 ## Services included in BioAPI  
 
