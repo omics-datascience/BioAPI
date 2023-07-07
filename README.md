@@ -20,10 +20,14 @@ ConsensusPathDB-human integrates interaction networks in Homo sapiens including 
 The Genotype-Tissue Expression (GTEx) project is an ongoing effort to build a comprehensive public resource to study tissue-specific gene expression and regulation. Samples were collected from 54 non-diseased tissue sites across nearly 1000 individuals, primarily for molecular assays including WGS, WES, and RNA-Seq. GTEx is being used in its version [GTEx Analysis V8 (dbGaP Accession phs000424.v8.p2)](https://gtexportal.org/home/datasets#datasetDiv1) and was downloaded from its official website in September 2022.
 5. Actionable and Cancer genes: [OncoKB](https://www.oncokb.org/).  
 OncoKB™ is a precision oncology knowledge base developed at Memorial Sloan Kettering Cancer Center that contains biological and clinical information about genomic alterations in cancer. Alteration- and tumor type-specific therapeutic implications are classified using the OncoKB™ [Levels of Evidence system](https://www.oncokb.org/levels), which assigns clinical actionability to individual mutational events. Downloaded from its official website in April 2023.  
-6. Gene Ontology [Gene Ontology (GO)](http://geneontology.org/).  
+6. Gene Ontology [Gene Ontology (GO)](http://geneontology.org/).
 It is a project to develop an up-to-date, comprehensive, computational model of biological systems, from the molecular level to larger pathways, cellular and organism-level systems. It provides structured and standardized annotations of gene products, in a hierarchical system of terms and relationships that describes the molecular functions, biological processes, and cellular components associated with genes and gene products. Downloaded from its official website in June 2023
-7. Cancer related drugs [Pharmacogenomics Knowledge Base (PharmGKB) ](https://www.pharmgkb.org/). 
+7. Cancer related drugs [Pharmacogenomics Knowledge Base (PharmGKB) ](https://www.pharmgkb.org/).
 It is a resource that provides information about how human genetic variation affects response to medications. PharmGKB collects, curates and disseminates knowledge about clinically actionable gene-drug associations and genotype-phenotype relationships. Downloaded from its official website in June 2023
+8. Predicted functional associations network [STRING](https://string-db.org/)
+It is a database of known and predicted protein-protein interactions. The interactions include direct (physical) and indirect (functional) associations; they stem from computational prediction, from knowledge transfer between organisms, and from interactions aggregated from other (primary) databases.
+9. Pharmaco-transcriptomics [DrugBank](https://go.drugbank.com/)
+It is a comprehensive, free-to-access, online database containing information on drugs and drug targets.
 
 ## Services included in BioAPI  
 
@@ -663,6 +667,24 @@ Gets a list of genes and relations related to a gene.
         }
         ]
 	``` 
+
+### Drugs that regulate a gene
+
+Service that takes gene symbol and returns a link to https://go.drugbank.com with all the drugs that upregulate and down regulate its expresion. Useful for embeding.
+
+- URL: drugs-regulating-gene/<*gene_id*>
+    - <*gene_id*> is the identifier of the gene
+- Method: GET
+- Params: -
+- Success Response:
+    - Code: 200
+    - Content: a link to to the information in the drugbank website.
+    - Example:
+        - URL: http://localhost:8000/drugs-regulating-gene/TP53
+        - Response:
+            ```
+            https://go.drugbank.com/pharmaco/transcriptomics?q%5Bg%5B0%5D%5D%5Bm%5D=or&q%5Bg%5B0%5D%5D%5Bdrug_approved_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_nutraceutical_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_illicit_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_investigational_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_withdrawn_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_experimental_true%5D=all&q%5Bg%5B1%5D%5D%5Bm%5D=or&q%5Bg%5B1%5D%5D%5Bdrug_available_in_us_true%5D=all&q%5Bg%5B1%5D%5D%5Bdrug_available_in_ca_true%5D=all&q%5Bg%5B1%5D%5D%5Bdrug_available_in_eu_true%5D=all&commit=Apply+Filter&q%5Bdrug_precise_names_name_cont%5D=&q%5Bgene_symbol_eq%5D=TP53&q%5Bgene_id_eq%5D=&q%5Bchange_eq%5D=&q%5Binteraction_cont%5D=&q%5Bchromosome_location_cont%5D=
+            ```  
 
 ## Error Responses
 

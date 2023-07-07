@@ -19,7 +19,7 @@ IS_DEBUG: bool = os.environ.get('DEBUG', 'true') == 'true'
 PROCESS_POOL_WORKERS: int = int(os.getenv('PROCESS_POOL_WORKERS', 4))
 
 # BioAPI version
-VERSION = '1.0.2'
+VERSION = '1.0.3'
 
 # Valid pathways sources
 PATHWAYS_SOURCES = ["kegg", "biocarta", "ehmn", "humancyc", "inoh", "netpath", "pid", "reactome",
@@ -930,7 +930,9 @@ def create_app():
             optionals["min_combined_score"]= body["min_combined_score"]
         res= associated_string_genes(gene_id,**optionals)
         return jsonify(res)
-
+    @flask_app.route("/drugs-regulating-gene/<gene_id>", methods=['GET'])
+    def drugs_regulating_gene(gene_id):
+        return "https://go.drugbank.com/pharmaco/transcriptomics?q%5Bg%5B0%5D%5D%5Bm%5D=or&q%5Bg%5B0%5D%5D%5Bdrug_approved_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_nutraceutical_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_illicit_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_investigational_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_withdrawn_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_experimental_true%5D=all&q%5Bg%5B1%5D%5D%5Bm%5D=or&q%5Bg%5B1%5D%5D%5Bdrug_available_in_us_true%5D=all&q%5Bg%5B1%5D%5D%5Bdrug_available_in_ca_true%5D=all&q%5Bg%5B1%5D%5D%5Bdrug_available_in_eu_true%5D=all&commit=Apply+Filter&q%5Bdrug_precise_names_name_cont%5D=&q%5Bgene_symbol_eq%5D="+gene_id+"&q%5Bgene_id_eq%5D=&q%5Bchange_eq%5D=&q%5Binteraction_cont%5D=&q%5Bchromosome_location_cont%5D="
 
     # Error handling
     @flask_app.errorhandler(400)
