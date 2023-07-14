@@ -471,7 +471,7 @@ as significant. Must be a float. Not recommended to set it higher than 0.05.
         - `<name>`: human-readable term name. 
         - `<ontology_type>`: Denotes which of the three sub-ontologies (cellular component, biological process or molecular function) the term belongs to. 
         - `<definition>`: A textual description of what the term represents, plus reference(s) to the source of the information. 
-        - relations to other terms: Each go term can be related to many other terms wit a [variety of relations](http://geneontology.org/docs/ontology-relations/). 
+        - relations to other terms: Each go term can be related to many other terms with a [variety of relations](http://geneontology.org/docs/ontology-relations/). 
         - `<synonyms>`: Alternative words or phrases closely related in meaning to the term name, with indication of the relationship between the name and synonym given by the synonym scope. 
         - `<subset>`: Indicates that the term belongs to a designated subset of terms. 
         - `<relations_to_genes>`: list of elements of type Json. Each element corresponds to a to a gene and how it's related to the term.  
