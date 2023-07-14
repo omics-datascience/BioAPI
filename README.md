@@ -460,8 +460,8 @@ Gets the list of related terms for a list of genes.
         -  `p_value_threshold`: 0.05 by default. It's the p-value threshold for significance, results with smaller p-value are tagged
 as significant. Must be a float. Not recommended to set it higher than 0.05.
         -  `correction_method`:  The enrichment default correction method is "analytical" which uses multiple testing correction and applies g:Profiler tailor-made algorithm [g:SCS](https://biit.cs.ut.ee/gprofiler/page/docs#significance_threhshold) for reducing significance scores. Alternatively, one may select "bonferroni" correction or "false_discovery_rate" (Benjamini-Hochberg FDR).
-    -  `relation_type`: filters the relation between genes and terms. By default it's ["enables","involved_in","part_of","located_in"]. It should always be a list containing any permutation of the default relations. Only valid on `filter_type` intersection and union. should not be present on "enrichment"
-    -  `ontology_type`: filters the ontology type of the terms in the response. By default it's ["biological_process", "molecular_function", "cellular_component"]. It should always be a list containing any permutation of the default relations
+    -  `relation_type`: filters the relation between genes and terms. By default it's ["enables","involved_in","part_of","located_in"]. It should always be a list containing any permutation of the allowed relations. Only valid on `filter_type` intersection and union. should not be present on "enrichment"
+    -  `ontology_type`: filters the ontology type of the terms in the response. By default it's ["biological_process", "molecular_function", "cellular_component"]. It should always be a list containing any permutation of the 3 ontologies.
 
 - Success Response:
     - Code: 200
@@ -534,7 +534,7 @@ Gets the list of related terms to a term.
 - Params: A body in Json format with the following content
 	-  `term_id`: The term ID of the term you want to search
 	-  `relations`: Filters the non-hierarchical relations between terms. By default it's ["part_of","regulates","has_part"]. It should always be a list 
-	- `ontology_type`: Filters the ontology type of the terms in the response. By default it's ["biological_process", "molecular_function", "cellular_component"]It should always be a list containing any permutation of the default relations
+	- `ontology_type`: Filters the ontology type of the terms in the response. By default it's ["biological_process", "molecular_function", "cellular_component"]It should always be a list containing any permutation of the 3 ontologies
 	-  `general_depth`: The search depth for the non-hierarchical relations
 	-  `hierarchical_depth_to_children`: The search depth for the hierarchical relations in the direction of the children
 	-  `to_root`: 0 for false 1 fot true. If true get all the terms in the hierarchical relations in the direction of the root
