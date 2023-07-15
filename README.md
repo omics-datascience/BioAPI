@@ -474,7 +474,7 @@ as significant. Must be a float. Not recommended to set it higher than 0.05.
         - relations to other terms: Each go term can be related to many other terms with a [variety of relations](http://geneontology.org/docs/ontology-relations/). 
         - `<synonyms>`: Alternative words or phrases closely related in meaning to the term name, with indication of the relationship between the name and synonym given by the synonym scope. 
         - `<subset>`: Indicates that the term belongs to a designated subset of terms. 
-        - `<relations_to_genes>`: list of elements of type Json. Each element corresponds to a to a gene and how it's related to the term.  
+        - `<relations_to_genes>`: list of elements of type Json. Each element corresponds to a gene and how it's related to the term.  
             - `<gene>`: name of the gene.
             - `<relation_type>`: the type of relation between the gene and the GO term. When `filter_type` is enrichment, extra relation will be gather from g:Profiler database. These relations will be shown as "relation obtained from gProfiler".
             - `<evidence>`: evidence code to indicate how the annotation to a particular term is supported.
@@ -543,7 +543,7 @@ Gets the list of related terms to a term.
     - Content: The response you get is a list of GO terms related to the searched term that fulfills the conditions of the query. Each term has:
 		- `<go_id>`: ID of the GO term
 		- `<name>`: Name of the GO term
-        - `<ontology_type>`: The ontology that the GO term belongs to
+        - `<ontology_type>`: Denotes which of the three sub-ontologies (cellular component, biological process or molecular function) the term belongs to.
 		- `<relations>`: Dictionary of relations 
             - `<relation type>`: List of terms related by that relation type to the term
 	- Example:
