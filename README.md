@@ -586,7 +586,7 @@ Gets a list of related drugs to a list of genes.
 	-  `gene_ids`: list of genes for which the related drugs
 - Success Response:
     - Code: 200
-    - Content: The response you get is a list of genes containing the related drug information
+    - Content: The response you get is a dictionary where the genes are the keys and the values are a list of all the related drug information
 		- `<pharmGKB_id>`: Identifier assigned to this drug label by PharmGKB
 		- `<name>`: Name assigned to the label by PharmGKB
 		- `<source>`: The source that originally authored the label (e.g. FDA, EMA)
