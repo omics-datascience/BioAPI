@@ -1,6 +1,6 @@
 #!/bin/bash
 VERSION="$1"
-git tag
+/usr/bin/git tag
 TAG=$(git tag -l $VERSION)
 echo $TAG
 if [ -n "$TAG" ]
