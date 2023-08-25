@@ -18,6 +18,13 @@ jobs:
         run: SETTINGSFILE=$(pwd)/bio-api/bioapi.py ./tools/get_version.sh >> $GITHUB_ENV
       - name: Check if tag exist
         run: ./tools/check_existent_tag_in_repo.sh ${{ env.VERSION }}
+      - name: Check if tag exist 2
+        run: |
+          if [ -n "$(git tag -l ${{ env.VERSION }})" ]
+          then
+            echo "::error::This bio-api version tag ($TAG) already exists in repository."
+            exit 1
+          fi
         
   version-check-docker:
     runs-on: ubuntu-latest
