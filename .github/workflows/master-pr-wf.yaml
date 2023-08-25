@@ -17,7 +17,7 @@ jobs:
       - name: Check if tag exist.
         run: |
           #git tag ${{ env.VERSION }} 2>/dev/null || 
-          echo "::setFailed::This bio-api version tag already exists in repository."
+          echo "::error::This bio-api version tag already exists in repository."
           exit 1
 
   version-check-docker:
