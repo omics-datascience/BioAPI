@@ -18,6 +18,7 @@ jobs:
         run: |
           #git tag ${{ env.VERSION }} 2>/dev/null || 
           echo "::setFailed::This bio-api version tag already exists in repository."
+          exit 1
 
   version-check-docker:
     runs-on: ubuntu-latest
