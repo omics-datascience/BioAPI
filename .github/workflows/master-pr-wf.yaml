@@ -11,9 +11,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Get version
-        run: BASEDIR=$(pwd) ./tools/get_version.sh
+        run: BASEDIR=$(pwd)/bio-api/bioapi.py ./tools/get_version.sh
       - name: Set version
-        run: BASEDIR=$(pwd) ./tools/get_version.sh >> $GITHUB_ENV
+        run: BASEDIR=$(pwd)/bio-api/bioapi.py ./tools/get_version.sh >> $GITHUB_ENV
       - name: Check if tag exist.
         shell: bash
         run: |
