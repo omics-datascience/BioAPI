@@ -1,7 +1,7 @@
 #!/bin/bash
 VERSION="$1"
-git tag -l $VERSION
 TAG=$(git tag -l $VERSION)
+echo $TAG
 if [ -n "$TAG" ]
 then
   echo "::error::This bio-api version tag already exists in repository."
