@@ -15,7 +15,7 @@ jobs:
       - name: Set version
         run: SETTINGSFILE=$(pwd)/bio-api/bioapi.py ./tools/get_version.sh >> $GITHUB_ENV
       - name: Check if tag exist.
-        run: ./tools/check_existent_tag_in_repo.sh
+        run: ./tools/check_existent_tag_in_repo.sh ${{ env.VERSION }}
         
   version-check-docker:
     runs-on: ubuntu-latest
