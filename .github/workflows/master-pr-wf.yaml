@@ -21,10 +21,9 @@ jobs:
           if [ $? -ne 0 ]
           then
             echo "TAG_EXISTS=1" >> $GITHUB_ENV
-            
           fi
       - name: bio-api current version tag exists?
-        if: ${{ env.TAG_EXISTS }} == 1
+        if: env.TAG_EXISTS == 1
         uses: actions/github-script@v3
         with:
           script: |
