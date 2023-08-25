@@ -15,8 +15,9 @@ jobs:
       - name: Set version
         run: SETTINGSFILE=$(pwd)/bio-api/bioapi.py ./tools/get_version.sh >> $GITHUB_ENV
       - name: Check if tag exist.
+        shell: bash
         run: |
-          if [ -z "$(git tag | grep "^${{ env.VERSION }}$")" ]
+          if [ -n "$(git tag -l ${{ env.VERSION }})" ]
           then
           echo "::error::This bio-api version tag already exists in repository."
           exit 1
