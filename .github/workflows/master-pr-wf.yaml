@@ -17,6 +17,7 @@ jobs:
       - name: Check if tag exist.
         shell: bash
         run: |
+          git tag -l ${{ env.VERSION }}
           if [ -n "$(git tag -l ${{ env.VERSION }})" ]
           then
           echo "::error::This bio-api version tag already exists in repository."
