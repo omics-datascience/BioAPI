@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-tags: true
+          fetch-tags: 'true'
       - name: Get version
         run: SETTINGSFILE=$(pwd)/bio-api/bioapi.py ./tools/get_version.sh
       - name: Set version
@@ -25,7 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-tags: true      
+          fetch-tags: 'true'      
       - name: Get version
         run: SETTINGSFILE=$(pwd)/bio-api/bioapi.py ./tools/get_version.sh
       - name: Set version
