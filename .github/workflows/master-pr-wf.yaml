@@ -5,7 +5,31 @@ on:
       - "main"
       - "master"
 jobs:
-  version-check:
+  version-check-repo:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Get version
+        run: SETTINGSFILE=$(pwd)/bio-api/bioapi.py ./tools/get_version.sh
+      - name: Set version
+        run: SETTINGSFILE=$(pwd)/bio-api/bioapi.py ./tools/get_version.sh >> $GITHUB_ENV
+      - name: Check if tag exist.
+        shell: bash
+        run: |
+          git tag ${{ env.VERSION }}
+          if [ $? -ne 0 ]
+          then
+            echo "TAG_EXISTS=1" >> $GITHUB_ENV
+          fi
+      - name: bio-api current version tag exists?
+        if: env.TAG_EXISTS == 1
+        uses: actions/github-script@v3
+        with:
+          script: |
+            core.setFailed('This bio-api version tag already exists in repository')          
+
+  version-check-docker:
     runs-on: ubuntu-latest
 
     steps:
