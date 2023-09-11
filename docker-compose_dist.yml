@@ -3,6 +3,7 @@ services:
     # MongoDB Server
     mongo:
         image: mongo:6.0.2
+        restart: always
         container_name: bio_api_mongo_db
         volumes:
             - mongo_data:/data/db
@@ -21,6 +22,7 @@ services:
     # BioAPI server
     web:
         image: omicsdatascience/bio-api:1.0.2
+        restart: always
         volumes:
             - bioapi_logs:/logs
         environment:
@@ -35,6 +37,7 @@ services:
     # NGINX server
     nginx:
         image: nginx:1.19.3
+        restart: always
         ports:
             - 80:8000
         depends_on:
