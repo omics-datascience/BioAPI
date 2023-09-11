@@ -20,10 +20,14 @@ ConsensusPathDB-human integrates interaction networks in Homo sapiens including 
 The Genotype-Tissue Expression (GTEx) project is an ongoing effort to build a comprehensive public resource to study tissue-specific gene expression and regulation. Samples were collected from 54 non-diseased tissue sites across nearly 1000 individuals, primarily for molecular assays including WGS, WES, and RNA-Seq. GTEx is being used in its version [GTEx Analysis V8 (dbGaP Accession phs000424.v8.p2)](https://gtexportal.org/home/datasets#datasetDiv1) and was downloaded from its official website in September 2022.
 5. Actionable and Cancer genes: [OncoKB](https://www.oncokb.org/).  
 OncoKB™ is a precision oncology knowledge base developed at Memorial Sloan Kettering Cancer Center that contains biological and clinical information about genomic alterations in cancer. Alteration- and tumor type-specific therapeutic implications are classified using the OncoKB™ [Levels of Evidence system](https://www.oncokb.org/levels), which assigns clinical actionability to individual mutational events. Downloaded from its official website in April 2023.  
-6. Gene Ontology [Gene Ontology (GO)](http://geneontology.org/).  
+6. Gene Ontology [Gene Ontology (GO)](http://geneontology.org/).
 It is a project to develop an up-to-date, comprehensive, computational model of biological systems, from the molecular level to larger pathways, cellular and organism-level systems. It provides structured and standardized annotations of gene products, in a hierarchical system of terms and relationships that describes the molecular functions, biological processes, and cellular components associated with genes and gene products. Downloaded from its official website in June 2023
-7. Cancer related drugs [Pharmacogenomics Knowledge Base (PharmGKB) ](https://www.pharmgkb.org/). 
+7. Cancer related drugs [Pharmacogenomics Knowledge Base (PharmGKB) ](https://www.pharmgkb.org/).
 It is a resource that provides information about how human genetic variation affects response to medications. PharmGKB collects, curates and disseminates knowledge about clinically actionable gene-drug associations and genotype-phenotype relationships. Downloaded from its official website in June 2023
+8. Predicted functional associations network [STRING](https://string-db.org/)
+It is a database of known and predicted protein-protein interactions. The interactions include direct (physical) and indirect (functional) associations; they stem from computational prediction, from knowledge transfer between organisms, and from interactions aggregated from other (primary) databases.
+9. Pharmaco-transcriptomics [DrugBank](https://go.drugbank.com/)
+It is a comprehensive, free-to-access, online database containing information on drugs and drug targets.
 
 ## Services included in BioAPI  
 
@@ -456,8 +460,8 @@ Gets the list of related terms for a list of genes.
         -  `p_value_threshold`: 0.05 by default. It's the p-value threshold for significance, results with smaller p-value are tagged
 as significant. Must be a float. Not recommended to set it higher than 0.05.
         -  `correction_method`:  The enrichment default correction method is "analytical" which uses multiple testing correction and applies g:Profiler tailor-made algorithm [g:SCS](https://biit.cs.ut.ee/gprofiler/page/docs#significance_threhshold) for reducing significance scores. Alternatively, one may select "bonferroni" correction or "false_discovery_rate" (Benjamini-Hochberg FDR).
-    -  `relation_type`: filters the relation between genes and terms. By default it's ["enables","involved_in","part_of","located_in"]. It should always be a list containing any permutation of the default relations. Only valid on `filter_type` intersection and union. should not be present on "enrichment"
-    -  `ontology_type`: filters the ontology type of the terms in the response. By default it's ["biological_process", "molecular_function", "cellular_component"]. It should always be a list containing any permutation of the default relations
+    -  `relation_type`: filters the relation between genes and terms. By default it's ["enables","involved_in","part_of","located_in"]. It should always be a list containing any permutation of the allowed relations. Only valid on `filter_type` intersection and union. should not be present on "enrichment"
+    -  `ontology_type`: filters the ontology type of the terms in the response. By default it's ["biological_process", "molecular_function", "cellular_component"]. It should always be a list containing any permutation of the 3 ontologies.
 
 - Success Response:
     - Code: 200
@@ -467,10 +471,10 @@ as significant. Must be a float. Not recommended to set it higher than 0.05.
         - `<name>`: human-readable term name. 
         - `<ontology_type>`: Denotes which of the three sub-ontologies (cellular component, biological process or molecular function) the term belongs to. 
         - `<definition>`: A textual description of what the term represents, plus reference(s) to the source of the information. 
-        - relations to other terms: Each go term can be related to many other terms wit a [variety of relations](http://geneontology.org/docs/ontology-relations/). 
+        - relations to other terms: Each go term can be related to many other terms with a [variety of relations](http://geneontology.org/docs/ontology-relations/). 
         - `<synonyms>`: Alternative words or phrases closely related in meaning to the term name, with indication of the relationship between the name and synonym given by the synonym scope. 
         - `<subset>`: Indicates that the term belongs to a designated subset of terms. 
-        - `<relations_to_genes>`: list of elements of type Json. Each element corresponds to a to a gene and how it's related to the term.  
+        - `<relations_to_genes>`: list of elements of type Json. Each element corresponds to a gene and how it's related to the term.  
             - `<gene>`: name of the gene.
             - `<relation_type>`: the type of relation between the gene and the GO term. When `filter_type` is enrichment, extra relation will be gather from g:Profiler database. These relations will be shown as "relation obtained from gProfiler".
             - `<evidence>`: evidence code to indicate how the annotation to a particular term is supported.
@@ -530,7 +534,7 @@ Gets the list of related terms to a term.
 - Params: A body in Json format with the following content
 	-  `term_id`: The term ID of the term you want to search
 	-  `relations`: Filters the non-hierarchical relations between terms. By default it's ["part_of","regulates","has_part"]. It should always be a list 
-	- `ontology_type`: Filters the ontology type of the terms in the response. By default it's ["biological_process", "molecular_function", "cellular_component"]It should always be a list containing any permutation of the default relations
+	- `ontology_type`: Filters the ontology type of the terms in the response. By default it's ["biological_process", "molecular_function", "cellular_component"]It should always be a list containing any permutation of the 3 ontologies
 	-  `general_depth`: The search depth for the non-hierarchical relations
 	-  `hierarchical_depth_to_children`: The search depth for the hierarchical relations in the direction of the children
 	-  `to_root`: 0 for false 1 fot true. If true get all the terms in the hierarchical relations in the direction of the root
@@ -539,7 +543,7 @@ Gets the list of related terms to a term.
     - Content: The response you get is a list of GO terms related to the searched term that fulfills the conditions of the query. Each term has:
 		- `<go_id>`: ID of the GO term
 		- `<name>`: Name of the GO term
-        - `<ontology_type>`: The ontology that the GO term belongs to
+        - `<ontology_type>`: Denotes which of the three sub-ontologies (cellular component, biological process or molecular function) the term belongs to.
 		- `<relations>`: Dictionary of relations 
             - `<relation type>`: List of terms related by that relation type to the term
 	- Example:
@@ -582,7 +586,7 @@ Gets a list of related drugs to a list of genes.
 	-  `gene_ids`: list of genes for which the related drugs
 - Success Response:
     - Code: 200
-    - Content: The response you get is a list of genes containing the related drug information
+    - Content: The response you get is a dictionary where the genes are the keys and the values are a list of all the related drug information
 		- `<pharmGKB_id>`: Identifier assigned to this drug label by PharmGKB
 		- `<name>`: Name assigned to the label by PharmGKB
 		- `<source>`: The source that originally authored the label (e.g. FDA, EMA)
@@ -663,6 +667,24 @@ Gets a list of genes and relations related to a gene.
         }
         ]
 	``` 
+
+### Drugs that regulate a gene
+
+Service that takes gene symbol and returns a link to https://go.drugbank.com with all the drugs that upregulate and down regulate its expresion. Useful for embeding.
+
+- URL: drugs-regulating-gene/<*gene_id*>
+    - <*gene_id*> is the identifier of the gene
+- Method: GET
+- Params: -
+- Success Response:
+    - Code: 200
+    - Content: a link to to the information in the drugbank website.
+    - Example:
+        - URL: http://localhost:8000/drugs-regulating-gene/TP53
+        - Response:
+            ```
+            https://go.drugbank.com/pharmaco/transcriptomics?q%5Bg%5B0%5D%5D%5Bm%5D=or&q%5Bg%5B0%5D%5D%5Bdrug_approved_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_nutraceutical_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_illicit_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_investigational_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_withdrawn_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_experimental_true%5D=all&q%5Bg%5B1%5D%5D%5Bm%5D=or&q%5Bg%5B1%5D%5D%5Bdrug_available_in_us_true%5D=all&q%5Bg%5B1%5D%5D%5Bdrug_available_in_ca_true%5D=all&q%5Bg%5B1%5D%5D%5Bdrug_available_in_eu_true%5D=all&commit=Apply+Filter&q%5Bdrug_precise_names_name_cont%5D=&q%5Bgene_symbol_eq%5D=TP53&q%5Bgene_id_eq%5D=&q%5Bchange_eq%5D=&q%5Binteraction_cont%5D=&q%5Bchromosome_location_cont%5D=
+            ```  
 
 ## Error Responses
 
