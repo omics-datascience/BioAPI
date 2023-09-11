@@ -16,6 +16,7 @@ Below are the steps to perform a production deploy of BioAPI.
     ```bash
     docker volume create --name=bio_api_mongo_data
     docker volume create --name=bio_api_mongo_config
+    docker volume create --name=bio_api_mongo_logs
     ```
 2. Make a copy of `docker-compose_dist.yml` with the name `docker-compose.yml` and set the environment variables that are empty with data. They are listed below by category:
     - MongoDB Server:

@@ -21,7 +21,7 @@ services:
 
     # BioAPI server
     web:
-        image: omicsdatascience/bio-api:1.0.2
+        image: omicsdatascience/bio-api:1.0.4
         restart: always
         volumes:
             - bioapi_logs:/logs
@@ -53,3 +53,5 @@ volumes:
         external: true
         name: 'bio_api_mongo_config'
     bioapi_logs:
+        external:
+            name: 'bio_api_logs'
