@@ -271,7 +271,7 @@ Gets the common pathways for a list of genes.
 - URL: /pathways-in-common
 - Method: POST  
 - Params: A body in Json format with the following content
-    -  `gene_ids`: list of genes for which you want to get the common metabolic pathways
+    -  `gene_ids`: list of genes for which you want to get the common metabolic pathways. If you use a list with a single gene, then you will get all the pathways for that gene
 - Success Response:
     - Code: 200
     - Content:
