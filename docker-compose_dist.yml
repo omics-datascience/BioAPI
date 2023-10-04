@@ -21,7 +21,7 @@ services:
 
     # BioAPI server
     web:
-        image: omicsdatascience/bio-api:1.0.4
+        image: omicsdatascience/bio-api:1.0.3
         restart: always
         volumes:
             - bioapi_logs:/logs
