@@ -1,7 +1,7 @@
 version: '3.7'
 services:
     # MongoDB Server
-    mongo:
+    mongo_bioapi:
         image: mongo:6.0.2
         restart: always
         container_name: bio_api_mongo_db
@@ -20,13 +20,13 @@ services:
                     memory: 6g
 
     # BioAPI server
-    web:
+    web_bioapi:
         image: omicsdatascience/bio-api:1.0.5
         restart: always
         volumes:
             - bioapi_logs:/logs
         depends_on:
-            - mongo
+            - mongo_bioapi
         environment:
             DEBUG: 'false'
             # MongoDB's credentials must be the same as 'mongo' service above
@@ -37,13 +37,13 @@ services:
             MONGO_DB: bio_api # Don't change this value!
 
     # NGINX server
-    nginx:
+    nginx_bioapi:
         image: nginx:1.19.3
         restart: always
         ports:
             - 80:8000
         depends_on:
-            - web
+            - web_bioapi
         volumes:
             - ./config/nginx/conf.d:/etc/nginx/conf.d
 
