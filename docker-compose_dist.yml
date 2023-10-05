@@ -25,6 +25,8 @@ services:
         restart: always
         volumes:
             - bioapi_logs:/logs
+        depends_on:
+            - mongo
         environment:
             DEBUG: 'false'
             # MongoDB's credentials must be the same as 'mongo' service above
