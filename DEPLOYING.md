@@ -16,7 +16,7 @@ Below are the steps to perform a production deploy of BioAPI.
     ```bash
     docker volume create --name=bio_api_mongo_data
     docker volume create --name=bio_api_mongo_config
-    docker volume create --name=bio_api_mongo_logs
+    docker volume create --name=bio_api_logs
     ```
 2. Make a copy of `docker-compose_dist.yml` with the name `docker-compose.yml` and set the environment variables that are empty with data. They are listed below by category:
     - MongoDB Server:
@@ -24,7 +24,7 @@ Below are the steps to perform a production deploy of BioAPI.
         - `deploy.resources.limits.memory`: By default, 6GB of memory is allocated for MongoDB. Modify this value if you need it.  
     - BioAPI Server:
         - `MONGO_USER` and `MONGO_PASSWORD`: These variables are the username and password for BioAPI to access MongoDB. These credentials must be the same ones that were set for the MongoDB server.
-        - `DEBUG`: By default, use 'false' value. If you change this value to 'true', then Bioapi will be use the configuration for database connection and ports for the API that you set in `config.txt` file.
+        - `DEBUG`: By default, use `false` value. If you change this value to `true`, then Bioapi will be use the configuration for database connection and ports for the API that you set in `config.txt` file.
 3. (Optional) Optimize Mongo by changing the configuration in the `config/mongo/mongod.conf` file and uncommenting the reference in the `docker-compose.yml` and/or `docker-compose.dev.yml`.
 4. Start up all the services with Docker Compose running `docker compose up -d` to check that It's all working, and read the instructions in the following section to import the genomics databases.
 
