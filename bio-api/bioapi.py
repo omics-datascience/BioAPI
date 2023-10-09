@@ -19,7 +19,7 @@ IS_DEBUG: bool = os.environ.get('DEBUG', 'true') == 'true'
 PROCESS_POOL_WORKERS: int = int(os.getenv('PROCESS_POOL_WORKERS', 4))
 
 # BioAPI version
-VERSION = '1.0.5'
+VERSION = '1.0.6'
 
 # Valid pathways sources
 PATHWAYS_SOURCES = ["kegg", "biocarta", "ehmn", "humancyc", "inoh", "netpath", "pid", "reactome",
@@ -44,6 +44,7 @@ headers = {"Content-Type": "application/json"}
 
 
 mydb = get_mongo_connection(IS_DEBUG, Config)
+
 
 def get_potential_gene_symbols(query_string: str, limit_elements: int = 50) -> List[str]:
 
@@ -186,7 +187,7 @@ def get_information_of_genes(genes: List[str]) -> Dict[str, Dict[str, Any]]:
     for doc_grch38 in docs_grch38:
         res[doc_grch38["hgnc_symbol"]] = doc_grch38
         res[doc_grch38["hgnc_symbol"]]["chromosome"] = str(res[doc_grch38["hgnc_symbol"]].pop("chromosome_name"))
-        res[doc_grch38["hgnc_symbol"]].pop("hgnc_symbol")   
+        res[doc_grch38["hgnc_symbol"]].pop("hgnc_symbol")
 
     for doc_grch37 in docs_grch37:
         if doc_grch37["hgnc_symbol"] in res:
@@ -259,17 +260,16 @@ def terms_related_to_one_gene(gene: str, relation_type: Optional[List[str]] = No
         for relation in relation_type:
             if relation in annotation:
                 for term in annotation[relation]:
-                    aux = {"evidence": term["evidence"], "gene": gene, "relation_type":relation}
+                    aux = {"evidence": term["evidence"], "gene": gene, "relation_type": relation}
                     if term["go_id"] in related_genes:
                         related_genes[term["go_id"]].append(aux)
                     else:
-                        related_genes[term["go_id"]]= [aux]
+                        related_genes[term["go_id"]] = [aux]
 
     return related_genes
 
 
-
-def is_term_on_db(term_id)-> bool:
+def is_term_on_db(term_id) -> bool:
     """
     Returns whether a go term ID is in the DB
     """
@@ -289,10 +289,10 @@ def terms_related_to_many_genes(gene_ids: list, filter_type: str = "intersection
     if relation_type is None:
         relation_type = ["enables", "involved_in", "part_of", "located_in"]
     gene = gene_ids.pop()
-    term_set= terms_related_to_one_gene(gene,relation_type)
+    term_set = terms_related_to_one_gene(gene, relation_type)
 
     for gene in gene_ids:
-        terms = terms_related_to_one_gene(gene,relation_type)
+        terms = terms_related_to_one_gene(gene, relation_type)
         if filter_type == "intersection":
             current_terms = term_set.keys() & terms.keys()
             new_set = {}
@@ -308,7 +308,7 @@ def terms_related_to_many_genes(gene_ids: list, filter_type: str = "intersection
                 if cterm in term_set:
                     term_set[cterm].extend(terms[cterm])
                 else:
-                    term_set[cterm]=(terms[cterm])  
+                    term_set[cterm] = (terms[cterm])
     return term_set
 
 
@@ -319,20 +319,21 @@ def genes_evidence(gene_ids: List[str]) -> Dict[str, List[Dict[str, Any]]]:
     :return: Dictionary where keys are the term id and values are a list of dictionaries with the evidence information
     """
     collection_go_anotations = mydb["go_anotations"]
-    annotation_list = list(collection_go_anotations.find({"gene_symbol": {"$in":gene_ids}},{"_id":0}))
+    annotation_list = list(collection_go_anotations.find({"gene_symbol": {"$in": gene_ids}}, {"_id": 0}))
     res = {}
     for annotation in annotation_list:
         gene = annotation.pop("gene_symbol")
         for relation_type in annotation.keys():
             for evidence in annotation[relation_type]:
-                obj = {"evidence": evidence["evidence"], "gene": gene, "relation_type":relation_type}
+                obj = {"evidence": evidence["evidence"], "gene": gene, "relation_type": relation_type}
                 if evidence["go_id"] in res:
                     res[evidence["go_id"]].append(obj)
                 else:
                     res[evidence["go_id"]] = [obj]
     return res
 
-def enrich(gene_ids: List, p_value_threshold: int= 0.05, correction_method: str = "analytical"):
+
+def enrich(gene_ids: List, p_value_threshold: float = 0.05, correction_method: str = "analytical"):
     """
     Given a gene list will enrich the associated go terms depending on p value
     :param gene_ids: list of gene symbols that will be searched for associated terms
@@ -348,19 +349,19 @@ def enrich(gene_ids: List, p_value_threshold: int= 0.05, correction_method: str 
                             significance_threshold_method=correction_method,
                             all_results=False,
                             no_evidences=False)
-    metrics={}
-    relations={}
+    metrics = {}
+    relations = {}
     for term in enrichment:
         if ("native" in term) and ("GO:" in term["native"]):
             go_id = term["native"].split(":")[1]
-            metrics[go_id]= {"p_value" : term["p_value"],
-                        "term_size" : term["term_size"],
-                        "query_size" : term["query_size"],
-                        "intersection_size" : term["intersection_size"],
-                        "effective_domain_size" : term["effective_domain_size"],
-                        "precision" : term["precision"],
-                        "recall" : term["recall"]}
-            
+            metrics[go_id] = {"p_value": term["p_value"],
+                              "term_size": term["term_size"],
+                              "query_size": term["query_size"],
+                              "intersection_size": term["intersection_size"],
+                              "effective_domain_size": term["effective_domain_size"],
+                              "precision": term["precision"],
+                              "recall": term["recall"]}
+
             evidence_list = []
             for i in range(len(term["intersections"])):
                 gene = term["intersections"][i]
@@ -380,12 +381,11 @@ def populate_terms_with_data(term_list, ontology_type: Optional[List[str]] = Non
     if ontology_type is None:
         ontology_type = ["biological_process", "molecular_function", "cellular_component"]
     collection_go = mydb["go"]
-    terms = (list(collection_go.find({"go_id": { "$in": term_list }, "ontology_type": { "$in": ontology_type }},{"_id":0})))
+    terms = (list(collection_go.find({"go_id": {"$in": term_list}, "ontology_type": {"$in": ontology_type}}, {"_id": 0})))
     return terms
 
 
-
-def strip_term(term: Dict,relations:Optional[List[str]])-> Dict:
+def strip_term(term: Dict, relations: Optional[List[str]]) -> Dict:
     """
     Given a go term and wanted relations will return just a selected amount of attributes needed for representation as a graph
     :param term: Dict containing all the data of a GO term
@@ -396,7 +396,7 @@ def strip_term(term: Dict,relations:Optional[List[str]])-> Dict:
     for r in relations:
         if r in term:
             if not isinstance(term[r], list): term[r] = [term[r]]
-            new_term["relations"][r]= term[r]
+            new_term["relations"][r] = term[r]
     return new_term
 
 
@@ -419,7 +419,7 @@ def bfs_on_terms(term_id, relations: Optional[List[str]] = None, general_depth= 
     collection_go = mydb["go"]
     graph = {}
     depth_mark = "*"
-    
+
     visited = [] # List for visited nodes.
     queue = []     #Initialize a queue
     visited.append(term_id)
@@ -930,9 +930,10 @@ def create_app():
             optionals["min_combined_score"]= body["min_combined_score"]
         res= associated_string_genes(gene_id,**optionals)
         return jsonify(res)
+
     @flask_app.route("/drugs-regulating-gene/<gene_id>", methods=['GET'])
     def drugs_regulating_gene(gene_id):
-        return "https://go.drugbank.com/pharmaco/transcriptomics?q%5Bg%5B0%5D%5D%5Bm%5D=or&q%5Bg%5B0%5D%5D%5Bdrug_approved_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_nutraceutical_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_illicit_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_investigational_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_withdrawn_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_experimental_true%5D=all&q%5Bg%5B1%5D%5D%5Bm%5D=or&q%5Bg%5B1%5D%5D%5Bdrug_available_in_us_true%5D=all&q%5Bg%5B1%5D%5D%5Bdrug_available_in_ca_true%5D=all&q%5Bg%5B1%5D%5D%5Bdrug_available_in_eu_true%5D=all&commit=Apply+Filter&q%5Bdrug_precise_names_name_cont%5D=&q%5Bgene_symbol_eq%5D="+gene_id+"&q%5Bgene_id_eq%5D=&q%5Bchange_eq%5D=&q%5Binteraction_cont%5D=&q%5Bchromosome_location_cont%5D="
+        return {"link": "https://go.drugbank.com/pharmaco/transcriptomics?q%5Bg%5B0%5D%5D%5Bm%5D=or&q%5Bg%5B0%5D%5D%5Bdrug_approved_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_nutraceutical_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_illicit_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_investigational_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_withdrawn_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_experimental_true%5D=all&q%5Bg%5B1%5D%5D%5Bm%5D=or&q%5Bg%5B1%5D%5D%5Bdrug_available_in_us_true%5D=all&q%5Bg%5B1%5D%5D%5Bdrug_available_in_ca_true%5D=all&q%5Bg%5B1%5D%5D%5Bdrug_available_in_eu_true%5D=all&commit=Apply+Filter&q%5Bdrug_precise_names_name_cont%5D=&q%5Bgene_symbol_eq%5D="+gene_id+"&q%5Bgene_id_eq%5D=&q%5Bchange_eq%5D=&q%5Binteraction_cont%5D=&q%5Bchromosome_location_cont%5D="}
 
     # Error handling
     @flask_app.errorhandler(400)
