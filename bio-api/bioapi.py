@@ -918,17 +918,17 @@ def create_app():
     @flask_app.route("/string-relations", methods=['POST'])
     def string_relations_to_gene():
         body = request.get_json()
-        optionals={}
+        optionals = {}
         if "gene_id" not in body:
             abort(400, "gene_id is mandatory")
         gene_id = body["gene_id"]
         if "min_combined_score" in body:
             try:
-                min_combined_score = int(body["min_combined_score"])
-            except:
+                optionals["min_combined_score"] = int(body["min_combined_score"])
+            except ValueError:
                 abort(400, "min_combined_score must be number")
-            optionals["min_combined_score"]= body["min_combined_score"]
-        res= associated_string_genes(gene_id,**optionals)
+
+        res = associated_string_genes(gene_id, **optionals)
         return jsonify(res)
 
     @flask_app.route("/drugs-regulating-gene/<gene_id>", methods=['GET'])
