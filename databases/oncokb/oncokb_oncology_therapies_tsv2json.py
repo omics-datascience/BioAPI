@@ -8,6 +8,8 @@
 
 import csv
 import argparse
+import re
+from typing import List
 
 
 class C:
@@ -24,12 +26,41 @@ parser.add_argument('--output', help='Nombre del archivo Json de salida',
 
 args = parser.parse_args(namespace=c)
 
+with open('valid_genes_from_hgnc.txt', 'r') as archivo:
+    valid_genes = [linea.strip() for linea in archivo.readlines()][1:]
+
+valid_genes_compiled_patern = [re.compile(
+    r'\b' + gene + r'\b') for gene in valid_genes]
+
+
+def search_gene(biomarker_description: str) -> List[str]:
+    genes = []
+    special_cases = {"NTRK1/2/3": ["NTRK1", "NTRK2", "NTRK3"],
+                     "BRCA1/2": ["BRCA1", "BRCA2"],
+                     "TSC1/2": ["TSC1", "TSC2"],
+                     "PDGFRA/B": ["PDGFRA", "PDGFRB"]
+                     }
+    for special_case in special_cases:
+        if re.search(special_case, biomarker_description):
+            genes = special_cases[special_case]
+
+    for i in range(0, len(valid_genes)):
+        if re.search(valid_genes_compiled_patern[i], biomarker_description):
+            if valid_genes[i] not in genes:
+                genes.append(valid_genes[i])
+
+    return genes
+
+
 if __name__ == '__main__':
     archivo = c.input  # type: ignore
     archivo_salida = c.output  # type: ignore
     tsvfile = open(archivo)
-    contenido = csv.reader(tsvfile, dialect='excel', delimiter='\t')
+
+    contenido = csv.reader(tsvfile, delimiter='\t')
     cont_json = []
+    patron = "\?\s*\d+\s*\*"
+
     print("Procesando archivo...")
     headers = next(contenido)
     # Cambio nombres en el header:
@@ -48,6 +79,16 @@ if __name__ == '__main__':
         for i in range(0, len(headers)):
             json_file[headers[i]] = registro[i].encode(
                 'latin1', errors='replace').decode('utf-8', errors='replace')
+            json_file[headers[i]] = json_file[headers[i]].replace("�", " ")
+            if headers[i] == "drug_classification" and str(json_file[headers[i]]).upper() == "NA":
+                json_file[headers[i]] = ""
+            if headers[i] == "fda_first_approval":
+                if re.search(patron, str(json_file[headers[i]])):
+                    json_file[headers[i]] = json_file[headers[i]
+                                                      ].replace("?", "-").replace("*", "")
+            if headers[i] == "fda_recognized_biomarkers":
+                json_file["hgnc_symbol"] = search_gene(json_file[headers[i]])
+
         cont_json.append(json_file)
 
     jsonfile = open(archivo_salida, "w")
