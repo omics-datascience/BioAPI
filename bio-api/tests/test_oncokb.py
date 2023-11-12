@@ -13,11 +13,14 @@ def test_valid_response_format(client):
     data = {
         "gene_ids": [gene]
     }
-    response = client.post(f'{URL_BASE}', data=json.dumps(data), headers=headers)
+    response = client.post(
+        f'{URL_BASE}', data=json.dumps(data), headers=headers)
     res = json.loads(response.data)
     assert response.status_code == 200
     assert type(res) == dict
     assert type(res[gene]) == dict
+    set(["diagnostic", "oncokb_cancer_gene", "precision_therapies",
+        "refseq_transcript", "sources", "therapeutic"]).issubset(set(res[gene]))
 
 
 def test_invalid_body_format(client):
@@ -26,7 +29,8 @@ def test_invalid_body_format(client):
     data = {
         "ids": ["BRCA1", "BRCA2"]
     }
-    response = client.post(f'{URL_BASE}', data=json.dumps(data), headers=headers)
+    response = client.post(
+        f'{URL_BASE}', data=json.dumps(data), headers=headers)
     res = json.loads(response.data)
     assert response.status_code == 400
     assert res["error"] == "400 Bad Request: gene_ids is mandatory"
@@ -34,7 +38,8 @@ def test_invalid_body_format(client):
     data = {
         "gene_ids": "BRCA1"
     }
-    response = client.post(f'{URL_BASE}', data=json.dumps(data), headers=headers)
+    response = client.post(
+        f'{URL_BASE}', data=json.dumps(data), headers=headers)
     res = json.loads(response.data)
     assert response.status_code == 400
     assert res["error"] == "400 Bad Request: gene_ids must be a list"

@@ -80,6 +80,7 @@ if __name__ == '__main__':
             json_file[headers[i]] = registro[i].encode(
                 'latin1', errors='replace').decode('utf-8', errors='replace')
             json_file[headers[i]] = json_file[headers[i]].replace("�", " ")
+            json_file[headers[i]] = json_file[headers[i]].replace("\n", " ")
             if headers[i] == "drug_classification" and str(json_file[headers[i]]).upper() == "NA":
                 json_file[headers[i]] = ""
             if headers[i] == "fda_first_approval":
