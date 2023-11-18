@@ -26,11 +26,62 @@ parser.add_argument('--output', help='Nombre del archivo Json de salida',
 
 args = parser.parse_args(namespace=c)
 
-with open('valid_genes_from_hgnc.txt', 'r') as archivo:
-    valid_genes = [linea.strip() for linea in archivo.readlines()][1:]
+with open('valid_genes_from_hgnc.txt', 'r') as file:
+    hgnc_genes = []  # list of valid genes symbols
+    hgnc_aliases = {}  # dict of aliases and their valid symbols. If an alias has 2 or more valid symbols it will not appear in dict
+    hgnc_previous = {}  # dict of previous and their valid symbols. If an previous has 2 or more valid symbols it will not appear in dict
+    aliases_with_multiple_valid_symbols = []
+    previous_with_multiple_valid_symbols = []
+
+    content = file.readlines()[1:]
+    for line in content:
+        if line[-1:] == "\n":
+            line = line[:-1]
+        values = line.split("\t")
+        hgnc_genes.append(values[0])
+
+        if len(values) > 1:
+            aliases = values[1].split(",")
+            for alias in aliases:
+                alias = alias.strip()
+                if alias not in hgnc_aliases:
+                    # { "alias" : "symbol"}
+                    hgnc_aliases[alias] = values[0]
+                else:
+                    if alias not in aliases_with_multiple_valid_symbols:
+                        aliases_with_multiple_valid_symbols.append(alias)
+        if len(values) > 2:
+            previous = values[2].strip().split(",")
+            for prev in previous:
+                prev = prev.strip()
+                if prev not in hgnc_previous:
+                    # { "prev" : "symbol"}
+                    hgnc_previous[prev] = values[0]
+                else:
+                    if prev not in previous_with_multiple_valid_symbols:
+                        previous_with_multiple_valid_symbols.append(prev)
+
+    for a in aliases_with_multiple_valid_symbols:
+        del hgnc_aliases[a]
+    for p in previous_with_multiple_valid_symbols:
+        del hgnc_previous[p]
 
 valid_genes_compiled_patern = [re.compile(
-    r'\b' + gene + r'\b') for gene in valid_genes]
+    r'\b' + gene + r'\b') for gene in hgnc_genes]
+
+aliases_compiled_patern = []
+for alias in hgnc_aliases:
+    try:
+        aliases_compiled_patern.append(re.compile(r'\b' + alias + r'\b'))
+    except Exception:
+        pass
+
+previous_compiled_patern = []
+for prev in hgnc_previous:
+    try:
+        previous_compiled_patern.append(re.compile(r'\b' + prev + r'\b'))
+    except Exception:
+        pass
 
 
 def search_gene(biomarker_description: str) -> List[str]:
@@ -44,11 +95,22 @@ def search_gene(biomarker_description: str) -> List[str]:
         if re.search(special_case, biomarker_description):
             genes = special_cases[special_case]
 
-    for i in range(0, len(valid_genes)):
+    for i in range(0, len(hgnc_genes)):
         if re.search(valid_genes_compiled_patern[i], biomarker_description):
-            if valid_genes[i] not in genes:
-                genes.append(valid_genes[i])
-
+            if hgnc_genes[i] not in genes:
+                genes.append(hgnc_genes[i])
+    a = 0
+    for alias in hgnc_aliases:
+        if re.search(aliases_compiled_patern[a], biomarker_description):
+            if hgnc_aliases[alias] not in genes:
+                genes.append(hgnc_aliases[alias])
+        a += 1
+    p = 0
+    for prev in hgnc_previous:
+        if re.search(previous_compiled_patern[p], biomarker_description):
+            if hgnc_previous[prev] not in genes:
+                genes.append(hgnc_previous[prev])
+        p += 1
     return genes
 
 
