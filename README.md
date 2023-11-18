@@ -18,8 +18,8 @@ HGNC is the resource for approved human gene nomenclature. Downloaded from its o
 ConsensusPathDB-human integrates interaction networks in Homo sapiens including binary and complex protein-protein, genetic, metabolic, signaling, gene regulatory and drug-target interactions, as well as biochemical pathways. Data originate from currently 31 public resources for interactions (listed below) and interactions that we have curated from the literature. The interaction data are integrated in a complementary manner (avoiding redundancies), resulting in a seamless interaction network containing different types of interactions. Downloaded from its official website in September 2022.          
 4. Gene expression: [Genotype-Tissue Expression (GTEx)](https://gtexportal.org/home/).  
 The Genotype-Tissue Expression (GTEx) project is an ongoing effort to build a comprehensive public resource to study tissue-specific gene expression and regulation. Samples were collected from 54 non-diseased tissue sites across nearly 1000 individuals, primarily for molecular assays including WGS, WES, and RNA-Seq. GTEx is being used in its version [GTEx Analysis V8 (dbGaP Accession phs000424.v8.p2)](https://gtexportal.org/home/datasets#datasetDiv1) and was downloaded from its official website in September 2022.
-5. Actionable and Cancer genes: [OncoKB](https://www.oncokb.org/).  
-OncoKB™ is a precision oncology knowledge base developed at Memorial Sloan Kettering Cancer Center that contains biological and clinical information about genomic alterations in cancer. Alteration- and tumor type-specific therapeutic implications are classified using the OncoKB™ [Levels of Evidence system](https://www.oncokb.org/levels), which assigns clinical actionability to individual mutational events. Downloaded from its official website in April 2023.  
+5. Therapies and actionable genes in cancer: [OncoKB](https://www.oncokb.org/).  
+OncoKB™ is a precision oncology knowledge base developed at Memorial Sloan Kettering Cancer Center that contains biological and clinical information about genomic alterations in cancer. Alteration- and tumor type-specific therapeutic implications are classified using the OncoKB™ [Levels of Evidence system](https://www.oncokb.org/levels), which assigns clinical actionability to individual mutational events. Downloaded from its official website in November 2023.  
 6. Gene Ontology [Gene Ontology (GO)](http://geneontology.org/).
 It is a project to develop an up-to-date, comprehensive, computational model of biological systems, from the molecular level to larger pathways, cellular and organism-level systems. It provides structured and standardized annotations of gene products, in a hierarchical system of terms and relationships that describes the molecular functions, biological processes, and cellular components associated with genes and gene products. Downloaded from its official website in June 2023
 7. Cancer related drugs [Pharmacogenomics Knowledge Base (PharmGKB) ](https://www.pharmgkb.org/).
@@ -375,7 +375,7 @@ This service gets gene expression in healthy tissue
     - If one of the genes entered as a parameter corresponds to an invalid symbol, the response will omit the values for that gene. It is recommended to use the *"Genes symbols validator"* service to validate your genes before using this functionality.
 
 
-### Actionable and Cancer genes
+### Therapies and actionable genes in cancer (OncoKB)
 This service retrieves information of actionable genes and drugs obtained from the OncoKB database, at a therapeutic, diagnostic and prognostic level.  
 
 - URL: /information-of-oncokb
@@ -402,6 +402,12 @@ This service retrieves information of actionable genes and drugs obtained from t
             - `<oncokb_cancer_gene>`: type of cancer gene. Oncogene and/or Tumor Suppressor Gene.  
             - `<refseq_transcript>`: gene transcript according to the RefSeq database.  
             - `<sources>`: list of sources where there is evidence of the relationship of the gene with cancer. These may be different sequencing panels, the [Sanger Cancer Gene Census](https://www.sanger.ac.uk/data/cancer-gene-census/), or [Vogelstein et al. (2013)](http://science.sciencemag.org/content/339/6127/1546.full).
+            - `<precision_therapies>`: FDA-approved therapies that are considered precision oncology therapies by OncoKB™. The value is a list of elements of the Json type, where each element is a different precision oncology therapy with the following structure:  
+                - `<precision_oncology_therapy>`: A drug that is most effective in a molecularly defined subset of patients and for which pre-treatment molecular profiling is required for optimal patient selection.
+                - `<fda_first_approval>`: Year of drug’s first FDA-approval. The first year the drug received FDA-approval in any indication, irrespective of whether the biomarker was included in the FDA-drug at that time.
+                - `<drug_classification>`: Possible classifications are first-in-class, mechanistically-distinct, follow-on, or resistance based on [Suehnholz et al. Cancer Discovery 2023](https://aacrjournals.org/cancerdiscovery/article/doi/10.1158/2159-8290.CD-23-0467/729589/Quantifying-the-Expanding-Landscape-of-Clinical). Only drugs with an FDA-specified biomarker that can be detected by a DNA/NGS-based detection method are classified.
+                - `<fda_recognized_biomarkers>`: Biomarkers related to therapy according to the FDA. Includes pathognomonic and indication-specific biomarkers, that while not specifically listed in the Indications and Usage section of the FDA drug label, are targeted by the precision oncology drug.
+                - `<method_of_biomarker_detection>`: Biomarker detection method. If there is a corresponding FDA-cleared or -approved companion diagnostic device for biomarker identification, the detection method associated with this device is listed; if the biomarker can be detected by a DNA/NGS-based detection method this is listed first.  
 
     - Example:
         - URL: http://localhost:8000/information-of-oncokb
@@ -414,44 +420,25 @@ This service retrieves information of actionable genes and drugs obtained from t
         - Response:
             ```json
             {
-                "ALK":{
-                    "diagnostic":[
-                        {
-                            "alterations":"Fusions",
-                            "cancer_types":"Anaplastic Large-Cell Lymphoma ALK Positive",
-                            "level_of_evidence":"Dx1"
-                        },
-                        {
-                            "alterations":"Fusions",
-                            "cancer_types":"ALK Positive Large B-Cell Lymphoma",
-                            "level_of_evidence":"Dx1"
-                        }
-                    ],
-                    "oncokb_cancer_gene":[
-                        "Oncogene"
-                    ],
-                    "refseq_transcript":"NM_004304.4",
-                    "sources":[
-                        "oncokb_annotated",
-                        "msk_impact",
-                        "msk_impact_heme",
-                        "foundation_one_cdx",
-                        "foundation_one_heme",
-                        "vogelstein",
-                        "sanger_cgc"
-                    ],
-                    "therapeutic":[
-                        {
-                            "alterations":"Fusions",
-                            "cancer_types":"Anaplastic Large-Cell Lymphoma ALK Positive",
-                            "drugs":"Crizotinib",
-                            "level_of_evidence":"1"
-                        }
-                    ]
-                },
                 "ATM":{
                     "oncokb_cancer_gene":[
                         "Tumor Suppressor Gene"
+                    ],
+                    "precision_therapies":[
+                        {
+                            "drug_classification":"First-in-class",
+                            "fda_first_approval":"2014",
+                            "fda_recognized_biomarkers":"ATM, BARD1, BRCA1/2, BRIP1, CDK12, CHEK1/2, FANCL, PALB2, RAD51B, RAD51C, RAD51D, RAD54 Oncogenic Mutations",
+                            "method_of_biomarker_detection":"DNA/NGS-based detection",
+                            "precision_oncology_therapy":"Olaparib"
+                        },
+                        {
+                            "drug_classification":"Follow-on",
+                            "fda_first_approval":"2018",
+                            "fda_recognized_biomarkers":"ATM, ATR, BRCA1/2, CDK12, CHEK2, FANCA, MLH1, MRE11, NBN, PALB2, RAD51C Oncogenic Mutations",
+                            "method_of_biomarker_detection":"DNA/NGS-based detection",
+                            "precision_oncology_therapy":"Talazoparib"
+                        }
                     ],
                     "refseq_transcript":"NM_000051.3",
                     "sources":[
@@ -475,9 +462,9 @@ This service retrieves information of actionable genes and drugs obtained from t
             }
             ```  
     Keep in mind: 
-        - If a gene passed in the body is not found in the database, it will not appear in the response.
-        - If one of the fields for a gene has no value in the database, it will not appear in the response.
-        - Values for cancer types use the [OncoTree nomenclature](http://oncotree.mskcc.org/).
+    - If a gene passed in the body is not found in the database, it will not appear in the response.
+    - If one of the fields for a gene has no value in the database, it will not appear in the response.
+    - Values for cancer types use the [OncoTree nomenclature](http://oncotree.mskcc.org/).
 
 
 ### Gene Ontology terms related to a list of genes
