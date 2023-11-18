@@ -3,8 +3,8 @@
 ############# MongoDB Conf ############
 ip_mongo=localhost
 port_mongo=27017
-user=root
-password=root
+user=
+password=
 db=bio_api
 ############# Database URL ############
 oncokb_biomarker_drug_associations_dataset="oncokb_biomarker_drug_associations.tsv"
