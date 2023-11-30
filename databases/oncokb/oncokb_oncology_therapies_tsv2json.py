@@ -93,24 +93,22 @@ def search_gene(biomarker_description: str) -> List[str]:
                      }
     for special_case in special_cases:
         if re.search(special_case, biomarker_description):
-            genes = special_cases[special_case]
+            genes.extend(special_cases[special_case])
 
     for i in range(0, len(hgnc_genes)):
         if re.search(valid_genes_compiled_patern[i], biomarker_description):
-            if hgnc_genes[i] not in genes:
-                genes.append(hgnc_genes[i])
+            genes.append(hgnc_genes[i])
     a = 0
     for alias in hgnc_aliases:
         if re.search(aliases_compiled_patern[a], biomarker_description):
-            if hgnc_aliases[alias] not in genes:
-                genes.append(hgnc_aliases[alias])
+            genes.append(hgnc_aliases[alias])
         a += 1
     p = 0
     for prev in hgnc_previous:
         if re.search(previous_compiled_patern[p], biomarker_description):
-            if hgnc_previous[prev] not in genes:
-                genes.append(hgnc_previous[prev])
+            genes.append(hgnc_previous[prev])
         p += 1
+    genes = list(set(genes))  # Remove duplicate genes
     return genes
 
 

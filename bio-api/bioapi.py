@@ -19,7 +19,7 @@ IS_DEBUG: bool = os.environ.get('DEBUG', 'true') == 'true'
 PROCESS_POOL_WORKERS: int = int(os.getenv('PROCESS_POOL_WORKERS', 4))
 
 # BioAPI version
-VERSION = '1.1.0'
+VERSION = '1.2.0'
 
 # Valid pathways sources
 PATHWAYS_SOURCES = ["kegg", "biocarta", "ehmn", "humancyc", "inoh", "netpath", "pid", "reactome",
@@ -524,7 +524,7 @@ def cancer_drugs_related_to_gene(gene: str) -> List:
     return list(collection_pharm.find({"genes": gene}, {"_id": 0}))
 
 
-def get_data_from_oncokb(genes: List[str]) -> Dict[str, Dict[str, Any]]:
+def get_data_from_oncokb(genes: List[str], query: str, limit: int) -> Dict[str, Dict[str, Any]]:
     """
     Gets all data from OncoKB database associated with a gene list.
 
@@ -542,6 +542,8 @@ def get_data_from_oncokb(genes: List[str]) -> Dict[str, Dict[str, Any]]:
     docs_oncology_therapies = collection_precision_oncology_therapies.find(
         query2, projection)
     res = {}
+    patron = re.compile(query, re.IGNORECASE)
+
     for doc_a in docs_actionability:
         gen = doc_a.pop("gene")
         classification = doc_a.pop("classification").lower()
@@ -549,7 +551,23 @@ def get_data_from_oncokb(genes: List[str]) -> Dict[str, Dict[str, Any]]:
             res[gen] = {}
         if classification not in res[gen]:
             res[gen][classification] = []
-        res[gen][classification].append(doc_a)
+
+        if query == "":
+            if len(res[gen][classification]) < limit:
+                res[gen][classification].append(doc_a)
+            else:
+                continue
+        else:
+            # Search for query in predefinided keys
+            for key, value in doc_a.items():
+                if key in ["cancer_types", "drugs"]:
+                    if re.search(patron, value):
+                        if len(res[gen][classification]) < limit:
+                            res[gen][classification].append(doc_a)
+                        else:
+                            continue
+        if len(res[gen][classification]) == 0:
+            res[gen].pop(classification)
 
     for doc_c in docs_cancer:
         gen = doc_c.pop("hgnc_symbol")
@@ -582,11 +600,24 @@ def get_data_from_oncokb(genes: List[str]) -> Dict[str, Dict[str, Any]]:
                     res[gen_t] = {}
                 if "precision_therapies" not in res[gen_t]:
                     res[gen_t]["precision_therapies"] = []
-                res[gen_t]["precision_therapies"].append(doc_t)
-
+                if query == "":
+                    if len(res[gen_t]["precision_therapies"]) < limit:
+                        res[gen_t]["precision_therapies"].append(doc_t)
+                    else:
+                        continue
+                else:
+                    # Search for query in predefinided keys
+                    for key, value in doc_t.items():
+                        if key in ["precision_oncology_therapy", "method_of_biomarker_detection"]:
+                            if re.search(patron, value):
+                                if len(res[gen_t]["precision_therapies"]) < limit:
+                                    res[gen_t]["precision_therapies"].append(
+                                        doc_t)
+                                else:
+                                    continue
+                if len(res[gen_t]["precision_therapies"]) == 0:
+                    res[gen_t].pop("precision_therapies")
     return res
-
-# string
 
 
 def associated_string_genes(gene_symbol: str, min_combined_score: int = 400) -> List:
@@ -940,13 +971,24 @@ def create_app():
             abort(400, "gene_ids is mandatory")
 
         gene_ids = body['gene_ids']
+        query = "" if "query" not in body else body['query']
+        limit = "50" if "limit" not in body else str(body['limit'])
+
         if type(gene_ids) != list:
             abort(400, "gene_ids must be a list")
 
         if len(gene_ids) == 0:
             abort(400, "gene_ids must contain at least one gene symbol")
 
-        data = get_data_from_oncokb(gene_ids)
+        if limit.isnumeric():
+            limit = int(limit)
+        else:
+            abort(400, "'limit' parameter must be a numeric value")
+
+        if limit < 1:
+            abort(400, "'limit' parameter value must be greater than 0")
+
+        data = get_data_from_oncokb(gene_ids, query, limit)
 
         return jsonify(data)
 
