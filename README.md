@@ -376,12 +376,14 @@ This service gets gene expression in healthy tissue
 
 
 ### Therapies and actionable genes in cancer (OncoKB)
-This service retrieves information of actionable genes and drugs obtained from the OncoKB database, at a therapeutic, diagnostic and prognostic level.  
+This service retrieves information of FDA-Approved precision oncology therapies and 
+actionable genes and drugs obtained from the OncoKB database, at a therapeutic, diagnostic and prognostic level.  
 
 - URL: /information-of-oncokb
 - Method: POST  
 - Params: A body in Json format with the following content
     -  `gene_ids`: list of genes for which you want to get the information from OncoKB database.  
+    -  `query`: Optional. Parameter used to show only the results that match it. The query is used to find matches within the information offered by OncoKB for different "precision oncology therapies", "types of cancer", "biomarker detection methods" or "drugs".  
 - Success Response:
     - Code: 200
     - Content:
@@ -415,7 +417,8 @@ This service retrieves information of actionable genes and drugs obtained from t
             `{
                 "gene_ids":[
                     "ATM"
-                ]
+                ],
+                "query": "Olaparib"
             }`
         - Response:
             ```json
@@ -431,13 +434,6 @@ This service retrieves information of actionable genes and drugs obtained from t
                             "fda_recognized_biomarkers":"ATM, BARD1, BRCA1/2, BRIP1, CDK12, CHEK1/2, FANCL, PALB2, RAD51B, RAD51C, RAD51D, RAD54 Oncogenic Mutations",
                             "method_of_biomarker_detection":"DNA/NGS-based detection",
                             "precision_oncology_therapy":"Olaparib"
-                        },
-                        {
-                            "drug_classification":"Follow-on",
-                            "fda_first_approval":"2018",
-                            "fda_recognized_biomarkers":"ATM, ATR, BRCA1/2, CDK12, CHEK2, FANCA, MLH1, MRE11, NBN, PALB2, RAD51C Oncogenic Mutations",
-                            "method_of_biomarker_detection":"DNA/NGS-based detection",
-                            "precision_oncology_therapy":"Talazoparib"
                         }
                     ],
                     "refseq_transcript":"NM_000051.3",
@@ -459,7 +455,7 @@ This service retrieves information of actionable genes and drugs obtained from t
                         }
                     ]
                 }
-            }
+}
             ```  
     Keep in mind: 
     - If a gene passed in the body is not found in the database, it will not appear in the response.

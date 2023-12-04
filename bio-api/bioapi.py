@@ -524,7 +524,7 @@ def cancer_drugs_related_to_gene(gene: str) -> List:
     return list(collection_pharm.find({"genes": gene}, {"_id": 0}))
 
 
-def get_data_from_oncokb(genes: List[str], query: str, limit: int) -> Dict[str, Dict[str, Any]]:
+def get_data_from_oncokb(genes: List[str], query: str) -> Dict[str, Dict[str, Any]]:
     """
     Gets all data from OncoKB database associated with a gene list.
 
@@ -553,19 +553,14 @@ def get_data_from_oncokb(genes: List[str], query: str, limit: int) -> Dict[str, 
             res[gen][classification] = []
 
         if query == "":
-            if len(res[gen][classification]) < limit:
-                res[gen][classification].append(doc_a)
-            else:
-                continue
+            res[gen][classification].append(doc_a)
+
         else:
             # Search for query in predefinided keys
             for key, value in doc_a.items():
                 if key in ["cancer_types", "drugs"]:
                     if re.search(patron, value):
-                        if len(res[gen][classification]) < limit:
-                            res[gen][classification].append(doc_a)
-                        else:
-                            continue
+                        res[gen][classification].append(doc_a)
         if len(res[gen][classification]) == 0:
             res[gen].pop(classification)
 
@@ -601,20 +596,13 @@ def get_data_from_oncokb(genes: List[str], query: str, limit: int) -> Dict[str, 
                 if "precision_therapies" not in res[gen_t]:
                     res[gen_t]["precision_therapies"] = []
                 if query == "":
-                    if len(res[gen_t]["precision_therapies"]) < limit:
-                        res[gen_t]["precision_therapies"].append(doc_t)
-                    else:
-                        continue
+                    res[gen_t]["precision_therapies"].append(doc_t)
                 else:
                     # Search for query in predefinided keys
                     for key, value in doc_t.items():
                         if key in ["precision_oncology_therapy", "method_of_biomarker_detection"]:
                             if re.search(patron, value):
-                                if len(res[gen_t]["precision_therapies"]) < limit:
-                                    res[gen_t]["precision_therapies"].append(
-                                        doc_t)
-                                else:
-                                    continue
+                                res[gen_t]["precision_therapies"].append(doc_t)
                 if len(res[gen_t]["precision_therapies"]) == 0:
                     res[gen_t].pop("precision_therapies")
     return res
@@ -972,23 +960,14 @@ def create_app():
 
         gene_ids = body['gene_ids']
         query = "" if "query" not in body else body['query']
-        limit = "50" if "limit" not in body else str(body['limit'])
 
-        if type(gene_ids) != list:
+        if not isinstance(gene_ids, list):
             abort(400, "gene_ids must be a list")
 
         if len(gene_ids) == 0:
             abort(400, "gene_ids must contain at least one gene symbol")
 
-        if limit.isnumeric():
-            limit = int(limit)
-        else:
-            abort(400, "'limit' parameter must be a numeric value")
-
-        if limit < 1:
-            abort(400, "'limit' parameter value must be greater than 0")
-
-        data = get_data_from_oncokb(gene_ids, query, limit)
+        data = get_data_from_oncokb(gene_ids, query)
 
         return jsonify(data)
 
