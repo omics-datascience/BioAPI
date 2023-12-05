@@ -20,8 +20,8 @@ services:
                     memory: 6g
 
     # BioAPI server
-    web_bioapi:
-        image: omicsdatascience/bio-api:1.0.7
+    bioapi:
+        image: omicsdatascience/bio-api:1.1.1
         restart: always
         volumes:
             - bioapi_logs:/logs
