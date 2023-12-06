@@ -2,7 +2,6 @@
 .idea
 .vscode
 venv
-bio-api/static
 bio-api/__pycache__
 bio-api/.pytest_cache
 bio-api/media

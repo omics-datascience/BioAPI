@@ -30,7 +30,8 @@ Config = configparser.ConfigParser()
 Config.read("config.txt")
 
 # Sets logging level
-logging.getLogger("urllib3").setLevel(logging.DEBUG)
+logging_level = logging.DEBUG if IS_DEBUG else logging.INFO
+logging.getLogger("urllib3").setLevel(logging_level)
 
 # In development logs in console, in production logs in file
 if not IS_DEBUG:
