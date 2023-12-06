@@ -622,7 +622,7 @@ def create_app():
     # Endpoints
     @flask_app.route("/")
     def homepage():
-        return render_template('homePage.html', version=VERSION)
+        return render_template('homepage.html', version=VERSION)
 
     @flask_app.route("/ping")
     def ping_ok():
