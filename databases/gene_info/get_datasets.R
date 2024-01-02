@@ -1,11 +1,15 @@
-if (!requireNamespace("BiocManager", quietly = TRUE))
-  install.packages("BiocManager",repos = "http://cran.us.r-project.org")
+if (!require("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+BiocManager::install(version = "3.18", ask = FALSE)
 
 if("biomaRt" %in% rownames(installed.packages()) == FALSE)
   BiocManager::install("biomaRt", force = TRUE)
 
-if("dplyr" %in% rownames(installed.packages()) == FALSE)
-  install.packages("dplyr",repos = "http://cran.us.r-project.org")
+if("devtools" %in% rownames(installed.packages()) == FALSE)
+  install.packages("devtools", repos = "http://cran.us.r-project.org")
+
+if("dbplyr" %in% rownames(installed.packages()) == FALSE)
+  devtools::install_version("dbplyr", version = "2.3.4", force = TRUE)
 
 if("GeneSummary" %in% rownames(installed.packages()) == FALSE)
   BiocManager::install("GeneSummary", update = FALSE, ask = FALSE, force = FALSE)
@@ -14,12 +18,13 @@ library(GeneSummary)
 library(dplyr)
 library(biomaRt)
 library(stringr)
+library(BiocManager)
 
 civicUrl="https://civicdb.org/downloads/nightly/nightly-GeneSummaries.tsv"
-try(civicUrl <- Sys.getenv(CIVIC_URL))
+try(civicUrl <- Sys.getenv(CIVIC_URL), silent = TRUE)
 
 # BUSQUEDA PARA GRCh38 ####
-ensembl_grch38 = useEnsembl(biomart="genes", dataset = "hsapiens_gene_ensembl") 
+ensembl_grch38 = useEnsembl(biomart = "genes", dataset = "hsapiens_gene_ensembl") 
 # posibles_filtros <- listFilters(ensembl_grch38)
 # posibles_atributos <- listAttributes(ensembl_grch38)
 atr <- c("ensembl_gene_id", "description", "chromosome_name", "start_position", "end_position", "strand", "band", "percentage_gene_gc_content", "gene_biotype", "hgnc_symbol", "hgnc_id", "entrezgene_id") 
@@ -47,9 +52,6 @@ res_grch37 <- getBM(
 )
 
 res_grch37$description <- data.frame(do.call('rbind', str_split(res_grch37$description, " \\[Source")))$X1
-
-
-
 
 
 # Summary of genes for Humans from RefSeq

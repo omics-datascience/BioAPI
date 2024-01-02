@@ -67,7 +67,7 @@ To import all databases in MongoDB:
 Alternatively (but **not recommended** due to high computational demands) you can run a separate ETL process to download from source, process and import the databases into MongoDB.
 
 1. Install the necessary requirements:  
-    - [R language](https://www.r-project.org/). Version 4.1.2 or later (Only necessary if you want to update the Gene information database from Ensembl)
+    - [R language](https://www.r-project.org/). Version 4.3.2 (Only necessary if you want to update the Gene information database from Ensembl and CiVIC)
     - Some python packages. They can be installed using:  
         `pip install -r config/genomic_db_conf/requirements.txt`  
 2. The ETL process is programmed in a single bash script for each database. Edit in the bash file of the database that you want to update the **user** and **password** parameters, using the same values that you set in the `docker-compose.yml` file. Bash files can be found in the *'databases'* folder, within the corresponding directories for each database:  
