@@ -31,3 +31,5 @@ databases/pharmGKB/CREATED_*
 databases/string/protein.links.full.txt.gz
 databases/gene_ontology/logs.json
 databases/string/protein.info.txt.gz
+databases/gene_info/gene_info_grch37.csv
+databases/gene_info/gene_info_grch38.csv
