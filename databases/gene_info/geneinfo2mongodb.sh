@@ -16,8 +16,8 @@ R -f get_datasets.R
 echo "INFO	OK."
 date
 echo "INFO	Importing to MongoDB..."
-cat gene_info_grch37.csv | sudo docker container exec -i bio_api_mongo_db mongoimport --verbose=1 --host $ip_mongo --port $port_mongo --username $user --password $password --drop --stopOnError --db $db --collection gene_grch37 --authenticationDatabase admin --type csv --headerline --ignoreBlanks
-cat gene_info_grch38.csv | sudo docker container exec -i bio_api_mongo_db mongoimport --verbose=1 --host $ip_mongo --port $port_mongo --username $user --password $password --drop --stopOnError --db $db --collection gene_grch38 --authenticationDatabase admin --type csv --headerline --ignoreBlanks
+cat gene_info_grch37.csv | sudo docker container exec -i bio_api_mongo_db mongoimport --verbose=1 --host $ip_mongo --port $port_mongo --username $user --password $password --drop --stopOnError --db $db --collection gene_grch37 --authenticationDatabase admin --type csv --headerline
+cat gene_info_grch38.csv | sudo docker container exec -i bio_api_mongo_db mongoimport --verbose=1 --host $ip_mongo --port $port_mongo --username $user --password $password --drop --stopOnError --db $db --collection gene_grch38 --authenticationDatabase admin --type csv --headerline
 echo "INFO	OK."
 date
 echo "INFO	Creating indexes..."
