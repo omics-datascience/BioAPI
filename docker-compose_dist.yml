@@ -2,7 +2,7 @@ version: '3.7'
 services:
     # MongoDB Server
     mongo_bioapi:
-        image: mongo:6.0.2
+        image: mongo:6.0.12
         restart: always
         container_name: bio_api_mongo_db
         volumes:
@@ -41,9 +41,9 @@ services:
         image: nginx:1.23.3
         restart: always
         ports:
-            - 80:8000
+            - '80:8000'
         depends_on:
-            - bioapi
+            - web_bioapi
         volumes:
             - ./config/nginx/conf.d:/etc/nginx/conf.d
 

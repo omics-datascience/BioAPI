@@ -24,7 +24,7 @@ Below are the steps to perform a production deploy of BioAPI.
         - `deploy.resources.limits.memory`: By default, 6GB of memory is allocated for MongoDB. Modify this value if you need it.  
     - BioAPI Server:
         - `MONGO_USER` and `MONGO_PASSWORD`: These variables are the username and password for BioAPI to access MongoDB. These credentials must be the same ones that were set for the MongoDB server.
-        - `DEBUG`: By default, use `false` value. If you change this value to `true`, then Bioapi will be use the configuration for database connection and ports for the API that you set in `config.txt` file.
+        - `DEBUG`: By default, use `false` value. If you change this value to `true`, then BioAPI will be use the configuration for database connection and ports for the API that you set in `config.txt` file.
 3. (Optional) Optimize Mongo by changing the configuration in the `config/mongo/mongod.conf` file and uncommenting the reference in the `docker-compose.yml` and/or `docker-compose.dev.yml`.
 4. Start up all the services with Docker Compose running `docker compose up -d` to check that It's all working, and read the instructions in the following section to import the genomics databases.
 
@@ -38,20 +38,18 @@ To import all databases in MongoDB:
 
 1. Download the "bioapi_db.gz" from **[here](https://drive.google.com/file/d/1oBdhC-XoJn-VNEIEpfMWB2Gna--WZ1Wa/view?usp=sharing)**
 2. Shutdown all the services running `docker compose down`
-3. Edit the `docker-compose.yml` file to include the downloaded file inside the container:
-
+3. Edit the `docker-compose.dev.yml` file to include the downloaded file inside the container:
     ```yml
     # ...
-        mongo:
-            image: mongo:6.0.2
+        mongo_bioapi:
+            image: mongo:6.0.12
             # ...
             volumes:
                 # ...
                 - /path/to/bioapi_db.gz:/bioapi_db.gz
     # ...
     ```
-
- Where "/path/to/" is the absolute path of the "bioapi_db.gz" file downloaded on step 1.
+  Where "/path/to/" is the absolute path of the "bioapi_db.gz" file downloaded on step 1.
 4. Start up the services again running `docker compose up -d`
 5. Go inside the container `docker container exec -it bio_api_mongo_db bash`
 6. Use Mongorestore to import it into MongoDB:
@@ -60,8 +58,10 @@ To import all databases in MongoDB:
     mongorestore --username <user> --password <pass> --authenticationDatabase admin --gzip --archive=/bioapi_db.gz
 ```
 
-   Where *\<user\>*, *\<pass\>* are the preconfigured credentials to MongoDB in the `docker-compose.yml` file. *bioapi_db.gz* is the file downloaded in the previous step. **Keep in mind that this loading process will import approximately *47 GB* of information into MongoDB, so it may take a while**.
-7. Rollup the changes in `docker-compose.yml` file to remove the backup file from the `volumes` section. Restart all the services again.
+   Where *\<user\>*, *\<pass\>* are the preconfigured credentials to MongoDB in the `docker-compose.yml` file. *bioapi_db.gz* is the file downloaded in the previous step. **Keep in mind that this loading process will import approximately *47 GB* of information into MongoDB, so it may take a while**.  
+
+7. Stop services with the command `docker compose -f docker-compose.dev.yml down`
+8. Rollup the changes in `docker-compose.dev.yml` file to remove the backup file from the `volumes` section. Restart all the services again.
 
 ### Manually import the different databases
 
@@ -111,7 +111,7 @@ To check the different services' status you can run:
 docker-compose logs <service>
 ```
 
-Where  *\<service\>* could be `nginx`, `web` or `mongo`.
+Where  *\<service\>* could be `nginx_bioapi`, `web_bioapi` or `mongo_bioapi`.
 
 ## Update genomic databases
 
@@ -124,7 +124,7 @@ If new versions are released for the genomic databases included in BioAPI, you c
   - For String the download is not automatic, but the steps to download them manually are explained in the same section mentioned above.
 - If you need to update the "Gene expression (Genotype-Tissue Expression)" database, you should also follow the procedures in the section named above, but first you should edit the bash file as follows:  
     1. Modify the **gtex2mongodb.sh** file. Edit the variables *"expression_url"* and *"annotation_url"*.
-    1. In the *expession_url* variable, set the url corresponding to the GTEx "RNA-Seq Data" compressed file (gz compression). This file should contain the Gene TPMs values (Remember that Gene expression on the GTEx Portal are shown in Transcripts Per Million or TPMs).
+    1. In the *expression_url* variable, set the url corresponding to the GTEx "RNA-Seq Data" compressed file (gz compression). This file should contain the Gene TPMs values (Remember that Gene expression on the GTEx Portal are shown in Transcripts Per Million or TPMs).
     1. In the *"annotation_url"* variable, set the url corresponding to the file that contains the annotated samples and allows finding the corresponding tissue type for each sample in the database.
   By default, GTEx is being used in its version [GTEx Analysis V8 (dbGaP Accession phs000424.v8.p2)](https://gtexportal.org/home/datasets#datasetDiv1)
 
@@ -135,7 +135,7 @@ If new versions are released for the genomic databases included in BioAPI, you c
 Finally, if you want to create a new image of MongoDB data, you can follow the following steps:  
 
 1. Shutdown all the services running `docker compose down`  
-2. Edit the `docker-compose.yml` file to link a container folder to a folder on your computer:
+2. Edit the `docker-compose.dev.yml` file to link a container folder to a folder on your computer:
 
     ```yml
     # ...

@@ -1,19 +1,20 @@
 version: '3.7'
 services:
     # MongoDB Server
-    mongo:
-        image: mongo:6.0.2
+    mongo_bioapi:
+        image: mongo:6.0.12
         container_name: bio_api_mongo_db
         environment:
             MONGO_INITDB_ROOT_USERNAME: 'root'
             MONGO_INITDB_ROOT_PASSWORD: 'root'
             MONGO_INITDB_DATABASE: bio_api
         ports:
-            - 27017:27017
+            - '27017:27017'
         volumes:
             # Mounts initialize script as read-only
             - mongo_data:/data/db
             - mongo_config:/data/configdb
+            - 'C:\Users\genar\Proyectos\BioAPI\dato_mauri_borrar:/data/dump'
             # Uncomment if you want custom MongoDB config
             # - ./config/mongo/mongod.conf:/etc/mongo/mongod.conf
         deploy:

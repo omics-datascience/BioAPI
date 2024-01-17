@@ -1,4 +1,5 @@
-FROM python:3.10-alpine3.18
+FROM python:3.12.0-alpine3.18
+
 ENV MONGO_HOST "mongo_bioapi"
 ENV MONGO_PORT 27017
 ENV MONGO_USER "bioapi"

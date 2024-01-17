@@ -30,7 +30,8 @@ Config = configparser.ConfigParser()
 Config.read("config.txt")
 
 # Sets logging level
-logging.getLogger("urllib3").setLevel(logging.DEBUG)
+logging_level = logging.DEBUG if IS_DEBUG else logging.INFO
+logging.getLogger("urllib3").setLevel(logging_level)
 
 # In development logs in console, in production logs in file
 if not IS_DEBUG:
@@ -640,7 +641,7 @@ def create_app():
     # Endpoints
     @flask_app.route("/")
     def homepage():
-        return render_template('homePage.html', version=VERSION)
+        return render_template('homepage.html', version=VERSION)
 
     @flask_app.route("/ping")
     def ping_ok():

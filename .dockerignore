@@ -3,7 +3,6 @@
 .vscode
 .mypy_cache
 venv
-bio-api/static
 bio-api/uploads
 bio-api/media
 bio-api/db.sqlite3
