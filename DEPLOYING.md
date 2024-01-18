@@ -144,7 +144,7 @@ Finally, if you want to create a new image of MongoDB data, you can follow the f
             # ...
             volumes:
                 # ...
-                - /path/in/your/computer:/app
+                - /path/in/your/computer:/export_data
     # ...
     ```
 
@@ -154,9 +154,9 @@ Finally, if you want to create a new image of MongoDB data, you can follow the f
 5. Use mongodump to export the data to a file:  
 
 ```bash
-    mongodump --username <user> --password <pass> --authenticationDatabase admin --host localhost --port 27017 --gzip --db bio_api --archive=/app/bioapi_db.gz
+    mongodump --username <user> --password <pass> --authenticationDatabase admin --host localhost --port 27017 --gzip --db bio_api --archive=/export_data/bioapi_db.gz
 ```
 
 **NOTE**: The process can take a few hours  
 
-La nueva imagen podra encontrarla en *"/path/in/your/computer/bioapi_db.gz"*
+The new image can be found in *"/path/in/your/computer/bioapi_db.gz"*
