@@ -4,6 +4,27 @@ A powerful abstraction of genomics databases. Bioapi is a REST API that provides
 
 This document is focused on the **development** of the system. If you are looking for documentation for a production deployment see [DEPLOYING.md](DEPLOYING.md).
 
+- [BioAPI](#bioapi)
+  - [Integrated databases](#integrated-databases)
+  - [Services included in BioAPI](#services-included-in-bioapi)
+    - [Genes symbols validator](#genes-symbols-validator)
+    - [Genes symbols finder](#genes-symbols-finder)
+    - [Genes information](#genes-information)
+    - [Gene Groups](#gene-groups)
+    - [Genes of a metabolic pathway](#genes-of-a-metabolic-pathway)
+    - [Metabolic pathways from different genes](#metabolic-pathways-from-different-genes)
+    - [Gene expression](#gene-expression)
+    - [Therapies and actionable genes in cancer (OncoKB)](#therapies-and-actionable-genes-in-cancer-oncokb)
+    - [Gene Ontology terms related to a list of genes](#gene-ontology-terms-related-to-a-list-of-genes)
+    - [Gene Ontology terms related to another specific term](#gene-ontology-terms-related-to-another-specific-term)
+    - [Cancer related drugs (PharmGKB)](#cancer-related-drugs-pharmgkb)
+    - [Predicted functional associations network (String)](#predicted-functional-associations-network-string)
+    - [Drugs that regulate a gene](#drugs-that-regulate-a-gene)
+  - [Error Responses](#error-responses)
+  - [Contributing](#contributing)
+    - [Run Flask dev server](#run-flask-dev-server)
+    - [Tests](#tests)
+
 ## Integrated databases
 
 BioAPI obtains information from different bioinformatics databases. These databases were installed locally to reduce data search time. The databases currently integrated to BioAPI are:
@@ -58,23 +79,23 @@ Searches the identifier of a list of genes of different genomics databases and r
             }`
     - Response:
 
-            ```json
-            {
-                "BRCA1":[
-                    "BRCA1"
-                ],
-                "BRCC1":[
-                    "BRCA1",
-                    "ICE2"
-                ],
-                "F1-CAR":[
-                    
-                ],
-                "FANCS":[
-                    "BRCA1"
-                ]
-            }
-            ```  
+        ```json
+        {
+            "BRCA1":[
+                "BRCA1"
+            ],
+            "BRCC1":[
+                "BRCA1",
+                "ICE2"
+            ],
+            "F1-CAR":[
+                
+            ],
+            "FANCS":[
+                "BRCA1"
+            ]
+        }
+        ```  
 
 ### Genes symbols finder
 
@@ -92,15 +113,15 @@ Service that takes a string of any length and returns a list of genes that conta
     - URL: <http://localhost:8000/gene-symbols-finder/?limit=50&query=BRC>
     - Response:
 
-            ```json
-            [
-                "BRCA1",
-                "BRCA1P1",
-                "BRCA2",
-                "BRCC3",
-                "BRCC3P1"
-            ]
-            ```  
+      ```json
+      [
+          "BRCA1",
+          "BRCA1P1",
+          "BRCA2",
+          "BRCC3",
+          "BRCC3P1"
+      ]
+      ```  
 
 ### Genes information
 
@@ -145,54 +166,54 @@ From a list of valid genes, it obtains different information for the human refer
             }`
     - Response:
 
-            ```json
-            {
-                "ALK":{
-                    "alias_symbol":[
-                        "CD246",
-                        "ALK1"
-                    ],
-                    "band":"p23.1",
-                    "chromosome":"2",
-                    "civic_description":"ALK amplifications, fusions and mutations have been shown to be driving ...",
-                    "end_GRCh37":30144432,
-                    "end_position":29921586,
-                    "ensembl_gene_id":"ENSG00000171094",
-                    "entrez_id":"238",
-                    "gene_biotype":"protein_coding",
-                    "hgnc_id":"HGNC:427",
-                    "name":"ALK receptor tyrosine kinase",
-                    "omim_id":"105590",
-                    "oncokb_cancer_gene":"Oncogene",
-                    "percentage_gene_gc_content":43.51,
-                    "refseq_summary":"This gene encodes a receptor tyrosine kinase, which belongs to the insulin receptor superfamily. This protein ...",
-                    "start_GRCh37":29415640,
-                    "start_position":29192774,
-                    "strand":-1,
-                    "uniprot_ids":"Q9UM73"
-                },
-                "MC1R":{
-                    "alias_symbol":"MSH-R",
-                    "band":"q24.3",
-                    "chromosome":"16",
-                    "civic_description":"",
-                    "end_GRCh37":89987385,
-                    "end_position":89920973,
-                    "ensembl_gene_id":"ENSG00000258839",
-                    "entrez_id":"4157",
-                    "gene_biotype":"protein_coding",
-                    "hgnc_id":"HGNC:6929",
-                    "name":"melanocortin 1 receptor",
-                    "omim_id":"155555",
-                    "percentage_gene_gc_content":58.17,
-                    "refseq_summary":"This intronless gene encodes the receptor protein for melanocyte-stimulating hormone (MSH). The encoded protein...",
-                    "start_GRCh37":89978527,
-                    "start_position":89912119,
-                    "strand":1,
-                    "uniprot_ids":"Q01726"
-                }
-            }
-            ```  
+      ```json
+      {
+          "ALK":{
+              "alias_symbol":[
+                  "CD246",
+                  "ALK1"
+              ],
+              "band":"p23.1",
+              "chromosome":"2",
+              "civic_description":"ALK amplifications, fusions and mutations have been shown to be driving ...",
+              "end_GRCh37":30144432,
+              "end_position":29921586,
+              "ensembl_gene_id":"ENSG00000171094",
+              "entrez_id":"238",
+              "gene_biotype":"protein_coding",
+              "hgnc_id":"HGNC:427",
+              "name":"ALK receptor tyrosine kinase",
+              "omim_id":"105590",
+              "oncokb_cancer_gene":"Oncogene",
+              "percentage_gene_gc_content":43.51,
+              "refseq_summary":"This gene encodes a receptor tyrosine kinase, which belongs to the insulin receptor superfamily. This protein ...",
+              "start_GRCh37":29415640,
+              "start_position":29192774,
+              "strand":-1,
+              "uniprot_ids":"Q9UM73"
+          },
+          "MC1R":{
+              "alias_symbol":"MSH-R",
+              "band":"q24.3",
+              "chromosome":"16",
+              "civic_description":"",
+              "end_GRCh37":89987385,
+              "end_position":89920973,
+              "ensembl_gene_id":"ENSG00000258839",
+              "entrez_id":"4157",
+              "gene_biotype":"protein_coding",
+              "hgnc_id":"HGNC:6929",
+              "name":"melanocortin 1 receptor",
+              "omim_id":"155555",
+              "percentage_gene_gc_content":58.17,
+              "refseq_summary":"This intronless gene encodes the receptor protein for melanocyte-stimulating hormone (MSH). The encoded protein...",
+              "start_GRCh37":89978527,
+              "start_position":89912119,
+              "strand":1,
+              "uniprot_ids":"Q01726"
+          }
+      }
+      ```  
 
     Keep in mind:
         - If a gene passed in the body is not found in the database (invalid gene symbol), it will not appear in the response.
@@ -220,25 +241,25 @@ Gets the identifier of a gene, validates it and then returns the group of genes 
     - URL: <http://localhost:8000/genes-of-its-group/ENSG00000146648>
     - Response:
 
-            ```json
-            {
-                "gene_id":"EGFR",
-                "groups":[
-                    {
-                        "gene_group":"Erb-b2 receptor tyrosine kinases",
-                        "gene_group_id":"1096",
-                        "genes":[
-                            "EGFR",
-                            "ERBB3",
-                            "ERBB4",
-                            "ERBB2"
-                        ]
-                    }
-                ],
-                "locus_group":"protein-coding gene",
-                "locus_type":"gene with protein product"
-            }
-            ```
+        ```json
+        {
+            "gene_id":"EGFR",
+            "groups":[
+                {
+                    "gene_group":"Erb-b2 receptor tyrosine kinases",
+                    "gene_group_id":"1096",
+                    "genes":[
+                        "EGFR",
+                        "ERBB3",
+                        "ERBB4",
+                        "ERBB2"
+                    ]
+                }
+            ],
+            "locus_group":"protein-coding gene",
+            "locus_type":"gene with protein product"
+        }
+        ```
 
 ### Genes of a metabolic pathway
 
@@ -269,20 +290,20 @@ Get the list of genes that are involved in a pathway for a given database.
     - URL: <http://localhost:8000/pathway-genes/kegg/hsa00740>
     - Response:
 
-            ```json
-            {
-                "genes":[
-                    "ACP5",
-                    "ACP1",
-                    "ACP2",
-                    "FLAD1",
-                    "ENPP3",
-                    "ENPP1",
-                    "RFK",
-                    "BLVRB"
-                ]
-            }
-            ```
+      ```json
+      {
+          "genes":[
+              "ACP5",
+              "ACP1",
+              "ACP2",
+              "FLAD1",
+              "ENPP3",
+              "ENPP1",
+              "RFK",
+              "BLVRB"
+          ]
+      }
+      ```
 
 ### Metabolic pathways from different genes
 
@@ -310,17 +331,17 @@ Gets the common pathways for a list of genes.
             }`
     - Response:
 
-            ```json
-            {
-                "pathways":[
-                    {
-                        "external_id":"hsa04650",
-                        "pathway":"Natural killer cell mediated cytotoxicity",
-                        "source":"KEGG"
-                    }
-                ]
-            }
-            ```  
+      ```json
+      {
+          "pathways":[
+              {
+                  "external_id":"hsa04650",
+                  "pathway":"Natural killer cell mediated cytotoxicity",
+                  "source":"KEGG"
+              }
+          ]
+      }
+      ```  
 
 ### Gene expression
 
@@ -348,34 +369,34 @@ This service gets gene expression in healthy tissue
             }`
     - Response:
 
-          ```json
-            [
-                [
-                    {
-                        "BRCA1":1.627
-                    },
-                    {
-                        "BRCA2":0.2182
-                    }
-                ],
-                [
-                    {
-                        "BRCA1":1.27
-                    },
-                    {
-                        "BRCA2":0.4777
-                    }
-                ],
-                [
-                    {
-                        "BRCA1":1.462
-                    },
-                    {
-                        "BRCA2":0.4883
-                    }
-                ]
-            ]
-             ```  
+      ```json
+      [
+          [
+              {
+                  "BRCA1":1.627
+              },
+              {
+                  "BRCA2":0.2182
+              }
+          ],
+          [
+              {
+                  "BRCA1":1.27
+              },
+              {
+                  "BRCA2":0.4777
+              }
+          ],
+          [
+              {
+                  "BRCA1":1.462
+              },
+              {
+                  "BRCA2":0.4883
+              }
+          ]
+      ]
+      ```  
 
     keep in mind:
   - As an example only three samples are shown. Note that in the GTEx database there may be more than 2500 samples for a given healthy tissue.
@@ -429,43 +450,43 @@ actionable genes and drugs obtained from the OncoKB database, at a therapeutic, 
             }`
     - Response:
 
-            ```json
-            {
-                "ATM":{
-                    "oncokb_cancer_gene":[
-                        "Tumor Suppressor Gene"
-                    ],
-                    "precision_therapies":[
-                        {
-                            "drug_classification":"First-in-class",
-                            "fda_first_approval":"2014",
-                            "fda_recognized_biomarkers":"ATM, BARD1, BRCA1/2, BRIP1, CDK12, CHEK1/2, FANCL, PALB2, RAD51B, RAD51C, RAD51D, RAD54 Oncogenic Mutations",
-                            "method_of_biomarker_detection":"DNA/NGS-based detection",
-                            "precision_oncology_therapy":"Olaparib"
-                        }
-                    ],
-                    "refseq_transcript":"NM_000051.3",
-                    "sources":[
-                        "oncokb_annotated",
-                        "msk_impact",
-                        "msk_impact_heme",
-                        "foundation_one_cdx",
-                        "foundation_one_heme",
-                        "vogelstein",
-                        "sanger_cgc"
-                    ],
-                    "therapeutic":[
-                        {
-                            "alterations":"Oncogenic Mutations",
-                            "cancer_types":"Prostate Cancer, NOS, Prostate Cancer",
-                            "drugs":"Olaparib",
-                            "level_of_evidence":"1"
-                        }
-                    ]
+      ```json
+      {
+        "ATM":{
+            "oncokb_cancer_gene":[
+                "Tumor Suppressor Gene"
+            ],
+            "precision_therapies":[
+                {
+                    "drug_classification":"First-in-class",
+                    "fda_first_approval":"2014",
+                    "fda_recognized_biomarkers":"ATM, BARD1, BRCA1/2, BRIP1, CDK12, CHEK1/2, FANCL, PALB2, RAD51B, RAD51C, RAD51D, RAD54 Oncogenic Mutations",
+                    "method_of_biomarker_detection":"DNA/NGS-based detection",
+                    "precision_oncology_therapy":"Olaparib"
                 }
+            ],
+            "refseq_transcript":"NM_000051.3",
+            "sources":[
+                "oncokb_annotated",
+                "msk_impact",
+                "msk_impact_heme",
+                "foundation_one_cdx",
+                "foundation_one_heme",
+                "vogelstein",
+                "sanger_cgc"
+            ],
+            "therapeutic":[
+                {
+                    "alterations":"Oncogenic Mutations",
+                    "cancer_types":"Prostate Cancer, NOS, Prostate Cancer",
+                    "drugs":"Olaparib",
+                    "level_of_evidence":"1"
+                }
+            ]
+        }
+      }
+      ```  
 
-}
-            ```  
     Keep in mind:
     - If a gene passed in the body is not found in the database, it will not appear in the response.
     - If one of the fields for a gene has no value in the database, it will not appear in the response.
@@ -525,40 +546,40 @@ as significant. Must be a float. Not recommended to set it higher than 0.05.
             }`
     - Response:
 
-          ```json
-            [
-                {
-                    "alt_id":[
-                        "0001948",
-                        "0045308"
-                    ],
-                    "definition":"Binding to a protein.",
-                    "definition_reference":"GOC:go_curators",
-                    "go_id":"0005515",
-                    "is_a":"0005488",
-                    "name":"protein binding",
-                    "ontology_type":"molecular_function",
-                    "relations_to_genes":[
-                        {
-                            "evidence":"IPI",
-                            "gene":"TMCO4",
-                            "relation_type":"enables"
-                        }
-                    ],
-                    "subset":[
-                        "goslim_candida",
-                        "goslim_chembl",
-                        "goslim_metagenomics",
-                        "goslim_pir",
-                        "goslim_plant"
-                    ],
-                    "synonym":[
-                        "\"glycoprotein binding\" NARROW []",
-                        "\"protein amino acid binding\" EXACT []"
-                    ]
-                }
-            ]
-            ```  
+      ```json
+        [
+          {
+              "alt_id":[
+                  "0001948",
+                  "0045308"
+              ],
+              "definition":"Binding to a protein.",
+              "definition_reference":"GOC:go_curators",
+              "go_id":"0005515",
+              "is_a":"0005488",
+              "name":"protein binding",
+              "ontology_type":"molecular_function",
+              "relations_to_genes":[
+                  {
+                      "evidence":"IPI",
+                      "gene":"TMCO4",
+                      "relation_type":"enables"
+                  }
+              ],
+              "subset":[
+                  "goslim_candida",
+                  "goslim_chembl",
+                  "goslim_metagenomics",
+                  "goslim_pir",
+                  "goslim_plant"
+              ],
+              "synonym":[
+                  "\"glycoprotein binding\" NARROW []",
+                  "\"protein amino acid binding\" EXACT []"
+              ]
+          }
+        ]
+        ```  
 
 ### Gene Ontology terms related to another specific term
 
@@ -591,28 +612,28 @@ Gets the list of related terms to a term.
             }`
     - Response:
 
-            ```json
-            [
-                {
-                    "go_id":"0000079",
-                    "name":"regulation of cyclin-dependent protein serine/threonine kinase activity",
-                    "ontology_type":"biological_process",
-                    "relations":{
-                        "regulates":[
-                            "0004693"
-                        ]
-                    }
-                },
-                {
-                    "go_id":"0004693",
-                    "name":"cyclin-dependent protein serine/threonine kinase activity",
-                    "ontology_type":"molecular_function",
-                    "relations":{
-                        
-                    }
-                }
-            ]
-            ```  
+      ```json
+      [
+          {
+              "go_id":"0000079",
+              "name":"regulation of cyclin-dependent protein serine/threonine kinase activity",
+              "ontology_type":"biological_process",
+              "relations":{
+                  "regulates":[
+                      "0004693"
+                  ]
+              }
+          },
+          {
+              "go_id":"0004693",
+              "name":"cyclin-dependent protein serine/threonine kinase activity",
+              "ontology_type":"molecular_function",
+              "relations":{
+                  
+              }
+          }
+      ]
+      ```  
 
 ### Cancer related drugs (PharmGKB)
 
@@ -643,24 +664,24 @@ Gets a list of related drugs to a list of genes.
             }`
     - Response:
 
-            ```json
-            {
-                "JAK2":[
-                    {
-                        "Variants/Haplotypes":"rs77375493",
-                        "biomarker_flag":"",
-                        "chemicals":"ropeginterferon alfa-2b",
-                        "genes":[
-                            "JAK2"
-                        ],
-                        "name":"Annotation of EMA Label for ropeginterferon alfa-2b and JAK2",
-                        "pharmgkb_id":"PA166272741",
-                        "source":"EMA",
-                        "testing_level":"Informative PGx"
-                    }
-                ]
-            }
-            ```
+      ```json
+      {
+          "JAK2":[
+              {
+                  "Variants/Haplotypes":"rs77375493",
+                  "biomarker_flag":"",
+                  "chemicals":"ropeginterferon alfa-2b",
+                  "genes":[
+                      "JAK2"
+                  ],
+                  "name":"Annotation of EMA Label for ropeginterferon alfa-2b and JAK2",
+                  "pharmgkb_id":"PA166272741",
+                  "source":"EMA",
+                  "testing_level":"Informative PGx"
+              }
+          ]
+      }
+      ```
 
 ### Predicted functional associations network (String)
 
@@ -700,21 +721,21 @@ Gets a list of genes and relations related to a gene.
             }`
     - Response:
 
-            ```json
-                [
-                    {
-                        "coexpression":558,
-                        "coexpression_transferred":825,
-                        "combined_score":997,
-                        "database":900,
-                        "experiments_transferred":149,
-                        "gene_1":"OASL",
-                        "gene_2":"MX2",
-                        "textmining":652,
-                        "textmining_transferred":257
-                    }
-                ]
-            ```
+      ```json
+          [
+              {
+                  "coexpression":558,
+                  "coexpression_transferred":825,
+                  "combined_score":997,
+                  "database":900,
+                  "experiments_transferred":149,
+                  "gene_1":"OASL",
+                  "gene_2":"MX2",
+                  "textmining":652,
+                  "textmining_transferred":257
+              }
+          ]
+      ```
 
 ### Drugs that regulate a gene
 
@@ -732,21 +753,21 @@ Service that takes gene symbol and returns a link to <https://go.drugbank.com> w
     - URL: <http://localhost:8000/drugs-regulating-gene/TP53>
     - Response:
 
-            ```json
-            {
-                "link": "https://go.drugbank.com/pharmaco/transcriptomics?q%5Bg%5B0%5D%5D%5Bm%5D=or&q%5Bg%5B0%5D%5D%5Bdrug_approved_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_nutraceutical_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_illicit_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_investigational_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_withdrawn_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_experimental_true%5D=all&q%5Bg%5B1%5D%5D%5Bm%5D=or&q%5Bg%5B1%5D%5D%5Bdrug_available_in_us_true%5D=all&q%5Bg%5B1%5D%5D%5Bdrug_available_in_ca_true%5D=all&q%5Bg%5B1%5D%5D%5Bdrug_available_in_eu_true%5D=all&commit=Apply+Filter&q%5Bdrug_precise_names_name_cont%5D=&q%5Bgene_symbol_eq%5D=TP53&q%5Bgene_id_eq%5D=&q%5Bchange_eq%5D=&q%5Binteraction_cont%5D=&q%5Bchromosome_location_cont%5D="
-            }
-            ```  
+      ```json
+      {
+          "link": "https://go.drugbank.com/pharmaco/transcriptomics?q%5Bg%5B0%5D%5D%5Bm%5D=or&q%5Bg%5B0%5D%5D%5Bdrug_approved_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_nutraceutical_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_illicit_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_investigational_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_withdrawn_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_experimental_true%5D=all&q%5Bg%5B1%5D%5D%5Bm%5D=or&q%5Bg%5B1%5D%5D%5Bdrug_available_in_us_true%5D=all&q%5Bg%5B1%5D%5D%5Bdrug_available_in_ca_true%5D=all&q%5Bg%5B1%5D%5D%5Bdrug_available_in_eu_true%5D=all&commit=Apply+Filter&q%5Bdrug_precise_names_name_cont%5D=&q%5Bgene_symbol_eq%5D=TP53&q%5Bgene_id_eq%5D=&q%5Bchange_eq%5D=&q%5Binteraction_cont%5D=&q%5Bchromosome_location_cont%5D="
+      }
+      ```  
 
 ## Error Responses
 
 The possible error codes are 400, 404 and 500. The content of each of them is a Json with a unique key called "error" where its value is a description of the problem that produces the error. For example:  
 
-    ```json
-    {
-        "error": "404 Not Found: invalid gene identifier"
-    }
-    ```
+  ```json
+  {
+      "error": "404 Not Found: invalid gene identifier"
+  }
+  ```
 
 ## Contributing
 
