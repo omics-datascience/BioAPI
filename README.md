@@ -14,11 +14,11 @@ This document is focused on the **development** of the system. If you are lookin
     - [Genes of a metabolic pathway](#genes-of-a-metabolic-pathway)
     - [Metabolic pathways from different genes](#metabolic-pathways-from-different-genes)
     - [Gene expression](#gene-expression)
-    - [Therapies and actionable genes in cancer (OncoKB)](#therapies-and-actionable-genes-in-cancer-oncokb)
+    - [Therapies and actionable genes in cancer](#therapies-and-actionable-genes-in-cancer)
     - [Gene Ontology terms related to a list of genes](#gene-ontology-terms-related-to-a-list-of-genes)
     - [Gene Ontology terms related to another specific term](#gene-ontology-terms-related-to-another-specific-term)
-    - [Cancer related drugs (PharmGKB)](#cancer-related-drugs-pharmgkb)
-    - [Predicted functional associations network (String)](#predicted-functional-associations-network-string)
+    - [Cancer related drugs](#cancer-related-drugs)
+    - [Predicted functional associations network](#predicted-functional-associations-network)
     - [Drugs that regulate a gene](#drugs-that-regulate-a-gene)
   - [Error Responses](#error-responses)
   - [Contributing](#contributing)
@@ -60,12 +60,12 @@ Searches the identifier of a list of genes of different genomics databases and r
 
 - URL: /gene-symbols
 - Method: POST  
-- Params: A body in Json format with the following content
-  - `gene_ids` : list of identifiers that you want to get your approved symbols  
+- Params: A body in JSON format with the following content
+  - `gene_ids`: list of identifiers that you want to get your approved symbols  
 - Success Response:
   - Code: 200
   - Content:
-    - `<gene_ids>`: Returns a Json with as many keys as there are genes in the body. For each gene, the value is a list with the valid symbols.  
+    - `gene_ids`: Returns a JSON with as many keys as there are genes in the body. For each gene, the value is a list with the valid symbols.  
   - Example:
     - URL: <http://localhost:8000/gene-symbols>
     - body:
@@ -104,7 +104,7 @@ Service that takes a string of any length and returns a list of genes that conta
 - URL: /gene-symbols-finder
 - Method: GET  
 - Params:
-  - `query` : gene search string
+  - `query`: gene search string
   - `limit`: number of elements returned by the service. Default 50.
 - Success Response:
   - Code: 200
@@ -129,12 +129,12 @@ From a list of valid genes, it obtains different information for the human refer
 
 - URL: /information-of-genes
 - Method: POST  
-- Params: A body in Json format with the following content
-  - `gene_ids` : list of valid genes identifiers  
+- Params: A body in JSON format with the following content
+  - `gene_ids`: list of valid genes identifiers  
 - Success Response:
   - Code: 200
   - Content:
-    - `<gene_ids>`: Returns a Json with as many keys as there are valid genes in the body. For each gene, the value is a Json with the following format:
+    - `gene_ids`: Returns a JSON with as many keys as there are valid genes in the body. For each gene, the value is a JSON with the following format:
       - `alias_symbol`: alternative symbols for a known gene
       - `percentage_gene_gc_content`: Ratio of guanine and cytosine nucleotides in the DNA sequence of the gene
       - `oncokb_cancer_gene`: return "Oncogene" or "Tumor Suppressor Gene" only if the gene has this information in the OncoKB database
@@ -152,8 +152,8 @@ From a list of valid genes, it obtains different information for the human refer
       - `hgnc_id`: Gene identifier in the HGNC database
       - `uniprot_ids`: Gene identifier in the Uniprot database
       - `omim_id`: Gene identifier in the OMIM database
-      - `ensembl_gene_id` : Gene identifier in the Ensembl database
-      - `entrez_id` : Gene identifier in the NCBI Entrez database
+      - `ensembl_gene_id`: Gene identifier in the Ensembl database
+      - `entrez_id`: Gene identifier in the NCBI Entrez database
   - Example:
     - URL: <http://localhost:8000/information-of-genes>
     - body:
@@ -222,9 +222,10 @@ From a list of valid genes, it obtains different information for the human refer
 ### Gene Groups
 
 Gets the identifier of a gene, validates it and then returns the group of genes to which it belongs according to HGNC, and all the other genes that belong to the same group.  
+For a description of the gene groups you can access the [HUGO Gene Nomenclature Committee website](https://www.genenames.org/data/genegroup/#!/).  
 
-- URL: /genes-of-its-group/<*gene_id*>
-  - <*gene_id*> is the identifier of the gene for any database  
+- URL: /genes-of-its-group/*gene_id*
+  - *gene_id* is the identifier of the gene for any database  
 - Method: GET  
 - Params: -  
 - Success Response:
@@ -265,21 +266,21 @@ Gets the identifier of a gene, validates it and then returns the group of genes 
 
 Get the list of genes that are involved in a pathway for a given database.
 
-- URL: /pathway-genes/<*source*>/<*external_id*>
-  - <*source*>: Database to query. Use lowercase. Valid Options:  
-    - kegg ([link](https://www.genome.jp/kegg/))
-    - biocarta ([link](https://maayanlab.cloud/Harmonizome/resource/Biocarta))
-    - ehmn ([link](http://allie.dbcls.jp/pair/EHMN;Edinburgh+Human+Metabolic+Network.html))
-    - humancyc ([link](https://humancyc.org/))
-    - inoh ([link](https://dbarchive.biosciencedbc.jp/en/inoh/desc.html))
-    - netpath ([link](https://www.wikipathways.org/index.php/Portal:NetPath))
-    - pid ([link](https://github.com/NCIP/pathway-interaction-database))
-    - reactome ([link](https://reactome.org/))
-    - smpdb ([link](https://www.smpdb.ca/))
-    - signalink ([link](http://signalink.org/))
-    - wikipathways ([link](https://www.wikipathways.org/index.php/WikiPathways))  
-        Using an invalid option returns an empty list of genes.
-  - <*external_id*>: Pathway identifier in the source database.
+- URL: /pathway-genes/*source*/*external_id*
+  - *source*: Database to query. Use lowercase. Valid Options:  
+    - [kegg](https://www.genome.jp/kegg/)
+    - [biocarta](https://maayanlab.cloud/Harmonizome/resource/Biocarta)
+    - [ehmn](http://allie.dbcls.jp/pair/EHMN;Edinburgh+Human+Metabolic+Network.html)
+    - [humancyc](https://humancyc.org/)
+    - [inoh](https://dbarchive.biosciencedbc.jp/en/inoh/desc.html)
+    - [netpath](https://www.wikipathways.org/index.php/Portal:NetPath)
+    - [pid](https://github.com/NCIP/pathway-interaction-database)
+    - [reactome](https://reactome.org/)
+    - [smpdb](https://www.smpdb.ca/)
+    - [signalink](http://signalink.org/)
+    - [wikipathways](https://www.wikipathways.org/index.php/WikiPathways)  
+    Using an invalid option returns an empty list of genes.
+  - *external_id*: Pathway identifier in the source database.
 - Method: GET  
 - Params: -  
 - Success Response:
@@ -311,12 +312,12 @@ Gets the common pathways for a list of genes.
 
 - URL: /pathways-in-common
 - Method: POST  
-- Params: A body in Json format with the following content
+- Params: A body in JSON format with the following content
   - `gene_ids`: list of genes for which you want to get the common metabolic pathways. If you use a list with a single gene, then you will get all the pathways for that gene
 - Success Response:
   - Code: 200
   - Content:
-    - `pathways`: list of elements of type Json. Each element corresponds to a different metabolic pathway.  
+    - `pathways`: list of elements of type JSON. Each element corresponds to a different metabolic pathway.  
       - `source`: database of the metabolic pathway found.
       - `external_id`: pathway identifier in the source.
       - `pathway`: name of the pathway.
@@ -349,14 +350,15 @@ This service gets gene expression in healthy tissue
 
 - URL: /expression-of-genes
 - Method: POST  
-- Params: A body in Json format with the following content
+- Params: A body in JSON format with the following content
   - `gene_ids`: list of genes for which you want to get the expression.  
-  - `tissue`: healthy tissue from which you want to get the expression values.  
+  - `tissue`: healthy tissue from which you want to get the expression values. The different options for this parameter are: 'Adipose Tissue', 'Adrenal Gland', 'Bladder', 'Blood', 'Blood Vessel', 'Brain', 'Breast', 'Cervix Uteri', 'Colon', 'Esophagus', 'Fallopian Tube', 'Heart', 'Kidney', 'Liver', 'Lung', 'Muscle', 'Nerve', 'Ovary', 'Pancreas', 'Pituitary', 'Prostate', 'Salivary Gland', 'Skin', 'Small Intestine', 'Spleen', 'Stomach', 'Testis', 'Thyroid', 'Uterus' or 'Vagina'. Any other value will cause the response to have no results.
+  - `type`: Type of response format: 'json' or 'gzip'. Default: Json
 - Success Response:
   - Code: 200
   - Content:
         The response you get is a list. Each element of the list is a new list containing the expression values for each gene in the same sample from the GTEx database.
-    - `<gene_id>`: expression value for the gene_id.
+    - `gene_id`: expression value for the gene_id.
   - Example:
     - URL: <http://localhost:8000/expression-of-genes>
     - body:
@@ -402,42 +404,42 @@ This service gets gene expression in healthy tissue
   - As an example only three samples are shown. Note that in the GTEx database there may be more than 2500 samples for a given healthy tissue.
   - If one of the genes entered as a parameter corresponds to an invalid symbol, the response will omit the values for that gene. It is recommended to use the *"Genes symbols validator"* service to validate your genes before using this functionality.
 
-### Therapies and actionable genes in cancer (OncoKB)
+### Therapies and actionable genes in cancer
 
 This service retrieves information of FDA-Approved precision oncology therapies and
 actionable genes and drugs obtained from the OncoKB database, at a therapeutic, diagnostic and prognostic level.  
 
 - URL: /information-of-oncokb
 - Method: POST  
-- Params: A body in Json format with the following content
+- Params: A body in JSON format with the following content
   - `gene_ids`: list of genes for which you want to get the information from OncoKB database.  
   - `query`: Optional. Parameter used to show only the results that match it. The query is used to find matches within the information offered by OncoKB for different "precision oncology therapies", "types of cancer", "biomarker detection methods" or "drugs".  
 - Success Response:
   - Code: 200
   - Content:
-    - `<gene_ids>`: Returns a Json with as many keys as there are valid genes in the body. For each gene, the value is a Json with the following format:  
-      - `<therapeutic>`: Evidence of the gene for therapeutic. The value is a list of elements of the Json type, where each element is a different evidence with the following structure:  
-        - `<drugs>`: therapeutic drug.  
-        - `<level_of_evidence>`: level of therapeutic evidence.
-        - `<alterations>`: specific cancer gene alterations.
-        - `<cancer_types>`: type of cancer.
-      - `<diagnostic>`: Evidence of the gene for diagnosis (for hematologic malignancies only). The value is a list of elements of the Json type, where each element is a different evidence with the following structure:  
-        - `<level_of_evidence>`: level of diagnostic evidence.
-        - `<alterations>`: specific cancer gene alterations.
-        - `<cancer_types>`: type of cancer.
-      - `<prognostic>`: Evidence of the gene for prognostic (for hematologic malignancies only). The value is a list of elements of the Json type, where each element is a different evidence with the following structure:  
-        - `<level_of_evidence>`: level of prognostic evidence.
-        - `<alterations>`: specific cancer gene alterations.
-        - `<cancer_types>`: type of cancer.
-      - `<oncokb_cancer_gene>`: type of cancer gene. Oncogene and/or Tumor Suppressor Gene.  
-      - `<refseq_transcript>`: gene transcript according to the RefSeq database.  
-      - `<sources>`: list of sources where there is evidence of the relationship of the gene with cancer. These may be different sequencing panels, the [Sanger Cancer Gene Census](https://www.sanger.ac.uk/data/cancer-gene-census/), or [Vogelstein et al. (2013)](http://science.sciencemag.org/content/339/6127/1546.full).
-      - `<precision_therapies>`: FDA-approved therapies that are considered precision oncology therapies by OncoKB™. The value is a list of elements of the Json type, where each element is a different precision oncology therapy with the following structure:  
-        - `<precision_oncology_therapy>`: A drug that is most effective in a molecularly defined subset of patients and for which pre-treatment molecular profiling is required for optimal patient selection.
-        - `<fda_first_approval>`: Year of drug’s first FDA-approval. The first year the drug received FDA-approval in any indication, irrespective of whether the biomarker was included in the FDA-drug at that time.
-        - `<drug_classification>`: Possible classifications are first-in-class, mechanistically-distinct, follow-on, or resistance based on [Suehnholz et al. Cancer Discovery 2023](https://aacrjournals.org/cancerdiscovery/article/doi/10.1158/2159-8290.CD-23-0467/729589/Quantifying-the-Expanding-Landscape-of-Clinical). Only drugs with an FDA-specified biomarker that can be detected by a DNA/NGS-based detection method are classified.
-        - `<fda_recognized_biomarkers>`: Biomarkers related to therapy according to the FDA. Includes pathognomonic and indication-specific biomarkers, that while not specifically listed in the Indications and Usage section of the FDA drug label, are targeted by the precision oncology drug.
-        - `<method_of_biomarker_detection>`: Biomarker detection method. If there is a corresponding FDA-cleared or -approved companion diagnostic device for biomarker identification, the detection method associated with this device is listed; if the biomarker can be detected by a DNA/NGS-based detection method this is listed first.  
+    - `gene_ids`: Returns a JSON with as many keys as there are valid genes in the body. For each gene, the value is a JSON with the following format:  
+      - `therapeutic`: Evidence of the gene for therapeutic. The value is a list of elements of the JSON type, where each element is a different evidence with the following structure:  
+        - `drugs`: therapeutic drug.  
+        - `level_of_evidence`: level of therapeutic evidence.
+        - `alterations`: specific cancer gene alterations.
+        - `cancer_types`: type of cancer.
+      - `diagnostic`: Evidence of the gene for diagnosis (for hematologic malignancies only). The value is a list of elements of the JSON type, where each element is a different evidence with the following structure:  
+        - `level_of_evidence`: level of diagnostic evidence.
+        - `alterations`: specific cancer gene alterations.
+        - `cancer_types`: type of cancer.
+      - `prognostic`: Evidence of the gene for prognostic (for hematologic malignancies only). The value is a list of elements of the JSON type, where each element is a different evidence with the following structure:  
+        - `level_of_evidence`: level of prognostic evidence.
+        - `alterations`: specific cancer gene alterations.
+        - `cancer_types`: type of cancer.
+      - `oncokb_cancer_gene`: type of cancer gene. Oncogene and/or Tumor Suppressor Gene.  
+      - `refseq_transcript`: gene transcript according to the RefSeq database.  
+      - `sources`: list of sources where there is evidence of the relationship of the gene with cancer. These may be different sequencing panels, the [Sanger Cancer Gene Census](https://www.sanger.ac.uk/data/cancer-gene-census/), or [Vogelstein et al. (2013)](http://science.sciencemag.org/content/339/6127/1546.full).
+      - `precision_therapies`: FDA-approved therapies that are considered precision oncology therapies by OncoKB™. The value is a list of elements of the JSON type, where each element is a different precision oncology therapy with the following structure:  
+        - `precision_oncology_therapy`: A drug that is most effective in a molecularly defined subset of patients and for which pre-treatment molecular profiling is required for optimal patient selection.
+        - `fda_first_approval`: Year of drug’s first FDA-approval. The first year the drug received FDA-approval in any indication, irrespective of whether the biomarker was included in the FDA-drug at that time.
+        - `drug_classification`: Possible classifications are first-in-class, mechanistically-distinct, follow-on, or resistance based on [Suehnholz et al. Cancer Discovery 2023](https://aacrjournals.org/cancerdiscovery/article/doi/10.1158/2159-8290.CD-23-0467/729589/Quantifying-the-Expanding-Landscape-of-Clinical). Only drugs with an FDA-specified biomarker that can be detected by a DNA/NGS-based detection method are classified.
+        - `fda_recognized_biomarkers`: Biomarkers related to therapy according to the FDA. Includes pathognomonic and indication-specific biomarkers, that while not specifically listed in the Indications and Usage section of the FDA drug label, are targeted by the precision oncology drug.
+        - `method_of_biomarker_detection`: Biomarker detection method. If there is a corresponding FDA-cleared or -approved companion diagnostic device for biomarker identification, the detection method associated with this device is listed; if the biomarker can be detected by a DNA/NGS-based detection method this is listed first.  
 
   - Example:
     - URL: <http://localhost:8000/information-of-oncokb>
@@ -498,7 +500,7 @@ Gets the list of related terms for a list of genes.
 
 - URL: /genes-to-terms
 - Method: POST  
-- Params: A body in Json format with the following content
+- Params: A body in JSON format with the following content
   - `gene_ids`: list of genes for which you want to get the terms in common (they must be a list, and have to be in HGNC gene symbol format)
   - `filter_type`: by default "intersection", in which case it bring all the terms that are related to all the genes, another option is "union" which brings all the terms that are related to **at least** on gene. The third option is "enrichment", it does a gene enrichment analysis on the input of genes with [g:Profiler library](https://biit.cs.ut.ee/gprofiler/page/docs). This filter type has 2 extra parameters:
     - `p_value_threshold`: 0.05 by default. It's the p-value threshold for significance, results with smaller p-value are tagged
@@ -511,25 +513,25 @@ as significant. Must be a float. Not recommended to set it higher than 0.05.
   - Code: 200
   - Content:
   The response you get is a list. Each element of the list is a GO term that fulfills the conditions of the query. GO terms can contain name, definition, relations to other terms, etc.
-    - `<go_id>`: Unique identifier.
-    - `<name>`: human-readable term name.
-    - `<ontology_type>`: Denotes which of the three sub-ontologies (cellular component, biological process or molecular function) the term belongs to.
-    - `<definition>`: A textual description of what the term represents, plus reference(s) to the source of the information.
-    - relations to other terms: Each go term can be related to many other terms with a [variety of relations](http://geneontology.org/docs/ontology-relations/).
-    - `<synonyms>`: Alternative words or phrases closely related in meaning to the term name, with indication of the relationship between the name and synonym given by the synonym scope.
-    - `<subset>`: Indicates that the term belongs to a designated subset of terms.
-    - `<relations_to_genes>`: list of elements of type Json. Each element corresponds to a gene and how it's related to the term.  
-      - `<gene>`: name of the gene.
-      - `<relation_type>`: the type of relation between the gene and the GO term. When `filter_type` is enrichment, extra relation will be gather from g:Profiler database. These relations will be shown as "relation obtained from gProfiler".
-      - `<evidence>`: evidence code to indicate how the annotation to a particular term is supported.
-    - `<enrichment_metrics>`: .  
-      - `<p_value>`: Hypergeometric p-value after correction for multiple testing.
-      - `<intersection_size>`: The number of genes in the query that are annotated to the corresponding term.
-      - `<effective_domain_size>`: The total number of genes "in the universe " which is used as one of the four parameters for the hypergeometric probability function of statistical significance.  
-      - `<query_size>`: The number of genes that were included in the query.
-      - `<term_size>`: The number of genes that are annotated to the term.
-      - `<precision>`: The proportion of genes in the input list that are annotated to the function. Defined as intersection_size/query_size.
-      - `<recall>`: The proportion of functionally annotated genes that the query recovers. Defined as intersection_size/term_size.
+    - `go_id`: Unique identifier.
+    - `name`: human-readable term name.
+    - `ontology_type`: Denotes which of the three sub-ontologies (cellular component, biological process or molecular function) the term belongs to.
+    - `definition`: A textual description of what the term represents, plus reference(s) to the source of the information.
+    - `relations to other terms`: Each go term can be related to many other terms with a [variety of relations](http://geneontology.org/docs/ontology-relations/).
+    - `synonyms`: Alternative words or phrases closely related in meaning to the term name, with indication of the relationship between the name and synonym given by the synonym scope.
+    - `subset`: Indicates that the term belongs to a designated subset of terms.
+    - `relations_to_genes`: list of elements of type JSON. Each element corresponds to a gene and how it's related to the term.  
+      - `gene`: name of the gene.
+      - `relation_type`: the type of relation between the gene and the GO term. When `filter_type` is enrichment, extra relation will be gather from g:Profiler database. These relations will be shown as "relation obtained from gProfiler".
+      - `evidence`: evidence code to indicate how the annotation to a particular term is supported.
+    - `enrichment_metrics`: .  
+      - `p_value`: Hypergeometric p-value after correction for multiple testing.
+      - `intersection_size`: The number of genes in the query that are annotated to the corresponding term.
+      - `effective_domain_size`: The total number of genes "in the universe " which is used as one of the four parameters for the hypergeometric probability function of statistical significance.  
+      - `query_size`: The number of genes that were included in the query.
+      - `term_size`: The number of genes that are annotated to the term.
+      - `precision`: The proportion of genes in the input list that are annotated to the function. Defined as intersection_size/query_size.
+      - `recall`: The proportion of functionally annotated genes that the query recovers. Defined as intersection_size/term_size.
   - Example:
     - URL: <http://localhost:8000/genes-to-terms>
     - body:
@@ -587,7 +589,7 @@ Gets the list of related terms to a term.
 
 - URL: /related-terms
 - Method: POST
-- Params: A body in Json format with the following content
+- Params: A body in JSON format with the following content
   - `term_id`: The term ID of the term you want to search
   - `relations`: Filters the non-hierarchical relations between terms. By default it's ["part_of","regulates","has_part"]. It should always be a list
   - `ontology_type`: Filters the ontology type of the terms in the response. By default it's ["biological_process", "molecular_function", "cellular_component"]It should always be a list containing any permutation of the 3 ontologies
@@ -597,11 +599,11 @@ Gets the list of related terms to a term.
 - Success Response:
   - Code: 200
   - Content: The response you get is a list of GO terms related to the searched term that fulfills the conditions of the query. Each term has:
-    - `<go_id>`: ID of the GO term
-    - `<name>`: Name of the GO term
-    - `<ontology_type>`: Denotes which of the three sub-ontologies (cellular component, biological process or molecular function) the term belongs to.
-    - `<relations>`: Dictionary of relations
-    - `<relation type>`: List of terms related by that relation type to the term
+    - `go_id`: ID of the GO term
+    - `name`: Name of the GO term
+    - `ontology_type`: Denotes which of the three sub-ontologies (cellular component, biological process or molecular function) the term belongs to.
+    - `relations`: Dictionary of relations
+    - `relation type`: List of terms related by that relation type to the term
   - Example:
     - URL: <http://localhost:8000/related-terms>
     - body:
@@ -628,32 +630,30 @@ Gets the list of related terms to a term.
               "go_id":"0004693",
               "name":"cyclin-dependent protein serine/threonine kinase activity",
               "ontology_type":"molecular_function",
-              "relations":{
-                  
-              }
+              "relations":{ }
           }
       ]
       ```  
 
-### Cancer related drugs (PharmGKB)
+### Cancer related drugs
 
-Gets a list of related drugs to a list of genes.
+Gets a list of drugs from the PharmGKB database related to a list of genes.  
 
 - URL: /drugs-pharm-gkb
 - Method: POST
-- Params: A body in Json format with the following content
+- Params: A body in JSON format with the following content
   - `gene_ids`: list of genes for which the related drugs
 - Success Response:
   - Code: 200
   - Content: The response you get is a dictionary where the genes are the keys and the values are a list of all the related drug information
-    - `<pharmGKB_id>`: Identifier assigned to this drug label by PharmGKB
-    - `<name>`: Name assigned to the label by PharmGKB
-    - `<source>`: The source that originally authored the label (e.g. FDA, EMA)
-    - `<biomarker_flag>`: "On" if drug in this label appears on the FDA Biomarker list; "Off (Formerly On)" if the label was on the FDA Biomarker list at one time; "Off (Never On)" if the label was never listed on the FDA Biomarker list (to PharmGKB's knowledge)
-    - `<Testing Level>`:  PGx testing level as annotated by PharmGKB based on definitions at <https://www.pharmgkb.org/page/drugLabelLegend>
-    - `<Chemicals>`: Related chemicals
-    - `<Genes>`: List of related genes
-    - `<Variants-Haplotypes>`: Related variants and/or haplotypes
+    - `pharmGKB_id`: Identifier assigned to this drug label by PharmGKB
+    - `name`: Name assigned to the label by PharmGKB
+    - `source`: The source that originally authored the label (e.g. FDA, EMA)
+    - `biomarker_flag`: "On" if drug in this label appears on the FDA Biomarker list; "Off (Formerly On)" if the label was on the FDA Biomarker list at one time; "Off (Never On)" if the label was never listed on the FDA Biomarker list (to PharmGKB's knowledge)
+    - `Testing Level`:  PGx testing level as annotated by PharmGKB based on definitions at <https://www.pharmgkb.org/page/drugLabelLegend>
+    - `Chemicals`: Related chemicals
+    - `Genes`: List of related genes
+    - `Variants-Haplotypes`: Related variants and/or haplotypes
   - Example:
     - URL: <http://localhost:8000/drugs-pharm-gkb>
     - body:
@@ -683,34 +683,34 @@ Gets a list of related drugs to a list of genes.
       }
       ```
 
-### Predicted functional associations network (String)
+### Predicted functional associations network
 
-Gets a list of genes and relations related to a gene.
+For a given gene, this service obtains from the String database a list of genes and their relationships to it.  
 
 - URL: /string-relations
 - Method: POST
-- Params: A body in Json format with the following content
+- Params: A body in JSON format with the following content
   - `gene_id`: target gene
   - `min_combined_score`: the minimum combined scored allowed int the relations. Possible scores go from 1 to 1000
 - Success Response:
   - Code: 200
   - Content: The response you get is a list of relations containing the targeted gene
-    - `<gene_1>`: Gene 1 in the bidirectional relationship
-    - `<gene_2>`: Gene 2 in the bidirectional relationship
-    - `<neighborhood`>: Optional. Values range from 1 to 1000
-    - `<neighborhood_transferred`>: Optional. Values range from 1 to 1000
-    - `<fusion`>: Optional. Values range from 1 to 1000
-    - `<cooccurence`>: Optional. Values range from 1 to 1000
-    - `<homology`>: Optional. Values range from 1 to 1000
-    - `<coexpression`>: Optional. Values range from 1 to 1000
-    - `<coexpression_transferred`>: Optional. Values range from 1 to 1000
-    - `<experiments`>: Optional. Values range from 1 to 1000
-    - `<experiments_transferred`>: Optional. Values range from 1 to 1000
-    - `<database`>: Optional. Values range from 1 to 1000
-    - `<database_transferred`>: Optional. Values range from 1 to 1000
-    - `<textmining`>: Optional. Values range from 1 to 1000
-    - `<textmining_transferred`>: Optional. Values range from 1 to 1000
-    - `<combined_score`>: Values range from 1 to 1000
+    - `gene_1`: Gene 1 in the bidirectional relationship
+    - `gene_2`: Gene 2 in the bidirectional relationship
+    - `neighborhood`: Values range from 1 to 1000
+    - `neighborhood_transferred`: Values range from 1 to 1000
+    - `fusion`: Values range from 1 to 1000
+    - `cooccurence`: Values range from 1 to 1000
+    - `homology`: Values range from 1 to 1000
+    - `coexpression`: Values range from 1 to 1000
+    - `coexpression_transferred`: Values range from 1 to 1000
+    - `experiments`: Values range from 1 to 1000
+    - `experiments_transferred`: Values range from 1 to 1000
+    - `database`: Values range from 1 to 1000
+    - `database_transferred`: Values range from 1 to 1000
+    - `textmining`: Values range from 1 to 1000
+    - `textmining_transferred`: Values range from 1 to 1000
+    - `combined_score`: Values range from 1 to 1000
 
   - Example:
     - URL: <http://localhost:8000/string-relations>
@@ -741,14 +741,14 @@ Gets a list of genes and relations related to a gene.
 
 Service that takes gene symbol and returns a link to <https://go.drugbank.com> with all the drugs that upregulate and down regulate its expresion. Useful for embeding.
 
-- URL: drugs-regulating-gene/<*gene_id*>
-  - <*gene_id*> is the identifier of the gene
+- URL: drugs-regulating-gene/*gene_id*
+  - *gene_id* is the identifier of the gene
 - Method: GET
 - Params: -
 - Success Response:
   - Code: 200
   - Content: The response you get is a dictionary with a single key called 'link' where its value is a URL that points to the information on the DrugBank website.
-    - `<link>`: Link to DrugBank website
+    - `link`: Link to DrugBank website
   - Example:
     - URL: <http://localhost:8000/drugs-regulating-gene/TP53>
     - Response:
@@ -761,7 +761,7 @@ Service that takes gene symbol and returns a link to <https://go.drugbank.com> w
 
 ## Error Responses
 
-The possible error codes are 400, 404 and 500. The content of each of them is a Json with a unique key called "error" where its value is a description of the problem that produces the error. For example:  
+The possible error codes are 400, 404 and 500. The content of each of them is a JSON with a unique key called "error" where its value is a description of the problem that produces the error. For example:  
 
   ```json
   {
