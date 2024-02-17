@@ -524,7 +524,6 @@ def cancer_drugs_related_to_gene(gene: str) -> List:
     collection_pharm = mydb["pharmgkb"]
     return list(collection_pharm.find({"genes": gene}, {"_id": 0}))
 
-
 def get_data_from_oncokb(genes: List[str], query: str) -> Dict[str, Dict[str, Any]]:
     """
     Gets all data from OncoKB database associated with a gene list.

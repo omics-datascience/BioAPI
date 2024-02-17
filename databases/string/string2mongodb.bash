@@ -2,7 +2,7 @@
 
 ############# MongoDB Conf ############
 ip_mongo="localhost"
-port_mongo=27017
+port_mongo=27018
 user=
 password=
 db_name="bio_api"

@@ -46,11 +46,11 @@ OncoKB™ is a precision oncology knowledge base developed at Memorial Sloan Ket
 6. Gene Ontology [Gene Ontology (GO)](http://geneontology.org/).
 It is a project to develop an up-to-date, comprehensive, computational model of biological systems, from the molecular level to larger pathways, cellular and organism-level systems. It provides structured and standardized annotations of gene products, in a hierarchical system of terms and relationships that describes the molecular functions, biological processes, and cellular components associated with genes and gene products. Downloaded from its official website in June 2023
 7. Cancer related drugs [Pharmacogenomics Knowledge Base (PharmGKB)](https://www.pharmgkb.org/).
-It is a resource that provides information about how human genetic variation affects response to medications. PharmGKB collects, curates and disseminates knowledge about clinically actionable gene-drug associations and genotype-phenotype relationships. Downloaded from its official website in June 2023
+It is a resource that provides information about how human genetic variation affects response to medications. PharmGKB collects, curates and disseminates knowledge about clinically actionable gene-drug associations and genotype-phenotype relationships. Downloaded from its official website in February 2024
 8. Predicted functional associations network [STRING](https://string-db.org/)
-It is a database of known and predicted protein-protein interactions. The interactions include direct (physical) and indirect (functional) associations; they stem from computational prediction, from knowledge transfer between organisms, and from interactions aggregated from other (primary) databases.
+It is a database of known and predicted protein-protein interactions. The interactions include direct (physical) and indirect (functional) associations; they stem from computational prediction, from knowledge transfer between organisms, and from interactions aggregated from other (primary) databases. String is being used in its version 12.0.
 9. Pharmaco-transcriptomics [DrugBank](https://go.drugbank.com/)
-It is a comprehensive, free-to-access, online database containing information on drugs and drug targets.
+It is a comprehensive, free-to-access, online database containing information on drugs and drug targets. BioAPI only generates access links to the Drugbank website, it does not contain your data.  
 
 ## Services included in BioAPI  
 
@@ -646,14 +646,14 @@ Gets a list of drugs from the PharmGKB database related to a list of genes.
 - Success Response:
   - Code: 200
   - Content: The response you get is a dictionary where the genes are the keys and the values are a list of all the related drug information
-    - `pharmGKB_id`: Identifier assigned to this drug label by PharmGKB
+    - `pharmgkb_id`: Identifier assigned to this drug label by PharmGKB
     - `name`: Name assigned to the label by PharmGKB
     - `source`: The source that originally authored the label (e.g. FDA, EMA)
     - `biomarker_flag`: "On" if drug in this label appears on the FDA Biomarker list; "Off (Formerly On)" if the label was on the FDA Biomarker list at one time; "Off (Never On)" if the label was never listed on the FDA Biomarker list (to PharmGKB's knowledge)
-    - `Testing Level`:  PGx testing level as annotated by PharmGKB based on definitions at <https://www.pharmgkb.org/page/drugLabelLegend>
-    - `Chemicals`: Related chemicals
-    - `Genes`: List of related genes
-    - `Variants-Haplotypes`: Related variants and/or haplotypes
+    - `testing_level`:  PGx testing level as annotated by PharmGKB based on definitions at <https://www.pharmgkb.org/page/drugLabelLegend>
+    - `chemicals`: Related chemicals
+    - `genes`: List of related genes
+    - `variants_haplotypes`: Related variants and/or haplotypes
   - Example:
     - URL: <http://localhost:8000/drugs-pharm-gkb>
     - body:
@@ -668,7 +668,7 @@ Gets a list of drugs from the PharmGKB database related to a list of genes.
       {
           "JAK2":[
               {
-                  "Variants/Haplotypes":"rs77375493",
+                  "variants_haplotypes":"rs77375493",
                   "biomarker_flag":"",
                   "chemicals":"ropeginterferon alfa-2b",
                   "genes":[
@@ -717,22 +717,47 @@ For a given gene, this service obtains from the String database a list of genes 
     - body:
             `{
                 "gene_id":"MX2",
-                "min_combined_score":996
+                "min_combined_score":976
             }`
     - Response:
 
       ```json
           [
               {
-                  "coexpression":558,
-                  "coexpression_transferred":825,
-                  "combined_score":997,
-                  "database":900,
-                  "experiments_transferred":149,
-                  "gene_1":"OASL",
-                  "gene_2":"MX2",
-                  "textmining":652,
-                  "textmining_transferred":257
+                  "coexpression": 774,
+                  "coexpression_transferred": 76,
+                  "combined_score": 979,
+                  "cooccurence": 60,
+                  "database": 900,
+                  "database_transferred": null,
+                  "experiments": null,
+                  "experiments_transferred": null,
+                  "fusion": null,
+                  "gene_1": "MX2",
+                  "gene_2": "MX1",
+                  "homology": 961,
+                  "neighborhood": null,
+                  "neighborhood_transferred": null,
+                  "textmining": 77,
+                  "textmining_transferred": 102
+              },
+              {
+                  "coexpression": 538,
+                  "coexpression_transferred": 304,
+                  "combined_score": 979,
+                  "cooccurence": null,
+                  "database": 500,
+                  "database_transferred": null,
+                  "experiments": null,
+                  "experiments_transferred": 104,
+                  "fusion": null,
+                  "gene_1": "MX2",
+                  "gene_2": "ISG15",
+                  "homology": null,
+                  "neighborhood": null,
+                  "neighborhood_transferred": null,
+                  "textmining": 862,
+                  "textmining_transferred": 162
               }
           ]
       ```
