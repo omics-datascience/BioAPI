@@ -34,11 +34,12 @@ BioAPI uses three genomic databases for its operation. These databases must be l
 
 ### Import using public DB backup (recommended)
 
-To import all databases in MongoDB:
- 
-1. Download the "bioapi_db.gz" from **[here](https://drive.google.com/file/d/1LU8KwP1pBBF12H97AQkGrrUTSko7HvLQ/view?usp=sharing)**
+To import all databases in MongoDB:  
+
+1. Download the "bioapi_db.gz" from **[here](https://drive.google.com/file/d/1Hof-vIolmb2h2V4fN5_-PjyvaURWcCkN/view?usp=sharing)**
 2. Shutdown all the services running `docker compose down`
 3. Edit the `docker-compose.dev.yml` file to include the downloaded file inside the container:
+
     ```yml
     # ...
         mongo_bioapi:
@@ -49,19 +50,21 @@ To import all databases in MongoDB:
                 - /path/to/bioapi_db.gz:/bioapi_db.gz
     # ...
     ```
-  Where "/path/to/" is the absolute path of the "bioapi_db.gz" file downloaded on step 1.
-4. Start up the services again running `docker compose up -d`
-5. Go inside the container `docker container exec -it bio_api_mongo_db bash`
-6. Use Mongorestore to import it into MongoDB:
 
-```bash
-    mongorestore --username <user> --password <pass> --authenticationDatabase admin --gzip --archive=/bioapi_db.gz
-```
+  Where "/path/to/" is the absolute path of the "bioapi_db.gz" file downloaded on step 1.  
+
+1. Start up the services again running `docker compose up -d`
+2. Go inside the container `docker container exec -it bio_api_mongo_db bash`
+3. Use Mongorestore to import it into MongoDB:
+
+    ```bash
+        mongorestore --username <user> --password <pass> --authenticationDatabase admin --gzip --archive=/bioapi_db.gz
+    ```
 
    Where *\<user\>*, *\<pass\>* are the preconfigured credentials to MongoDB in the `docker-compose.yml` file. *bioapi_db.gz* is the file downloaded in the previous step. **Keep in mind that this loading process will import approximately *47 GB* of information into MongoDB, so it may take a while**.  
 
-7. Stop services with the command `docker compose -f docker-compose.dev.yml down`
-8. Rollup the changes in `docker-compose.dev.yml` file to remove the backup file from the `volumes` section. Restart all the services again.
+4. Stop services with the command `docker compose -f docker-compose.dev.yml down`
+5. Rollup the changes in `docker-compose.dev.yml` file to remove the backup file from the `volumes` section. Restart all the services again.
 
 ### Manually import the different databases
 
