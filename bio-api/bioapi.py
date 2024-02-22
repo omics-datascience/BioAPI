@@ -43,7 +43,6 @@ logging.info('BioAPI is up and running')
 # Common response header
 headers = {"Content-Type": "application/json"}
 
-
 mydb = get_mongo_connection(IS_DEBUG, Config)
 
 
@@ -73,7 +72,7 @@ def get_potential_gene_symbols(query_string: str, limit_elements: int = 50) -> L
         for doc in docs:
             if len(res) < limit_elements:
                 doc_db = doc[db]
-                if type(doc_db) == list:
+                if isinstance(doc_db, list):
                     for doc_id in doc_db:
                         if doc_id.upper().startswith(query_string.upper()) and doc_id not in res:
                             res.append(doc_id)
@@ -108,7 +107,7 @@ def search_gene_group(gen: str) -> Dict[str, Any]:
         results['locus_type'] = document['locus_type']
 
         if "gene_group" in document:
-            if type(document['gene_group']) == list:
+            if isinstance(document['gene_group'], list):
                 results['gene_group'] = document['gene_group']
                 results['gene_group_id'] = document['gene_group_id']
             else:
@@ -138,9 +137,9 @@ def get_genes_of_pathway(pathway_id: str, pathway_source: str) -> List[str]:
     """
     From a gene group id in HGNC DB, get a list of all genes in the same group.
 
-    :param pathway_source: the pathway database
-    :param pathway_id: an pathway id to search in the database
-    :return: a list of all genes in the pathway
+    :param pathway_source: the pathway database.
+    :param pathway_id: a Pathway id to search in the database.
+    :return: a list of all genes in the pathway.
     """
     collection_cpdb = mydb["cpdb"]  # CPDB collection
     ps = re.compile("^" + pathway_source + "$", re.IGNORECASE)
@@ -153,8 +152,8 @@ def get_pathways_of_gene(gene: str) -> List[str]:
     """
     Get all pathways and sources for a given gene symbols.
 
-    :param gene: apprved gene symbol
-    :return: list of pathways
+    :param gene: Approved gene symbol.
+    :return: List of pathways.
     """
     collection_cpdb = mydb["cpdb"]  # CPDB collection
     query = {'hgnc_symbol_ids': gene}
@@ -165,10 +164,11 @@ def get_pathways_of_gene(gene: str) -> List[str]:
 
 def get_information_of_genes(genes: List[str]) -> Dict[str, Dict[str, Any]]:
     """
-    This function receives a list of gene symbols and returns information about them from different bioinformatics databases.
-
-    :param genes: list of gene symbols
-    :return: dictionary with information about gene symbols (each key is a gene and each value is another dictionary with its information)
+    This function receives a list of gene symbols and returns information about them from different bioinformatics
+    databases.
+    :param genes: list of gene symbols.
+    :return: dictionary with information about gene symbols (each key is a gene and each value is another dictionary
+    with its information).
     """
     res = {}
     collection_gene_grch37 = mydb["gene_grch37"]
@@ -196,10 +196,8 @@ def get_information_of_genes(genes: List[str]) -> Dict[str, Dict[str, Any]]:
 
     for doc_grch37 in docs_grch37:
         if doc_grch37["hgnc_symbol"] in res:
-            res[doc_grch37["hgnc_symbol"]
-                ]["start_GRCh37"] = doc_grch37["start_position"]
-            res[doc_grch37["hgnc_symbol"]
-                ]["end_GRCh37"] = doc_grch37["end_position"]
+            res[doc_grch37["hgnc_symbol"]]["start_GRCh37"] = doc_grch37["start_position"]
+            res[doc_grch37["hgnc_symbol"]]["end_GRCh37"] = doc_grch37["end_position"]
 
     for doc_hgnc in docs_hgnc:
         if doc_hgnc["symbol"] in res:
@@ -222,8 +220,7 @@ def get_information_of_genes(genes: List[str]) -> Dict[str, Dict[str, Any]]:
             if doc_oncokb["oncogene"]:
                 res[doc_oncokb["hgnc_symbol"]]["oncokb_cancer_gene"] = "Oncogene"
             elif doc_oncokb["tumor_suppressor_gene"]:
-                res[doc_oncokb["hgnc_symbol"]
-                    ]["oncokb_cancer_gene"] = "Tumor Suppressor Gene"
+                res[doc_oncokb["hgnc_symbol"]]["oncokb_cancer_gene"] = "Tumor Suppressor Gene"
 
     return res
 
@@ -253,10 +250,10 @@ def get_expression_from_gtex(tissue: str, genes: List[str]) -> List[Dict[str, fl
 
 def terms_related_to_one_gene(gene: str, relation_type: Optional[List[str]] = None) -> Dict[str, List[Dict[str, Any]]]:
     """
-    Returns all the terms that are associated by go annotations to a gene
-    :param gene: Gene symbol string that will be searched for associated terms
-    :param relation_type: List of the types of gene-to-term relation that will be taken in account in search
-    :return: Dictionary where keys are the term id and values are a list of dictionaries with the evidence information
+    Returns all the terms that are associated by go annotations to a gene.
+    :param gene: Gene symbol string that will be searched for associated terms.
+    :param relation_type: List of the types of gene-to-term relation that will be taken in account in search.
+    :return: Dictionary where keys are the term id and values are a list of dictionaries with the evidence information.
     """
     if relation_type is None:
         relation_type = ["enables", "involved_in", "part_of", "located_in"]
@@ -290,11 +287,12 @@ def is_term_on_db(term_id) -> bool:
 def terms_related_to_many_genes(gene_ids: list, filter_type: str = "intersection",
                                 relation_type: Optional[List[str]] = None) -> Dict[str, List[Dict[str, Any]]]:
     """
-    Returns all the terms that are associated by go annotations to many genes
-    :param gene_ids: list of gene symbols that will be searched for associated terms
-    :param filter_type: String. If "union" function will return terms related to ANY of the gene. If "intersection"function will return terms related to ALL of the gene
-    :param relation_type: List of the types of gene-to-term relation that will be taken in account in search
-    :return: Dictionary where keys are the term id and values are a list of dictionaries with the evidence information
+    Returns all the terms that are associated by go annotations to many genes.
+    :param gene_ids: list of gene symbols that will be searched for associated terms.
+    :param filter_type: String. If "union" function will return terms related to ANY of the gene.
+    If "intersection" function will return terms related to ALL the genes.
+    :param relation_type: List of the types of gene-to-term relation that will be taken in account in search.
+    :return: Dictionary where keys are the term id and values are a list of dictionaries with the evidence information.
     """
     if relation_type is None:
         relation_type = ["enables", "involved_in", "part_of", "located_in"]
@@ -328,9 +326,10 @@ def genes_evidence(gene_ids: List[str]) -> Dict[str, List[Dict[str, Any]]]:
     :param gene_ids: list of gene symbols that will be searched for associated terms
     :return: Dictionary where keys are the term id and values are a list of dictionaries with the evidence information
     """
-    collection_go_anotations = mydb["go_anotations"]
-    annotation_list = list(collection_go_anotations.find(
-        {"gene_symbol": {"$in": gene_ids}}, {"_id": 0}))
+    collection_go_annotations = mydb["go_anotations"]
+    annotation_list = list(collection_go_annotations.find(
+        {"gene_symbol": {"$in": gene_ids}}, {"_id": 0})
+    )
     res = {}
     for annotation in annotation_list:
         gene = annotation.pop("gene_symbol")
@@ -347,11 +346,12 @@ def genes_evidence(gene_ids: List[str]) -> Dict[str, List[Dict[str, Any]]]:
 
 def enrich(gene_ids: List, p_value_threshold: float = 0.05, correction_method: str = "analytical"):
     """
-    Given a gene list will enrich the associated go terms depending on p value
-    :param gene_ids: list of gene symbols that will be searched for associated terms
-    :param p_value_threshold: results with smaller p-value are returned
-    :param correction_method: the correction method, can be  "bonferroni", "false_discovery_rate", or "analytical"
-    :return: 2 Dictionaries where keys are the term id. 1st dict value is a dict with enrichment metrics. 2st dict values are a list of dictionaries with the evidence information
+    Given a gene list will enrich the associated go terms depending on p value.
+    :param gene_ids: list of gene symbols that will be searched for associated terms.
+    :param p_value_threshold: results with smaller p-value are returned.
+    :param correction_method: the correction method, can be  "bonferroni", "false_discovery_rate", or "analytical".
+    :return: 2 Dictionaries where keys are the term id. 1st dict value is a dict with enrichment metrics. 2nd dict
+    values are a list of dictionaries with the evidence information.
     """
     gp = GProfiler(return_dataframe=False)
     enrichment = gp.profile(organism='hsapiens',
@@ -396,16 +396,17 @@ def populate_terms_with_data(term_list, ontology_type: Optional[List[str]] = Non
                          "molecular_function", "cellular_component"]
     collection_go = mydb["go"]
     terms = (list(collection_go.find({"go_id": {
-             "$in": term_list}, "ontology_type": {"$in": ontology_type}}, {"_id": 0})))
+        "$in": term_list}, "ontology_type": {"$in": ontology_type}}, {"_id": 0})))
     return terms
 
 
 def strip_term(term: Dict, relations: Optional[List[str]]) -> Dict:
     """
-    Given a go term and wanted relations will return just a selected amount of attributes needed for representation as a graph
-    :param term: Dict containing all the data of a GO term
-    :param relations: List of names of relations wanted in the output
-    :return: Dict of go term with wanted attributes
+    Given a go term and wanted relations will return just a selected amount of attributes needed for representation
+    as a graph.
+    :param term: Dict containing all the data of a GO term.
+    :param relations: List of names of relations wanted in the output.
+    :return: Dict of go term with wanted attributes.
     """
     new_term = {"go_id": term["go_id"], "name": term["name"],
                 "ontology_type": term["ontology_type"], "relations": {}}
@@ -420,14 +421,15 @@ def strip_term(term: Dict, relations: Optional[List[str]]) -> Dict:
 def bfs_on_terms(term_id, relations: Optional[List[str]] = None, general_depth=0, hierarchical_depth_to_children=0,
                  ontology_type: Optional[List[str]] = None, to_root=True) -> List:
     """
-    Given a GO term, returns associeted terms in the ontology
-    :param term_id: GO term id from where the search starts
-    :param relations: List of names of relations to filter the non-hierarchical relations between terms
-    :param general_depth: The search depth with the non-hierarchical relations
-    :param hierarchical_depth_to_children: The search depth for the hierarchical relations in the direction of the children
-    :param ontology_type: Filters the ontology type of the terms in the response
-    :param to_root: Optional.If true get all the terms in the hierarchical relations in the direction of the root
-    :return: List of related GO terms
+    Given a GO term, returns associated terms in the ontology.
+    :param term_id: GO term id from where the search starts.
+    :param relations: List of names of relations to filter the non-hierarchical relations between terms.
+    :param general_depth: The search depth with the non-hierarchical relations.
+    :param hierarchical_depth_to_children: The search depth for the hierarchical relations in the direction of the
+    children.
+    :param ontology_type: Filters the ontology type of the terms in the response.
+    :param to_root: If true get all the terms in the hierarchical relations in the direction of the root.
+    :return: List of related GO terms.
     """
     if ontology_type is None:
         ontology_type = ["biological_process",
@@ -445,7 +447,7 @@ def bfs_on_terms(term_id, relations: Optional[List[str]] = None, general_depth=0
     queue.append(depth_mark)
     actual_depth = 0
 
-    while queue:          # Creating loop to visit each connected with non-hierarchical relationship
+    while queue:  # Creating loop to visit each connected with non-hierarchical relationship
         act = queue.pop(0)
         if act == depth_mark:
             if actual_depth == general_depth or not queue:
@@ -512,6 +514,7 @@ def bfs_on_terms(term_id, relations: Optional[List[str]] = None, general_depth=0
 
     return list(graph.values())
 
+
 # PharmGKB
 
 
@@ -530,6 +533,7 @@ def get_data_from_oncokb(genes: List[str], query: str) -> Dict[str, Dict[str, An
     Gets all data from OncoKB database associated with a gene list.
 
     :param genes: List of gene symbols.
+    :param query: String to search in the data.
     :return: Dict of genes with their associated drugs and information according to OncoKB database
     """
     collection_actionability_gene = mydb["oncokb_biomarker_drug_associations"]
@@ -614,23 +618,29 @@ def associated_string_genes(gene_symbol: str, min_combined_score: int = 400) -> 
     :gene: gene you want to search
     :return:list of relations
     """
-
     string_collection = mydb["string"]
-    gene_list = []
-    res = []
-    relations = string_collection.find({"gene_1": gene_symbol, "combined_score": {
-                                       "$gt": min_combined_score}}, {"_id": 0})
-    res.extend(list(relations))
-    for i in relations:
-        gene_list.append(i["gene_2"])
-    relations = string_collection.find({"gene_2": gene_symbol, "combined_score": {
-                                       "$gt": min_combined_score}}, {"_id": 0})
-    res.extend(list(relations))
-    for i in relations:
-        gene_list.append(i["gene_1"])
-    # relations between related genes
-    # relations = string_collection.find({"gene_1": { "$in": gene_list},"gene_2": { "$in": gene_list} ,"combined_score": { "$gt": cut_off }},{"_id":0})
-    # res.extend(list(relations))
+
+    relations = string_collection.find(
+        {
+            "gene_1": gene_symbol,
+            "combined_score": {"$gt": min_combined_score}
+        },
+        {"_id": 0}
+    )
+    res = list(relations)
+    gene_list = [relation["gene_2"] for relation in relations]
+    relations_2 = string_collection.find(
+        {
+            "gene_2": gene_symbol,
+            "combined_score": {"$gt": min_combined_score}
+        },
+        {"_id": 0}
+    )
+    res.extend(list(relations_2))
+
+    for relation in relations_2:
+        gene_list.append(relation["gene_1"])
+
     return res
 
 
@@ -671,7 +681,7 @@ def create_app():
                 abort(400, "gene_ids is mandatory")
 
             gene_ids = body['gene_ids']
-            if type(gene_ids) != list:
+            if not isinstance(gene_ids, list):
                 abort(400, "gene_ids must be a list")
 
             try:
@@ -685,7 +695,6 @@ def create_app():
     @flask_app.route("/gene-symbols-finder/", methods=['GET'])
     def gene_symbol_finder():
         """Takes a string of any length and returns a list of genes that contain that search criteria."""
-        query = ""  # To prevent MyPy warning
         if "query" not in request.args:
             abort(400, "'query' parameter is mandatory")
         else:
@@ -709,12 +718,11 @@ def create_app():
     def information_of_genes():
         """Receives a list of gene IDs and returns information about them."""
         body = request.get_json()  # type: ignore
-        response = {}
         if "gene_ids" not in body:
             abort(400, "gene_ids is mandatory")
 
         gene_ids = body['gene_ids']
-        if type(gene_ids) != list:
+        if not isinstance(gene_ids, list):
             abort(400, "gene_ids must be a list")
 
         try:
@@ -773,7 +781,7 @@ def create_app():
             abort(400, "gene_ids is mandatory")
 
         gene_ids = body['gene_ids']
-        if type(gene_ids) != list:
+        if not isinstance(gene_ids, list):
             abort(400, "gene_ids must be a list")
         if len(gene_ids) == 0:
             abort(400, "gene_ids must contain at least one gene symbol")
@@ -794,7 +802,7 @@ def create_app():
             abort(400, "gene_ids is mandatory")
 
         gene_ids = body['gene_ids']
-        if type(gene_ids) != list:
+        if not isinstance(gene_ids, list):
             abort(400, "gene_ids must be a list")
 
         if len(gene_ids) == 0:
@@ -804,7 +812,6 @@ def create_app():
             abort(400, "tissue is mandatory")
 
         tissue = body['tissue']
-        type_response = None  # To prevent MyPy warning
         if "type" in body:
             if body['type'] not in ["gzip", "json"]:
                 abort(400, "allowed values for the 'type' key are 'json' or 'gzip'")
@@ -819,7 +826,7 @@ def create_app():
             content = gzip.compress(json.dumps(
                 expression_data).encode('utf8'), 5)
             response = make_response(content)
-            response.headers['Content-length'] = len(content)
+            response.headers['Content-length'] = str(len(content))
             response.headers['Content-Encoding'] = 'gzip'
             return response
         return jsonify(expression_data)
@@ -841,15 +848,17 @@ def create_app():
                 abort(400, "gene_ids is mandatory")
             gene_term_arguments['gene_ids'] = body['gene_ids']
             is_enriching = ("filter_type" in body) and (
-                body["filter_type"] == "enrichment")
+                    body["filter_type"] == "enrichment")
             if "relation_type" in body:
                 if is_enriching:
                     abort(
-                        400, "relation_type filter is not valid on gene enrichment analysis, all the available relation types will be used.")
+                        400,
+                        "relation_type filter is not valid on gene enrichment analysis, all the available relation "
+                        "types will be used.")
                 gene_term_arguments["relation_type"] = body["relation_type"]
             for a in gene_term_arguments:
                 if not isinstance(gene_term_arguments[a], list):
-                    abort(400, str(a)+" must be a list")
+                    abort(400, str(a) + " must be a list")
             if "filter_type" in body:
                 if not body["filter_type"] in valid_filter_types:
                     abort(
@@ -861,9 +870,8 @@ def create_app():
                     abort(400, "ontology_type must be a list")
                 for ot in populate_arguments["ontology_type"]:
                     if not (ot in valid_ontology_types):
-                        abort(400, str(ot)+" is not a valid ontology_type")
+                        abort(400, str(ot) + " is not a valid ontology_type")
             if "p_value_threshold" in body:
-                p_value_threshold = None  # To prevent MyPy warning
                 if not is_enriching:
                     abort(
                         400, "p_value_threshold is only valid on gene enrichment analysis")
@@ -929,26 +937,31 @@ def create_app():
                     arguments["general_depth"] = int(body["general_depth"])
                     if arguments["general_depth"] < 0:
                         abort(400, "depth should be a positive integer")
+
                 if "hierarchical_depth_to_children" in body:
-                    arguments["hierarchical_depth_to_children"] = int(
-                        body["hierarchical_depth_to_children"])
+                    arguments["hierarchical_depth_to_children"] = int(body["hierarchical_depth_to_children"])
                     if arguments["hierarchical_depth_to_children"] < 0:
                         abort(400, "hierarchical depth should be a positive integer")
+
             except ValueError:
                 abort(400, "depth should be an integer")
             if "relations" in body:
                 arguments["relations"] = body["relations"]
-                if type(arguments["relations"]) != list:
+                if not isinstance(arguments["relations"], list):
                     abort(400, "relations must be a list")
+
             if "ontology_type" in body:
                 arguments["ontology_type"] = body["ontology_type"]
-                if type(arguments["ontology_type"]) != list:
+                if not isinstance(arguments["ontology_type"], list):
                     abort(400, "ontology_type must be a list")
+
                 for ot in arguments["ontology_type"]:
                     if not (ot in valid_ontology_types):
-                        abort(400, str(ot)+" is not a valid ontology_type")
+                        abort(400, str(ot) + " is not a valid ontology_type")
+
             if "to_root" in body:
                 arguments["to_root"] = bool(body["to_root"])
+
             response = bfs_on_terms(**arguments)
         return jsonify(response)
 
@@ -980,7 +993,7 @@ def create_app():
             body = request.get_json()
             if "gene_ids" not in body:
                 abort(400, "gene_ids is mandatory")
-            if type(body["gene_ids"]) != list:
+            if not isinstance(body["gene_ids"], list):
                 abort(400, "gene_ids must be a list")
             for gene in body["gene_ids"]:
                 response[gene] = cancer_drugs_related_to_gene(gene)
@@ -1005,7 +1018,16 @@ def create_app():
 
     @flask_app.route("/drugs-regulating-gene/<gene_id>", methods=['GET'])
     def drugs_regulating_gene(gene_id):
-        return {"link": "https://go.drugbank.com/pharmaco/transcriptomics?q%5Bg%5B0%5D%5D%5Bm%5D=or&q%5Bg%5B0%5D%5D%5Bdrug_approved_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_nutraceutical_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_illicit_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_investigational_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_withdrawn_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_experimental_true%5D=all&q%5Bg%5B1%5D%5D%5Bm%5D=or&q%5Bg%5B1%5D%5D%5Bdrug_available_in_us_true%5D=all&q%5Bg%5B1%5D%5D%5Bdrug_available_in_ca_true%5D=all&q%5Bg%5B1%5D%5D%5Bdrug_available_in_eu_true%5D=all&commit=Apply+Filter&q%5Bdrug_precise_names_name_cont%5D=&q%5Bgene_symbol_eq%5D="+gene_id+"&q%5Bgene_id_eq%5D=&q%5Bchange_eq%5D=&q%5Binteraction_cont%5D=&q%5Bchromosome_location_cont%5D="}
+        return {
+            "link": "https://go.drugbank.com/pharmaco/transcriptomics?q%5Bg%5B0%5D%5D%5Bm%5D=or&q%5Bg%5B0%5D%5D"
+                    "%5Bdrug_approved_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_nutraceutical_true%5D=all&q%5Bg%5B0%5D%5D"
+                    "%5Bdrug_illicit_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_investigational_true%5D=all&q%5Bg%5B0%5D%5D"
+                    "%5Bdrug_withdrawn_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_experimental_true%5D=all&q%5Bg%5B1%5D%5D"
+                    "%5Bm%5D=or&q%5Bg%5B1%5D%5D%5Bdrug_available_in_us_true%5D=all&q%5Bg%5B1%5D%5D"
+                    "%5Bdrug_available_in_ca_true%5D=all&q%5Bg%5B1%5D%5D%5Bdrug_available_in_eu_true%5D=all&commit"
+                    "=Apply+Filter&q%5Bdrug_precise_names_name_cont%5D=&q%5Bgene_symbol_eq%5D=" + gene_id +
+                    "&q%5Bgene_id_eq%5D=&q%5Bchange_eq%5D=&q%5Binteraction_cont%5D=&q%5Bchromosome_location_cont%5D="
+        }
 
     # Error handling
     @flask_app.errorhandler(400)
