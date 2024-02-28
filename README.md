@@ -515,7 +515,7 @@ as significant. Must be a float. Not recommended to set it higher than 0.05.
   The response you get is a list. Each element of the list is a GO term that fulfills the conditions of the query. GO terms can contain name, definition, relations to other terms, etc.
     - `go_id`: Unique identifier.
     - `name`: human-readable term name.
-    - `ontology_type`: Denotes which of the three sub-ontologies (cellular component, biological process or molecular function) the term belongs to.
+    - `ontology_type`: Denotes which of the three sub-ontologies (`biological_process`", `molecular_function`, `cellular_component`) the term belongs to.
     - `definition`: A textual description of what the term represents, plus reference(s) to the source of the information.
     - `relations_to_other_terms`: Each go term can be related to many other terms with a [variety of relations](http://geneontology.org/docs/ontology-relations/).
     - `synonyms`: Alternative words or phrases closely related in meaning to the term name, with indication of the relationship between the name and synonym given by the synonym scope.
@@ -526,7 +526,7 @@ as significant. Must be a float. Not recommended to set it higher than 0.05.
     - `definition_reference`: This field provides bibliographic references or sources from which the definition of the term in question is obtained.
     - `relations_to_genes`: list of elements of type JSON. Each element corresponds to a gene and how it's related to the term.  
       - `gene`: name of the gene.
-      - `relation_type`: the type of relation between the gene and the GO term. When `filter_type` is enrichment, extra relation will be gather from g:Profiler database. These relations will be shown as "relation obtained from gProfiler".
+      - `relation_type`: the type of relation between the gene and the GO term. They can be `enables`, `involved_in`, `part_of` or `located_in`. When `filter_type` is enrichment, extra relation will be gather from g:Profiler database. These relations will be shown as "relation obtained from gProfiler".
       - `evidence`: evidence code to indicate how the annotation to a particular term is supported.
     - `enrichment_metrics`: .  
       - `p_value`: Hypergeometric p-value after correction for multiple testing.
@@ -599,15 +599,14 @@ Gets the list of related terms to a term.
   - `ontology_type`: Filters the ontology type of the terms in the response. By default it's `["biological_process", "molecular_function", "cellular_component"]`. It should always be a list containing any permutation of the 3 ontologies
   - `general_depth`: The search depth for the non-hierarchical relations
   - `hierarchical_depth_to_children`: The search depth for the hierarchical relations in the direction of the children
-  - `to_root`: 0 for false 1 fot true. If true get all the terms in the hierarchical relations in the direction of the root
+  - `to_root`: `0` for false `1` fot true. If true get all the terms in the hierarchical relations in the direction of the root
 - Success Response:
   - Code: 200
   - Content: The response you get is a list of GO terms related to the searched term that fulfills the conditions of the query. Each term has:
     - `go_id`: ID of the GO term
     - `name`: Name of the GO term
-    - `ontology_type`: Denotes which of the three sub-ontologies (cellular component, biological process or molecular function) the term belongs to.
-    - `relations`: Dictionary of relations
-    - `relation type`: List of terms related by that relation type to the term
+    - `ontology_type`: Denotes which of the three sub-ontologies (`cellular_component`, `biological_process` or `molecular_function`) the term belongs to.
+    - `relations`: Dictionary of relations. Possible keys within this dictionary are `part_of`, `regulates` or `has_part`, and their values are lists of terms with Gene Ontology identifiers.  
   - Example:
     - URL: <http://localhost:8000/related-terms>
     - body:
@@ -652,9 +651,9 @@ Gets a list of drugs from the PharmGKB database related to a list of genes.
   - Content: The response you get is a dictionary where the genes are the keys and the values are a list of all the related drug information
     - `pharmgkb_id`: Identifier assigned to this drug label by PharmGKB
     - `name`: Name assigned to the label by PharmGKB
-    - `source`: The source that originally authored the label (e.g. FDA, EMA)
+    - `source`: The source that originally authored the label. Valid options are `EMA`, `FDA`, `HCSC` or `PMDA`. For a detailed description of each value, review the [PharmGKB documentation](https://www.pharmgkb.org/page/drugLabelLegend#drug-label-sources)
     - `biomarker_flag`: `On` if drug in this label appears on the FDA Biomarker list; `Off (Formerly On)` if the label was on the FDA Biomarker list at one time; `Off (Never On)` if the label was never listed on the FDA Biomarker list (to PharmGKB's knowledge)
-    - `testing_level`:  PGx testing level as annotated by PharmGKB based on definitions at <https://www.pharmgkb.org/page/drugLabelLegend>
+    - `testing_level`:  PGx testing level as annotated by PharmGKB. Possible values are: `Testing Required`, `Testing Recommended`, `Actionable PGx`, `Informative PGx` or `Criteria Not Met`. For a detailed description of each value, review the [PharmGKB documentation](https://www.pharmgkb.org/page/drugLabelLegend).
     - `chemicals`: Related chemicals
     - `genes`: List of related genes
     - `variants_haplotypes`: Related variants and/or haplotypes
@@ -689,13 +688,13 @@ Gets a list of drugs from the PharmGKB database related to a list of genes.
 
 ### Predicted functional associations network
 
-For a given gene, this service obtains from the String database a list of genes and their relationships to it.  
+For a given gene, this service gets from the String database a list of genes and their relationships to it.  
 
 - URL: /string-relations
 - Method: POST
 - Params: A body in JSON format with the following content
   - `gene_id`: target gene
-  - `min_combined_score`: the minimum combined scored allowed int the relations. Possible scores go from 1 to 1000
+  - `min_combined_score`: the minimum combined scored allowed int the relations. Possible scores go from 1 to 1000.
 - Success Response:
   - Code: 200
   - Content: The response you get is a list of relations containing the targeted gene
@@ -715,7 +714,6 @@ For a given gene, this service obtains from the String database a list of genes 
     - `textmining`: Values range from 1 to 1000
     - `textmining_transferred`: Values range from 1 to 1000
     - `combined_score`: Values range from 1 to 1000
-
   - Example:
     - URL: <http://localhost:8000/string-relations>
     - body:
