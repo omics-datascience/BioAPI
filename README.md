@@ -17,7 +17,7 @@ This document is focused on the **development** of the system. If you are lookin
     - [Therapies and actionable genes in cancer](#therapies-and-actionable-genes-in-cancer)
     - [Gene Ontology terms related to a list of genes](#gene-ontology-terms-related-to-a-list-of-genes)
     - [Gene Ontology terms related to another specific term](#gene-ontology-terms-related-to-another-specific-term)
-    - [Cancer related drugs](#cancer-related-drugs)
+    - [Cancer-related drugs](#cancer-related-drugs)
     - [Predicted functional associations network](#predicted-functional-associations-network)
     - [Drugs that regulate a gene](#drugs-that-regulate-a-gene)
   - [Error Responses](#error-responses)
@@ -45,10 +45,10 @@ The Genotype-Tissue Expression (GTEx) project is an ongoing effort to build a co
 OncoKB™ is a precision oncology knowledge base developed at Memorial Sloan Kettering Cancer Center that contains biological and clinical information about genomic alterations in cancer. Alteration- and tumor type-specific therapeutic implications are classified using the OncoKB™ [Levels of Evidence system](https://www.oncokb.org/levels), which assigns clinical actionability to individual mutational events. Downloaded from its official website in November 2023.  
 6. Gene Ontology [Gene Ontology (GO)](http://geneontology.org/).
 It is a project to develop an up-to-date, comprehensive, computational model of biological systems, from the molecular level to larger pathways, cellular and organism-level systems. It provides structured and standardized annotations of gene products, in a hierarchical system of terms and relationships that describes the molecular functions, biological processes, and cellular components associated with genes and gene products. Downloaded from its official website in June 2023
-7. Cancer related drugs [Pharmacogenomics Knowledge Base (PharmGKB)](https://www.pharmgkb.org/).
-It is a resource that provides information about how human genetic variation affects response to medications. PharmGKB collects, curates and disseminates knowledge about clinically actionable gene-drug associations and genotype-phenotype relationships. Downloaded from its official website in February 2024
+7. Cancer-related drugs [Pharmacogenomics Knowledge Base (PharmGKB)](https://www.pharmgkb.org/).
+It is a resource that provides information about how human genetic variation affects response to medications. PharmGKB collects, curates, and disseminates knowledge about clinically actionable gene-drug associations and genotype-phenotype relationships. Downloaded from its official website in February 2024
 8. Predicted functional associations network [STRING](https://string-db.org/)
-It is a database of known and predicted protein-protein interactions. The interactions include direct (physical) and indirect (functional) associations; they stem from computational prediction, from knowledge transfer between organisms, and from interactions aggregated from other (primary) databases. String is being used in its version 12.0.
+It is a database of known and predicted protein-protein interactions. The interactions include direct (physical) and indirect (functional) associations; they stem from computational prediction, knowledge transfer between organisms, and interactions aggregated from other (primary) databases. String is being used in its version 12.0.
 9. Pharmaco-transcriptomics [DrugBank](https://go.drugbank.com/)
 It is a comprehensive, free-to-access, online database containing information on drugs and drug targets. BioAPI only generates access links to the Drugbank website, it does not contain your data.  
 
@@ -406,14 +406,13 @@ This service gets gene expression in healthy tissue
 
 ### Therapies and actionable genes in cancer
 
-This service retrieves information of FDA-Approved precision oncology therapies and
-actionable genes and drugs obtained from the OncoKB database, at a therapeutic, diagnostic and prognostic level.  
+This service retrieves information on FDA-approved precision oncology therapies, actionable genes, and drugs obtained from the OncoKB database, at a therapeutic, diagnostic, and prognostic level.  
 
 - URL: /information-of-oncokb
 - Method: POST  
 - Params: A body in JSON format with the following content
-  - `gene_ids`: list of genes for which you want to get the information from OncoKB database.  
-  - `query`: Optional. Parameter used to show only the results that match it. The query is used to find matches within the information offered by OncoKB for different `precision oncology therapies`, `types of cancer`, `biomarker detection methods` or `drugs`.  
+  - `gene_ids`: list of genes for which you want to get the information from the OncoKB database.  
+  - `query`: Optional. Parameter used to show only the results that match it. The query is used to find matches within the information offered by OncoKB for the fields `precision_oncology_therapy`, `cancer_types`, `method_of_biomarker_detection`, or `drugs`.  
 - Success Response:
   - Code: 200
   - Content:
