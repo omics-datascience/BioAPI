@@ -61,7 +61,7 @@ Searches the identifier of a list of genes of different genomics databases and r
 - URL: /gene-symbols
 - Method: POST  
 - Params: A body in JSON format with the following content
-  - `gene_ids`: list of identifiers that you want to get your approved symbols  
+  - `gene_ids`: list of identifiers that you want to get your approved symbols.  
 - Success Response:
   - Code: 200
   - Content:
@@ -104,7 +104,7 @@ Service that takes a string of any length and returns a list of genes that conta
 - URL: /gene-symbols-finder
 - Method: GET  
 - Params:
-  - `query`: gene search string
+  - `query`: gene search string.
   - `limit`: number of elements returned by the service. Default 50.
 - Success Response:
   - Code: 200
@@ -130,30 +130,30 @@ From a list of valid genes, it obtains different information for the human refer
 - URL: /information-of-genes
 - Method: POST  
 - Params: A body in JSON format with the following content
-  - `gene_ids`: list of valid genes identifiers  
+  - `gene_ids`: list of valid genes identifiers.  
 - Success Response:
   - Code: 200
   - Content:
     - `gene_ids`: Returns a JSON with as many keys as there are valid genes in the body. For each gene, the value is a JSON with the following format:
-      - `alias_symbol`: alternative symbols for a known gene
-      - `percentage_gene_gc_content`: Ratio of guanine and cytosine nucleotides in the DNA sequence of the gene
+      - `alias_symbol`: alternative symbols for a known gene.
+      - `percentage_gene_gc_content`: Ratio of guanine and cytosine nucleotides in the DNA sequence of the gene.
       - `oncokb_cancer_gene`: return `Oncogene` or `Tumor Suppressor Gene` only if the gene has this information in the OncoKB database.
-      - `name`: gene name according to the HGNC database
-      - `band`: cytoband or specific location in the genome
+      - `name`: gene name according to the HGNC database.
+      - `band`: cytoband or specific location in the genome.
       - `chromosome`: chromosome where the gene is located (Chromosome without *chr* prefix).
-      - `start_position`: chromosomal position of gene starts for the reference genome GRCh38
-      - `end_position`: chromosomal position of gene ends for the reference genome GRCh38
-      - `start_GRCh37`: chromosomal position of gene starts for the reference genome GRCh37
-      - `end_GRCh37`: chromosomal position of gene ends for the reference genome GRCh37
+      - `start_position`: chromosomal position of gene starts for the reference genome GRCh38.
+      - `end_position`: chromosomal position of gene ends for the reference genome GRCh38.
+      - `start_GRCh37`: chromosomal position of gene starts for the reference genome GRCh37.
+      - `end_GRCh37`: chromosomal position of gene ends for the reference genome GRCh37.
       - `strand`: DNA strand containing the coding sequence for the gene. Possible values are 1 for the positive strand or -1 for the negative strand.
       - `gene_biotype`: A gene or transcript classification (examples: protein_coding or miRNA). The different possibilities for this field can be found in the [Biotype section of the Ensembl documentation](https://vega.archive.ensembl.org/info/about/gene_and_transcript_types.html).
-      - `refseq_summary`: complete description of the gene according to the RefSeq database (RefSeq : NCBI Reference Sequences)
-      - `civic_description`: Description of the clinical relevance of the gene according to the CiVIC (Clinical Interpretation of Variants in Cancer) database
-      - `hgnc_id`: Gene identifier in the HGNC database
-      - `uniprot_ids`: Gene identifier in the Uniprot database
-      - `omim_id`: Gene identifier in the OMIM database
-      - `ensembl_gene_id`: Gene identifier in the Ensembl database
-      - `entrez_id`: Gene identifier in the NCBI Entrez database
+      - `refseq_summary`: complete description of the gene according to the RefSeq database (RefSeq : NCBI Reference Sequences).
+      - `civic_description`: Description of the clinical relevance of the gene according to the CiVIC (Clinical Interpretation of Variants in Cancer) database.
+      - `hgnc_id`: Gene identifier in the HGNC database.
+      - `uniprot_ids`: Gene identifier in the Uniprot database.
+      - `omim_id`: Gene identifier in the OMIM database.
+      - `ensembl_gene_id`: Gene identifier in the Ensembl database.
+      - `entrez_id`: Gene identifier in the NCBI Entrez database.
   - Example:
     - URL: <http://localhost:8000/information-of-genes>
     - body:
@@ -224,7 +224,7 @@ From a list of valid genes, it obtains different information for the human refer
 Gets the identifier of a gene, validates it and then returns the group of genes to which it belongs according to HGNC, and all the other genes that belong to the same group.  
 
 - URL: /genes-of-its-group/*gene_id*
-  - `gene_id` is the identifier of the gene for any database  
+  - `gene_id` is the identifier of the gene for any database.  
 - Method: GET  
 - Params: -  
 - Success Response:
@@ -232,8 +232,7 @@ Gets the identifier of a gene, validates it and then returns the group of genes 
   - Content:
     - `gene_id`: HGNC approved gene symbol.  
     - `locus_group`: Groups locus types together into related sets. The different options for this field can be: `protein-coding gene`, `pseudogene`, `phenotype` or `other`.
-    - `locus_type`: Specifies the genetic class of each gene entry.  
-      All locus types and locus groups can be found in the [HGNC documentation](https://www.genenames.org/download/statistics-and-files/).
+    - `locus_type`: Specifies the genetic class of each gene entry. All locus types and locus groups can be found in the [HGNC documentation](https://www.genenames.org/download/statistics-and-files/).
     - `groups`:
       - `gene_group`: Gene group name.
       - `gene_group_id`: Gene group identifier.
@@ -269,17 +268,17 @@ Get the list of genes that are involved in a pathway for a given database.
 
 - URL: /pathway-genes/*source*/*external_id*
   - `source`: Database to query. Use lowercase. Valid Options:  
-    - [kegg](https://www.genome.jp/kegg/)
-    - [biocarta](https://maayanlab.cloud/Harmonizome/resource/Biocarta)
-    - [ehmn](http://allie.dbcls.jp/pair/EHMN;Edinburgh+Human+Metabolic+Network.html)
-    - [humancyc](https://humancyc.org/)
-    - [inoh](https://dbarchive.biosciencedbc.jp/en/inoh/desc.html)
-    - [netpath](https://www.wikipathways.org/index.php/Portal:NetPath)
-    - [pid](https://github.com/NCIP/pathway-interaction-database)
-    - [reactome](https://reactome.org/)
-    - [smpdb](https://www.smpdb.ca/)
-    - [signalink](http://signalink.org/)
-    - [wikipathways](https://www.wikipathways.org/index.php/WikiPathways)  
+    - [kegg](https://www.genome.jp/kegg/).
+    - [biocarta](https://maayanlab.cloud/Harmonizome/resource/Biocarta).
+    - [ehmn](http://allie.dbcls.jp/pair/EHMN;Edinburgh+Human+Metabolic+Network.html).
+    - [humancyc](https://humancyc.org/).
+    - [inoh](https://dbarchive.biosciencedbc.jp/en/inoh/desc.html).
+    - [netpath](https://www.wikipathways.org/index.php/Portal:NetPath).
+    - [pid](https://github.com/NCIP/pathway-interaction-database).
+    - [reactome](https://reactome.org/).
+    - [smpdb](https://www.smpdb.ca/).
+    - [signalink](http://signalink.org/).
+    - [wikipathways](https://www.wikipathways.org/index.php/WikiPathways).  
     Using an invalid option returns an empty list of genes.
   - `external_id`: Pathway identifier in the source database.
 - Method: GET  
@@ -314,7 +313,7 @@ Gets the common pathways for a list of genes.
 - URL: /pathways-in-common
 - Method: POST  
 - Params: A body in JSON format with the following content
-  - `gene_ids`: list of genes for which you want to get the common metabolic pathways. If you use a list with a single gene, then you will get all the pathways for that gene
+  - `gene_ids`: list of genes for which you want to get the common metabolic pathways. If you use a list with a single gene, then you will get all the pathways for that gene.
 - Success Response:
   - Code: 200
   - Content:
@@ -354,7 +353,7 @@ This service gets gene expression in healthy tissue
 - Params: A body in JSON format with the following content
   - `gene_ids`: list of genes for which you want to get the expression.  
   - `tissue`: healthy tissue from which you want to get the expression values. The different options for this parameter are: `Adipose Tissue`, `Adrenal Gland`, `Bladder`, `Blood`, `Blood Vessel`, `Brain`, `Breast`, `Cervix Uteri`, `Colon`, `Esophagus`, `Fallopian Tube`, `Heart`, `Kidney`, `Liver`, `Lung`, `Muscle`, `Nerve`, `Ovary`, `Pancreas`, `Pituitary`, `Prostate`, `Salivary Gland`, `Skin`, `Small Intestine`, `Spleen`, `Stomach`, `Testis`, `Thyroid`, `Uterus` or `Vagina`. Any other value will cause the response to have no results.
-  - `type`: Type of response format: `json` or `gzip`. Default: json
+  - `type`: Type of response format: `json` or `gzip`. Default: json.
 - Success Response:
   - Code: 200
   - Content:
@@ -501,10 +500,9 @@ Gets the list of related terms for a list of genes.
 - URL: /genes-to-terms
 - Method: POST  
 - Params: A body in JSON format with the following content
-  - `gene_ids`: list of genes for which you want to get the terms in common (they must be a list, and have to be in HGNC gene symbol format)
+  - `gene_ids`: list of genes for which you want to get the terms in common (they must be a list, and have to be in HGNC gene symbol format).
   - `filter_type`: by default `intersection`, in which case it bring all the terms that are related to all the genes, another option is `union` which brings all the terms that are related to **at least** on gene. The third option is `enrichment`, it does a gene enrichment analysis on the input of genes with [g:Profiler library](https://biit.cs.ut.ee/gprofiler/page/docs). This filter type has 2 extra parameters:
-    - `p_value_threshold`: 0.05 by default. It's the p-value threshold for significance, results with smaller p-value are tagged
-as significant. Must be a float. Not recommended to set it higher than 0.05.
+    - `p_value_threshold`: 0.05 by default. It's the p-value threshold for significance, results with smaller p-value are tagged as significant. Must be a float. Not recommended to set it higher than 0.05.
     - `correction_method`:  The enrichment default correction method is `analytical` which uses multiple testing correction and applies g:Profiler tailor-made algorithm [g:SCS](https://biit.cs.ut.ee/gprofiler/page/docs#significance_threhshold) for reducing significance scores. Alternatively, one may select `bonferroni` correction or `false_discovery_rate` (Benjamini-Hochberg FDR).
   - `relation_type`: filters the relation between genes and terms. By default it's `["enables","involved_in","part_of","located_in"]`. It should always be a list containing any permutation of the allowed relations. Only valid on `filter_type` intersection and union. should not be present on `enrichment`.
   - `ontology_type`: filters the ontology type of the terms in the response. By default it's `["biological_process", "molecular_function", "cellular_component"]`. It should always be a list containing any permutation of the 3 ontologies.
@@ -517,7 +515,6 @@ as significant. Must be a float. Not recommended to set it higher than 0.05.
     - `name`: human-readable term name.
     - `ontology_type`: Denotes which of the three sub-ontologies (`biological_process`", `molecular_function`, `cellular_component`) the term belongs to.
     - `definition`: A textual description of what the term represents, plus reference(s) to the source of the information.
-    - `relations_to_other_terms`: Each go term can be related to many other terms with a [variety of relations](http://geneontology.org/docs/ontology-relations/).
     - `synonyms`: Alternative words or phrases closely related in meaning to the term name, with indication of the relationship between the name and synonym given by the synonym scope.
     - `subset`: This field refers to an additional categorization of terms within the ontology. It allows terms that share specific characteristics or properties to be grouped into smaller, more specific subsets.
     - `is_a`: Refers to a semantic relationship between terms within the ontology. Indicates that a term is a subtype or subclass of another more general term.
@@ -528,7 +525,7 @@ as significant. Must be a float. Not recommended to set it higher than 0.05.
       - `gene`: name of the gene.
       - `relation_type`: the type of relation between the gene and the GO term. They can be `enables`, `involved_in`, `part_of` or `located_in`. When `filter_type` is enrichment, extra relation will be gather from g:Profiler database. These relations will be shown as "relation obtained from gProfiler".
       - `evidence`: evidence code to indicate how the annotation to a particular term is supported.
-    - `enrichment_metrics`: .  
+    - `enrichment_metrics`:  
       - `p_value`: Hypergeometric p-value after correction for multiple testing.
       - `intersection_size`: The number of genes in the query that are annotated to the corresponding term.
       - `effective_domain_size`: The total number of genes "in the universe" which is used as one of the four parameters for the hypergeometric probability function of statistical significance.  
@@ -594,17 +591,17 @@ Gets the list of related terms to a term.
 - URL: /related-terms
 - Method: POST
 - Params: A body in JSON format with the following content
-  - `term_id`: The term ID of the term you want to search
-  - `relations`: Filters the non-hierarchical relations between terms. By default it's `["part_of","regulates","has_part"]`. It should always be a list
-  - `ontology_type`: Filters the ontology type of the terms in the response. By default it's `["biological_process", "molecular_function", "cellular_component"]`. It should always be a list containing any permutation of the 3 ontologies
-  - `general_depth`: The search depth for the non-hierarchical relations
-  - `hierarchical_depth_to_children`: The search depth for the hierarchical relations in the direction of the children
-  - `to_root`: `0` for false `1` fot true. If true get all the terms in the hierarchical relations in the direction of the root
+  - `term_id`: The term ID of the term you want to search.
+  - `relations`: Filters the non-hierarchical relations between terms. By default it's `["part_of","regulates","has_part"]`. It should always be a list.
+  - `ontology_type`: Filters the ontology type of the terms in the response. By default it's `["biological_process", "molecular_function", "cellular_component"]`. It should always be a list containing any permutation of the 3 ontologies.
+  - `general_depth`: The search depth for the non-hierarchical relations.
+  - `hierarchical_depth_to_children`: The search depth for the hierarchical relations in the direction of the children.
+  - `to_root`: `0` for false `1` fot true. If true get all the terms in the hierarchical relations in the direction of the root.
 - Success Response:
   - Code: 200
   - Content: The response you get is a list of GO terms related to the searched term that fulfills the conditions of the query. Each term has:
-    - `go_id`: ID of the GO term
-    - `name`: Name of the GO term
+    - `go_id`: ID of the GO term.
+    - `name`: Name of the GO term.
     - `ontology_type`: Denotes which of the three sub-ontologies (`cellular_component`, `biological_process` or `molecular_function`) the term belongs to.
     - `relations`: Dictionary of relations. Possible keys within this dictionary are `part_of`, `regulates` or `has_part`, and their values are lists of terms with Gene Ontology identifiers.  
   - Example:
@@ -644,19 +641,19 @@ Gets a list of drugs from the PharmGKB database related to a list of genes.
 
 - URL: /drugs-pharm-gkb
 - Method: POST
-- Params: A body in JSON format with the following content
-  - `gene_ids`: list of genes for which the related drugs
+- Params: A body in JSON format with the following content:
+  - `gene_ids`: list of genes for which the related drugs.
 - Success Response:
   - Code: 200
   - Content: The response you get is a dictionary where the genes are the keys and the values are a list of all the related drug information
-    - `pharmgkb_id`: Identifier assigned to this drug label by PharmGKB
-    - `name`: Name assigned to the label by PharmGKB
-    - `source`: The source that originally authored the label. Valid options are `EMA`, `FDA`, `HCSC` or `PMDA`. For a detailed description of each value, review the [PharmGKB documentation](https://www.pharmgkb.org/page/drugLabelLegend#drug-label-sources)
-    - `biomarker_flag`: `On` if drug in this label appears on the FDA Biomarker list; `Off (Formerly On)` if the label was on the FDA Biomarker list at one time; `Off (Never On)` if the label was never listed on the FDA Biomarker list (to PharmGKB's knowledge)
+    - `pharmgkb_id`: Identifier assigned to this drug label by PharmGKB.
+    - `name`: Name assigned to the label by PharmGKB.
+    - `source`: The source that originally authored the label. Valid options are `EMA`, `FDA`, `HCSC` or `PMDA`. For a detailed description of each value, review the [PharmGKB documentation](https://www.pharmgkb.org/page/drugLabelLegend#drug-label-sources).
+    - `biomarker_flag`: `On` if drug in this label appears on the FDA Biomarker list; `Off (Formerly On)` if the label was on the FDA Biomarker list at one time; `Off (Never On)` if the label was never listed on the FDA Biomarker list (to PharmGKB's knowledge).
     - `testing_level`:  PGx testing level as annotated by PharmGKB. Possible values are: `Testing Required`, `Testing Recommended`, `Actionable PGx`, `Informative PGx` or `Criteria Not Met`. For a detailed description of each value, review the [PharmGKB documentation](https://www.pharmgkb.org/page/drugLabelLegend).
-    - `chemicals`: Related chemicals
-    - `genes`: List of related genes
-    - `variants_haplotypes`: Related variants and/or haplotypes
+    - `chemicals`: Related chemicals.
+    - `genes`: List of related genes.
+    - `variants_haplotypes`: Related variants and/or haplotypes.
   - Example:
     - URL: <http://localhost:8000/drugs-pharm-gkb>
     - body:
@@ -693,27 +690,27 @@ For a given gene, this service gets from the String database a list of genes and
 - URL: /string-relations
 - Method: POST
 - Params: A body in JSON format with the following content
-  - `gene_id`: target gene
+  - `gene_id`: target gene.
   - `min_combined_score`: the minimum combined scored allowed int the relations. Possible scores go from 1 to 1000.
 - Success Response:
   - Code: 200
   - Content: The response you get is a list of relations containing the targeted gene
-    - `gene_1`: Gene 1 in the bidirectional relationship
-    - `gene_2`: Gene 2 in the bidirectional relationship
-    - `neighborhood`: Values range from 1 to 1000
-    - `neighborhood_transferred`: Values range from 1 to 1000
-    - `fusion`: Values range from 1 to 1000
-    - `cooccurence`: Values range from 1 to 1000
-    - `homology`: Values range from 1 to 1000
-    - `coexpression`: Values range from 1 to 1000
-    - `coexpression_transferred`: Values range from 1 to 1000
-    - `experiments`: Values range from 1 to 1000
+    - `gene_1`: Gene 1 in the bidirectional relationship.
+    - `gene_2`: Gene 2 in the bidirectional relationship.
+    - `neighborhood`: Values range from 1 to 1000.
+    - `neighborhood_transferred`: Values range from 1 to 1000.
+    - `fusion`: Values range from 1 to 1000.
+    - `cooccurence`: Values range from 1 to 1000.
+    - `homology`: Values range from 1 to 1000.
+    - `coexpression`: Values range from 1 to 1000.
+    - `coexpression_transferred`: Values range from 1 to 1000.
+    - `experiments`: Values range from 1 to 1000.
     - `experiments_transferred`: Values range from 1 to 1000
-    - `database`: Values range from 1 to 1000
-    - `database_transferred`: Values range from 1 to 1000
-    - `textmining`: Values range from 1 to 1000
-    - `textmining_transferred`: Values range from 1 to 1000
-    - `combined_score`: Values range from 1 to 1000
+    - `database`: Values range from 1 to 1000.
+    - `database_transferred`: Values range from 1 to 1000.
+    - `textmining`: Values range from 1 to 1000.
+    - `textmining_transferred`: Values range from 1 to 1000.
+    - `combined_score`: Values range from 1 to 1000.
   - Example:
     - URL: <http://localhost:8000/string-relations>
     - body:
@@ -769,13 +766,13 @@ For a given gene, this service gets from the String database a list of genes and
 Service that takes gene symbol and returns a link to <https://go.drugbank.com> with all the drugs that upregulate and down regulate its expresion. Useful for embeding.
 
 - URL: drugs-regulating-gene/*gene_id*
-  - `gene_id` is the identifier of the gene
+  - `gene_id` is the identifier of the gene.
 - Method: GET
 - Params: -
 - Success Response:
   - Code: 200
   - Content: The response you get is a dictionary with a single key called `link` where its value is a URL that points to the information on the DrugBank website.
-    - `link`: Link to DrugBank website
+    - `link`: Link to DrugBank website.
   - Example:
     - URL: <http://localhost:8000/drugs-regulating-gene/TP53>
     - Response:
@@ -806,9 +803,9 @@ All kind of contribution is welcome! If you want to contribute just:
 
 ### Run Flask dev server
 
-1. Start up Docker services like MongoDB: `docker compose -f docker-compose.dev.yml up -d`
+1. Start up Docker services like MongoDB: `docker compose -f docker-compose.dev.yml up -d`.
 2. Go to the `bioapi` folder.
-3. Run Flask server: `python3 bioapi.py`
+3. Run Flask server: `python3 bioapi.py`.
 
 **NOTE:** If you are looking for documentation for a production deployment see [DEPLOYING.md](DEPLOYING.md).
 
