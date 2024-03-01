@@ -19,7 +19,7 @@ IS_DEBUG: bool = os.environ.get('DEBUG', 'true') == 'true'
 PROCESS_POOL_WORKERS: int = int(os.getenv('PROCESS_POOL_WORKERS', 4))
 
 # BioAPI version
-VERSION = '1.2.0'
+VERSION = '1.2.1'
 
 # Valid pathways sources
 PATHWAYS_SOURCES = ["kegg", "biocarta", "ehmn", "humancyc", "inoh", "netpath", "pid", "reactome",
@@ -526,7 +526,6 @@ def cancer_drugs_related_to_gene(gene: str) -> List:
     """
     collection_pharm = mydb["pharmgkb"]
     return list(collection_pharm.find({"genes": gene}, {"_id": 0}))
-
 
 def get_data_from_oncokb(genes: List[str], query: str) -> Dict[str, Dict[str, Any]]:
     """

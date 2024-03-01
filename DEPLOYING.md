@@ -32,13 +32,15 @@ Below are the steps to perform a production deploy of BioAPI.
 
 BioAPI uses three genomic databases for its operation. These databases must be loaded in MongoDB. You can import all the databases in two ways:
 
+
 ### Import using public DB backup (recommended)
 
-To import all databases in MongoDB:
- 
-1. Download the "bioapi_db-1.2.0.gz" from **[here](https://drive.google.com/file/d/1wK8avSQmcoK47ttrZ8wqq3UVWgk5q4vE/view?usp=sharing)** and move it a directory called `import_files`.
+To import all databases in MongoDB:  
+
+1. Download the "bioapi_db-1.2.1.gz" from **[here](https://drive.google.com/file/d/1uBriGnCEbzeVH9d-pHNIY9mr16-3pp_S/view?usp=sharing)**
 2. Shutdown all the services running `docker compose down`
 3. Edit the `docker-compose.dev.yml` file to include the downloaded file inside the container:
+
     ```yml
     # ...
         mongo_bioapi:
@@ -46,30 +48,31 @@ To import all databases in MongoDB:
             # ...
             volumes:
                 # ...
-                - /path/to/import_files:/import_files
+                - /path/to/bioapi_db-1.2.1.gz:/bioapi_db-1.2.1.gz
     # ...
     ```
-  Where "/path/to/" is the absolute path of the "bioapi_db-1.2.0.gz" file downloaded on step 1. **Note:** in Windows It could happen that the file is not correctly mounted inside the container, that's why you need to move the file to a directory like `import_files`, and bind mount that folder instead of the file.
 
-4. Start up the services again running `docker compose -f docker-compose.dev.yml up -d`
-5. Go inside the container `docker container exec -it bio_api_mongo_db bash`
-6. Use Mongorestore to import it into MongoDB:
+  Where "/path/to/" is the absolute path of the "bioapi_db-1.2.1.gz" file downloaded on step 1.  
 
-```bash
-    mongorestore --username <user> --password <pass> --authenticationDatabase admin --gzip --archive=/import_files/bioapi_db-1.2.0.gz
-```
+1. Start up the services again running `docker compose up -d`
+2. Go inside the container `docker container exec -it bio_api_mongo_db bash`
+3. Use Mongorestore to import it into MongoDB:
 
-   Where *\<user\>*, *\<pass\>* are the preconfigured credentials to MongoDB in the `docker-compose.yml` file. *bioapi_db-1.2.0.gz* is the file downloaded in the previous step. **Keep in mind that this loading process will import approximately *47 GB* of information into MongoDB, so it may take a while**.  
+    ```bash
+        mongorestore --username <user> --password <pass> --authenticationDatabase admin --gzip --archive=/bioapi_db-1.2.1.gz
+    ```
 
-7. Stop services with the command `docker compose -f docker-compose.dev.yml down`
-8. Rollup the changes in `docker-compose.dev.yml` file to remove the backup file from the `volumes` section.
-9. Start all the services again (for production) with `docker compose up -d`
+   Where *\<user\>*, *\<pass\>* are the preconfigured credentials to MongoDB in the `docker-compose.yml` file. *bioapi_db-1.2.1.gz* is the file downloaded in the previous step. **Keep in mind that this loading process will import approximately *47 GB* of information into MongoDB, so it may take a while**.  
+
+4. Stop services with the command `docker compose -f docker-compose.dev.yml down`
+5. Rollup the changes in `docker-compose.dev.yml` file to remove the backup file from the `volumes` section. Restart all the services again.
+
 
 ### Manually import the different databases
 
 Alternatively (but **not recommended** due to high computational demands) you can run a separate ETL process to download from source, process and import the databases into MongoDB.
 
-1. Install the necessary requirements:  
+1. Install the requirements:  
     - [R language](https://www.r-project.org/). Version 4.3.2 (Only necessary if you want to update the Gene information database from Ensembl and CiVIC)
     - Some python packages. They can be installed using:  
         `pip install -r config/genomic_db_conf/requirements.txt`  
@@ -84,7 +87,7 @@ Alternatively (but **not recommended** due to high computational demands) you ca
       - *Precision Oncology Therapies dataset*: Download this dataset from [Precision Oncology Therapies page](https://www.oncokb.org/precision-oncology-therapies) by clicking the *Download Table* button. Save it with the name "oncokb_precision_oncology_therapies.tsv". To import all this dataset to MongoDB, execute the oncokb2mongodb.sh script.
     - For cancer related drugs ([Pharmacogenomics Knowledge Base (PharmGKB)](https://www.pharmgkb.org/))  use "databases\pharmGKB" directory and the *pharmgkb2mongodb.sh* file.
     - For Gene ontology ([Gene Ontology (GO)](http://geneontology.org/)) use "databases\gene_ontology" directory and the *go2mongodb.sh* file. **NOTE:** This import needs the "Gene nomenclature" databases (2) already imported to properly process the gene ontology databases
-    - For predicted functional associations network (String) it is necessary to download some datasets from their [official site](https://string-db.org/cgi/download), make sure that the **selected organism is Homo Sapiens** (the file sizes should be in Mb), from "INTERACTION DATA" download "protein network data (full network, incl. distinction: direct vs. interologs)" and rename it to "protein.links.full.txt.gz" then from "ACCESSORY DATA" download "list of STRING proteins incl. their display names and descriptions" and rename it to "protein.aliases.txt.gz", place the 2 files in the "databases\string".
+    - For predicted functional associations network (String) it is necessary to download some datasets from their [official site](https://string-db.org/cgi/download), make sure that the **selected organism is Homo Sapiens** (the file sizes should be in Mb), from "INTERACTION DATA" download "protein network data (full network, incl. distinction: direct vs. interologs)" and rename it to "protein.links.full.txt.gz" then from "ACCESSORY DATA" download "list of STRING proteins incl. their display names and descriptions" and rename it to "protein.info.txt.gz", place the 2 files in the "databases\string".
 3. Run bash files.  
     `./<file.sh>`  
     where file.sh can be *cpdb2mongodb.sh*, *hgnc2mongodb.sh*, *gtex2mongodb.sh*, *go2mongodb.sh*, *string2mongodb.sh*, *pharmgkb2mongodb.sh*, or *ensembl_gene2mongodb.sh*, as appropriate.  
@@ -156,9 +159,9 @@ Finally, if you want to create a new image of MongoDB data, you can follow the f
 5. Use mongodump to export the data to a file:  
 
 ```bash
-    mongodump --username <user> --password <pass> --authenticationDatabase admin --host localhost --port 27017 --gzip --db bio_api --archive=/export_data/bioapi_db-1.2.0.gz
+    mongodump --username <user> --password <pass> --authenticationDatabase admin --host localhost --port 27017 --gzip --db bio_api --archive=/export_data/bioapi_db-1.2.1.gz
 ```
 
 **NOTE**: The process can take a few hours  
 
-The new image can be found in *"/path/in/your/computer/bioapi_db-1.2.0.gz"*
+The new image can be found in *"/path/in/your/computer/bioapi_db-1.2.1.gz"*
