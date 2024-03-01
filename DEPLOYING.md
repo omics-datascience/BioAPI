@@ -32,6 +32,7 @@ Below are the steps to perform a production deploy of BioAPI.
 
 BioAPI uses three genomic databases for its operation. These databases must be loaded in MongoDB. You can import all the databases in two ways:
 
+
 ### Import using public DB backup (recommended)
 
 To import all databases in MongoDB:  
@@ -65,6 +66,7 @@ To import all databases in MongoDB:
 
 4. Stop services with the command `docker compose -f docker-compose.dev.yml down`
 5. Rollup the changes in `docker-compose.dev.yml` file to remove the backup file from the `volumes` section. Restart all the services again.
+
 
 ### Manually import the different databases
 
