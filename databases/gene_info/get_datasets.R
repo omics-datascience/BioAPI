@@ -26,11 +26,12 @@ try(civicUrl <- Sys.getenv(CIVIC_URL), silent = TRUE)
 # GRCh38 ####
 ensembl_grch38 = useEnsembl(biomart = "genes", dataset = "hsapiens_gene_ensembl") 
 atr <- c("ensembl_gene_id", "description", "chromosome_name", "start_position", "end_position", "strand", "band", "percentage_gene_gc_content", "gene_biotype", "hgnc_symbol", "hgnc_id", "entrezgene_id") 
-fil <- c("with_hgnc")
+fil_chrom <- c("MT", "X", "Y", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22")
+
 res_grch38 <- getBM(
   attributes = atr,
-  filters = fil,
-  values = TRUE,
+  filters = c("chromosome_name", "with_hgnc"),
+  values = list(fil_chrom, TRUE),
   mart = ensembl_grch38 
 )
 res_grch38$description <- data.frame(do.call('rbind', str_split(res_grch38$description, " \\[Source")))$X1
@@ -41,11 +42,10 @@ ensembl_grch37 = useEnsembl(biomart="genes", dataset = "hsapiens_gene_ensembl", 
 # listFilters(ensembl_grch37)
 # listAttributes(ensembl_grch37)
 atr <- c("ensembl_gene_id", "description", "chromosome_name", "start_position", "end_position", "strand", "band", "percentage_gene_gc_content", "gene_biotype", "hgnc_symbol", "hgnc_id", "entrezgene_id") 
-fil <- c("with_hgnc")
 res_grch37 <- getBM(
   attributes = atr,
-  filters = fil,
-  values = TRUE,
+  filters = c("chromosome_name", "with_hgnc"),
+  values = list(fil_chrom, TRUE),
   mart = ensembl_grch37
 )
 
