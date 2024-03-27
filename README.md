@@ -273,7 +273,7 @@ Get the list of genes that are involved in a pathway for a given database.
     - [ehmn](https://allie.dbcls.jp/pair/EHMN;Edinburgh+Human+Metabolic+Network.html).
     - [humancyc](https://humancyc.org/).
     - [inoh](https://dbarchive.biosciencedbc.jp/en/inoh/desc.html).
-    - [netpath](https://www.wikipathways.org/index.php/Portal:NetPath).
+    - [netpath](https://classic.wikipathways.org/index.php/Portal:NetPath).
     - [pid](https://github.com/NCIP/pathway-interaction-database).
     - [reactome](https://reactome.org/).
     - [smpdb](https://www.smpdb.ca/).
