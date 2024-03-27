@@ -270,7 +270,7 @@ Get the list of genes that are involved in a pathway for a given database.
   - `source`: Database to query. Use lowercase. Valid Options:  
     - [kegg](https://www.genome.jp/kegg/).
     - [biocarta](https://maayanlab.cloud/Harmonizome/resource/Biocarta).
-    - [ehmn](https://allie.dbcls.jp/en).
+    - [ehmn](https://allie.dbcls.jp/pair/EHMN;Edinburgh+Human+Metabolic+Network.html).
     - [humancyc](https://humancyc.org/).
     - [inoh](https://dbarchive.biosciencedbc.jp/en/inoh/desc.html).
     - [netpath](https://www.wikipathways.org/index.php/Portal:NetPath).
