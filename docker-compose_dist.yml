@@ -1,4 +1,3 @@
-version: '3.7'
 services:
     # MongoDB Server
     mongo_bioapi:
@@ -55,5 +54,5 @@ volumes:
         external: true
         name: 'bio_api_mongo_config'
     bioapi_logs:
-        external:
-            name: 'bio_api_logs'
+        external: true
+        name: 'bio_api_logs'
