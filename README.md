@@ -17,7 +17,7 @@ This document is focused on the **development** of the system. If you are lookin
     - [Therapies and actionable genes in cancer](#therapies-and-actionable-genes-in-cancer)
     - [Gene Ontology terms related to a list of genes](#gene-ontology-terms-related-to-a-list-of-genes)
     - [Gene Ontology terms related to another specific term](#gene-ontology-terms-related-to-another-specific-term)
-    - [Cancer-related drugs](#cancer-related-drugs)
+    - [Cancer related drugs](#cancer-related-drugs)
     - [Predicted functional associations network](#predicted-functional-associations-network)
     - [Drugs that regulate a gene](#drugs-that-regulate-a-gene)
   - [Error Responses](#error-responses)
@@ -693,23 +693,23 @@ For a given gene, this service gets from the String database a list of genes and
   - `min_combined_score`: the minimum combined scored allowed int the relations. Possible scores go from 1 to 1000.
 - Success Response:
   - Code: 200
-  - Content: The response you get is a list of relations containing the targeted gene
+  - Content: The response you get is a list of relations containing the targeted gene. More information about each field in the response and how the different scores are calculated can be found in the [scientific publication](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9825434/) of the STRING database. Unless otherwise indicated in this documentation, values for fields are scores in the range 1-1000.  
     - `gene_1`: Gene 1 in the bidirectional relationship.
     - `gene_2`: Gene 2 in the bidirectional relationship.
-    - `neighborhood`: Values range from 1 to 1000.
-    - `neighborhood_transferred`: Values range from 1 to 1000.
-    - `fusion`: Values range from 1 to 1000.
-    - `cooccurence`: Values range from 1 to 1000.
-    - `homology`: Values range from 1 to 1000.
-    - `coexpression`: Values range from 1 to 1000.
-    - `coexpression_transferred`: Values range from 1 to 1000.
-    - `experiments`: Values range from 1 to 1000.
-    - `experiments_transferred`: Values range from 1 to 1000
-    - `database`: Values range from 1 to 1000.
-    - `database_transferred`: Values range from 1 to 1000.
-    - `textmining`: Values range from 1 to 1000.
-    - `textmining_transferred`: Values range from 1 to 1000.
-    - `combined_score`: Values range from 1 to 1000.
+    - `neighborhood`: It will always come with a NULL value since STRING does not calculate this data for Eukaryotic organisms.
+    - `neighborhood_transferred`: score  reflecting the strength of supporting evidence from neighborhood done in other organisms.
+    - `fusion`: score that is derived from fused proteins in other species.
+    - `cooccurence`: is a type of score that is derived from similar absence/presence patterns of genes in different species.
+    - `homology`: is a measure of the degree of homology between the interactors in a protein interaction.
+    - `coexpression`: is a measure of the degree of coexpression of two genes based on their similar patterns of mRNA expression measured by DNA arrays and similar technologies
+    - `coexpression_transferred`: is a measure of the degree of coexpression of two genes based on their similar patterns of mRNA expression measured by DNA arrays and similar technologies, transferred from other species based on homology.
+    - `experiments`: is a score that represents the confidence level of a protein interaction based on experimental evidence.
+    - `experiments_transferred`: score that is computed from experimental data transferred from other species based on homology.
+    - `database`: score derived from curated data of various databases. It represents the confidence level of protein interactions based on this curated data.
+    - `database_transferred`: score derived from curated data of various databases, transferred from other species based on homology.
+    - `textmining`: is a score derived from the co-occurrence of gene/protein names in scientific publications.
+    - `textmining_transferred`: is a score derived from the co-occurrence of gene/protein names in scientific publications, transferred from other species based on homology.
+    - `combined_score`: is a measure of the confidence level of a protein-protein interaction. It is calculated by combining the scores of all the evidence channels, including transferred scores from other species based on homology.
   - Example:
     - URL: <http://localhost:8000/string-relations>
     - body:
