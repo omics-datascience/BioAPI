@@ -624,7 +624,7 @@ def associated_string_genes(gene_symbol: str, min_combined_score: int = 400) -> 
             "gene_1": gene_symbol,
             "combined_score": {"$gt": min_combined_score}
         },
-        {"_id": 0}
+        {"_id": 0, "neighborhood": 0}
     )
     res = list(relations)
     gene_list = [relation["gene_2"] for relation in relations]
@@ -633,7 +633,7 @@ def associated_string_genes(gene_symbol: str, min_combined_score: int = 400) -> 
             "gene_2": gene_symbol,
             "combined_score": {"$gt": min_combined_score}
         },
-        {"_id": 0}
+        {"_id": 0, "neighborhood": 0}
     )
     res.extend(list(relations_2))
 

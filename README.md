@@ -696,7 +696,6 @@ For a given gene, this service gets from the String database a list of genes and
   - Content: The response you get is a list of relations containing the targeted gene. More information about each field in the response and how the different scores are calculated can be found in the [scientific publication](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9825434/) of the STRING database. Unless otherwise indicated in this documentation, values for fields are scores in the range 1-1000.  
     - `gene_1`: Gene 1 in the bidirectional relationship.
     - `gene_2`: Gene 2 in the bidirectional relationship.
-    - `neighborhood`: It will always come with a NULL value since STRING does not calculate this data for Eukaryotic organisms.
     - `neighborhood_transferred`: score  reflecting the strength of supporting evidence from neighborhood done in other organisms.
     - `fusion`: score that is derived from fused proteins in other species.
     - `cooccurence`: is a type of score that is derived from similar absence/presence patterns of genes in different species.
@@ -734,7 +733,6 @@ For a given gene, this service gets from the String database a list of genes and
                   "gene_1": "MX2",
                   "gene_2": "MX1",
                   "homology": 961,
-                  "neighborhood": null,
                   "neighborhood_transferred": null,
                   "textmining": 77,
                   "textmining_transferred": 102
@@ -752,7 +750,6 @@ For a given gene, this service gets from the String database a list of genes and
                   "gene_1": "MX2",
                   "gene_2": "ISG15",
                   "homology": null,
-                  "neighborhood": null,
                   "neighborhood_transferred": null,
                   "textmining": 862,
                   "textmining_transferred": 162

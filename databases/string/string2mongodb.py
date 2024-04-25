@@ -54,15 +54,16 @@ fields = None
 gene_relations = []
 for line in tqdm(protein_relations):
     line = line.split(" ")
+    line.pop(2)
     if not skipped_first_line:
         fields = line
         fields[0] = "gene_1"
         fields[1] = "gene_2"
-        fields[15] = "combined_score"
+        fields[14] = "combined_score"
         skipped_first_line = True
     else:
         rel = {}
-        for f in range(16):
+        for f in range(15):
             if f <= 1:
                 rel[fields[f]] = alias_dict[line[f]]
             elif int(line[f]) > 0:
