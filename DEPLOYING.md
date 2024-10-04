@@ -37,7 +37,7 @@ BioAPI uses three genomic databases for its operation. These databases must be l
 
 To import all databases in MongoDB:  
 
-1. Download the "bioapi_db-1.2.1.gz" from **[here](https://drive.google.com/file/d/1uBriGnCEbzeVH9d-pHNIY9mr16-3pp_S/view?usp=sharing)**
+1. Download the "bioapi_db-1.2.1.gz" from **[here](https://1drv.ms/u/s!Arl5qt99IiNPthDRkqnnGMparuTi?e=74ykEa)**
 2. Shutdown all the services running `docker compose down`
 3. Edit the `docker-compose.dev.yml` file to include the downloaded file inside the container:
 
