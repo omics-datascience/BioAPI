@@ -67,7 +67,7 @@ Searches the identifier of a list of genes of different genomics databases and r
   - Content:
     - `gene_ids`: Returns a JSON with as many keys as there are genes in the body. For each gene, the value is a list with the valid symbols.  
   - Example:
-    - URL: <http://localhost:8000/gene-symbols>
+    - URL: <https://bioapi.multiomix.org/gene-symbols>
     - body:
             `{
                 "gene_ids":[
@@ -110,7 +110,7 @@ Service that takes a string of any length and returns a list of genes that conta
   - Code: 200
   - Content: a list of gene symbols matching the search criteria.  
   - Example:
-    - URL: <http://localhost:8000/gene-symbols-finder/?limit=50&query=BRC>
+    - URL: <https://bioapi.multiomix.org/gene-symbols-finder/?limit=50&query=BRC>
     - Response:
 
       ```json
@@ -155,7 +155,7 @@ From a list of valid genes, it obtains different information for the human refer
       - `ensembl_gene_id`: Gene identifier in the Ensembl database.
       - `entrez_id`: Gene identifier in the NCBI Entrez database.
   - Example:
-    - URL: <http://localhost:8000/information-of-genes>
+    - URL: <https://bioapi.multiomix.org/information-of-genes>
     - body:
             `{
                 "gene_ids":[
@@ -239,7 +239,7 @@ Gets the identifier of a gene, validates it and then returns the group of genes 
       - `genes`: All others genes for this group.  
         For a description of the gene groups and IDs you can access the [HUGO Gene Nomenclature Committee website](https://www.genenames.org/data/genegroup/#!/).
   - Example:
-    - URL: <http://localhost:8000/genes-of-its-group/ENSG00000146648>
+    - URL: <https://bioapi.multiomix.org/genes-of-its-group/ENSG00000146648>
     - Response:
 
         ```json
@@ -288,7 +288,7 @@ Get the list of genes that are involved in a pathway for a given database.
   - Content:
     - `genes`: a list of genes involved in the metabolic pathway.  
   - Example:
-    - URL: <http://localhost:8000/pathway-genes/kegg/hsa00740>
+    - URL: <https://bioapi.multiomix.org/pathway-genes/kegg/hsa00740>
     - Response:
 
       ```json
@@ -322,7 +322,7 @@ Gets the common pathways for a list of genes.
       - `external_id`: pathway identifier in the source.
       - `pathway`: name of the pathway.
   - Example:
-    - URL: <http://localhost:8000/pathways-in-common>
+    - URL: <https://bioapi.multiomix.org/pathways-in-common>
     - body:
             `{
                 "gene_ids":[
@@ -360,7 +360,7 @@ This service gets gene expression in healthy tissue
         The response you get is a list. Each element of the list is a new list containing the expression values for each gene in the same sample from the GTEx database.
     - `gene_id`: expression value for the gene_id.
   - Example:
-    - URL: <http://localhost:8000/expression-of-genes>
+    - URL: <https://bioapi.multiomix.org/expression-of-genes>
     - body:
             `{
                 "tissue":"Skin",
@@ -441,7 +441,7 @@ This service retrieves information on FDA-approved precision oncology therapies,
         - `method_of_biomarker_detection`: Biomarker detection method. If there is a corresponding FDA-cleared or -approved companion diagnostic device for biomarker identification, the detection method associated with this device is listed; if the biomarker can be detected by a DNA/NGS-based detection method this is listed first.  
 
   - Example:
-    - URL: <http://localhost:8000/information-of-oncokb>
+    - URL: <https://bioapi.multiomix.org/information-of-oncokb>
     - body:
             `{
                 "gene_ids":[
@@ -533,7 +533,7 @@ Gets the list of related terms for a list of genes.
       - `precision`: The proportion of genes in the input list that are annotated to the function. Defined as intersection_size/query_size.
       - `recall`: The proportion of functionally annotated genes that the query recovers. Defined as intersection_size/term_size.
   - Example:
-    - URL: <http://localhost:8000/genes-to-terms>
+    - URL: <https://bioapi.multiomix.org/genes-to-terms>
     - body:
             `{
                 "gene_ids":[
@@ -604,7 +604,7 @@ Gets the list of related terms to a term.
     - `ontology_type`: Denotes which of the three sub-ontologies (`cellular_component`, `biological_process` or `molecular_function`) the term belongs to.
     - `relations`: Dictionary of relations. Possible keys within this dictionary are `part_of`, `regulates` or `has_part`, and their values are lists of terms with Gene Ontology identifiers.  
   - Example:
-    - URL: <http://localhost:8000/related-terms>
+    - URL: <https://bioapi.multiomix.org/related-terms>
     - body:
             `{
                 "term_id":"0000079",
@@ -654,7 +654,7 @@ Gets a list of drugs from the PharmGKB database related to a list of genes.
     - `genes`: List of related genes.
     - `variants_haplotypes`: Related variants and/or haplotypes.
   - Example:
-    - URL: <http://localhost:8000/drugs-pharm-gkb>
+    - URL: <https://bioapi.multiomix.org/drugs-pharm-gkb>
     - body:
             `{
                 "gene_ids":[
@@ -710,7 +710,7 @@ For a given gene, this service gets from the String database a list of genes and
     - `textmining_transferred`: is a score derived from the co-occurrence of gene/protein names in scientific publications, transferred from other species based on homology.
     - `combined_score`: is a measure of the confidence level of a protein-protein interaction. It is calculated by combining the scores of all the evidence channels, including transferred scores from other species based on homology.
   - Example:
-    - URL: <http://localhost:8000/string-relations>
+    - URL: <https://bioapi.multiomix.org/string-relations>
     - body:
             `{
                 "gene_id":"MX2",
@@ -770,7 +770,7 @@ Service that takes gene symbol and returns a link to <https://go.drugbank.com> w
   - Content: The response you get is a dictionary with a single key called `link` where its value is a URL that points to the information on the DrugBank website.
     - `link`: Link to DrugBank website.
   - Example:
-    - URL: <http://localhost:8000/drugs-regulating-gene/TP53>
+    - URL: <https://bioapi.multiomix.org/drugs-regulating-gene/TP53>
     - Response:
 
       ```json
