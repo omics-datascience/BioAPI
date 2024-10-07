@@ -1,10 +1,10 @@
 # Deploy
 
-Below are the steps to perform a production deploy of BioAPI.
+Below are the steps to perform a production deployment of BioAPI.
 
 ## Requirements
 
-- BioAPI deployment was configured to be simple from the Docker Compose tool. So you need to install:
+- BioAPI deployment was configured to be simple using the Docker Compose tool. So you need to install:
   - [docker](https://docs.docker.com/desktop/#download-and-install)
   - [docker-compose](https://docs.docker.com/compose/install/)
 
@@ -24,7 +24,7 @@ Below are the steps to perform a production deploy of BioAPI.
         - `deploy.resources.limits.memory`: By default, 6GB of memory is allocated for MongoDB. Modify this value if you need it.  
     - BioAPI Server:
         - `MONGO_USER` and `MONGO_PASSWORD`: These variables are the username and password for BioAPI to access MongoDB. These credentials must be the same ones that were set for the MongoDB server.
-        - `DEBUG`: By default, use `false` value. If you change this value to `true`, then BioAPI will be use the configuration for database connection and ports for the API that you set in `config.txt` file.
+        - `DEBUG`: If you change this value to `true`, then BioAPI will be use the configuration for database connection and ports for the API that you set in the `config.txt` file. Default `false`.
 3. (Optional) Optimize Mongo by changing the configuration in the `config/mongo/mongod.conf` file and uncommenting the reference in the `docker-compose.yml` and/or `docker-compose.dev.yml`.
 4. Start up all the services with Docker Compose running `docker compose up -d` to check that It's all working, and read the instructions in the following section to import the genomics databases.
 
@@ -54,18 +54,18 @@ To import all databases in MongoDB:
 
   Where "/path/to/" is the absolute path of the "bioapi_db-1.2.1.gz" file downloaded on step 1.  
 
-1. Start up the services again running `docker compose up -d`
+1. Start up the services again by running `docker compose -f docker-compose.dev.yml up -d`
 2. Go inside the container `docker container exec -it bio_api_mongo_db bash`
-3. Use Mongorestore to import it into MongoDB:
+3. Use `mongorestore` to import it into MongoDB:
 
     ```bash
         mongorestore --username <user> --password <pass> --authenticationDatabase admin --gzip --archive=/bioapi_db-1.2.1.gz
     ```
 
-   Where *\<user\>*, *\<pass\>* are the preconfigured credentials to MongoDB in the `docker-compose.yml` file. *bioapi_db-1.2.1.gz* is the file downloaded in the previous step. **Keep in mind that this loading process will import approximately *47 GB* of information into MongoDB, so it may take a while**.  
+   Where *\<user\>*, *\<pass\>* are the preconfigured credentials to MongoDB in the `docker-compose.yml` file. *bioapi_db-1.2.1.gz* is the file downloaded in the previous step. **Remember that this loading process will import approximately *47 GB* of information into MongoDB, which may take a while**.  
 
 4. Stop services with the command `docker compose -f docker-compose.dev.yml down`
-5. Rollup the changes in `docker-compose.dev.yml` file to remove the backup file from the `volumes` section. Restart all the services again.
+5. Roll up the changes in the `docker-compose.dev.yml` file to remove the backup file from the `volumes` section. Restart all the services again.
 
 
 ### Manually import the different databases
@@ -122,18 +122,18 @@ Where  *\<service\>* could be `nginx_bioapi`, `web_bioapi` or `mongo_bioapi`.
 
 If new versions are released for the genomic databases included in BioAPI, you can update them by following the instructions below:  
 
-- For the "Metabolic pathways (ConsensusPathDB)", "Gene nomenclature (HUGO Gene Nomenclature Committee)", "Gene ontology (GO)", "Cancer related drugs (PharmGKB)","Gene information (from Ensembl and CiVIC)" and "Cancer and Actionable genes (OncoKB)" databases, it is not necessary to make any modifications to any script. This is because the datasets are automatically downloaded in their most up-to-date versions when the bash file for each database is executed as described in the **Manually import the different databases** section of this file.  
+- For the "Metabolic pathways (ConsensusPathDB)", "Gene nomenclature (HUGO Gene Nomenclature Committee)", "Gene ontology (GO)", "Cancer-related drugs (PharmGKB)", "Gene information (from Ensembl and CiVIC)" and "Cancer and Actionable genes (OncoKB)" databases, it is not necessary to make any modifications to any script. This is because the datasets are automatically downloaded in their most up-to-date versions when the bash file for each database is executed as described in the **Manually import the different databases** section of this file.  
 **Important notes**:
   - For OncoKB the download is not automatic since it requires registration, but the steps to download them manually are explained in the same section mentioned above.  
   - For RefSeq gene summaries, the R package [GeneSummary](https://bioconductor.org/packages/release/data/annotation/html/GeneSummary.html) is used. The update of the database will depend on the version that the package includes.
   - For String the download is not automatic, but the steps to download them manually are explained in the same section mentioned above.
 - If you need to update the "Gene expression (Genotype-Tissue Expression)" database, you should also follow the procedures in the section named above, but first you should edit the bash file as follows:  
     1. Modify the **gtex2mongodb.sh** file. Edit the variables *"expression_url"* and *"annotation_url"*.
-    1. In the *expression_url* variable, set the url corresponding to the GTEx "RNA-Seq Data" compressed file (gz compression). This file should contain the Gene TPMs values (Remember that Gene expression on the GTEx Portal are shown in Transcripts Per Million or TPMs).
-    1. In the *"annotation_url"* variable, set the url corresponding to the file that contains the annotated samples and allows finding the corresponding tissue type for each sample in the database.
+    1. In the *expression_url* variable, set the URL corresponding to the GTEx "RNA-Seq Data" compressed file (gzip compression). This file should contain the Gene TPMs values (Remember that Gene expressions on the GTEx Portal are shown in Transcripts Per Million or TPMs).
+    1. In the *"annotation_url"* variable, set the URL corresponding to the file that contains the annotated samples, and allow finding the corresponding tissue type for each sample in the database.
   By default, GTEx is being used in its version [GTEx Analysis V8 (dbGaP Accession phs000424.v8.p2)](https://gtexportal.org/home/datasets#datasetDiv1)
 
-**NOTE:** It is NOT necessary to drop the MongoDB database before upgrading (this applies to all databases).
+**NOTE:** It is NOT needed to drop the MongoDB database before upgrading (this applies to all databases).
 
 ### Export image file from database
 
@@ -153,10 +153,10 @@ Finally, if you want to create a new image of MongoDB data, you can follow the f
     # ...
     ```
 
-    Where "/path/in/your/computer" is the absolute path to the directory on your computer where the mongodb image will be created  
+    Where "/path/in/your/computer" is the absolute path to the directory on your computer where the `mongodb` image will be created  
 3. Start up the services of BioAPI running `docker compose up -d`  
 4. Go inside the container `docker container exec -it bio_api_mongo_db bash`  
-5. Use mongodump to export the data to a file:  
+5. Use `mongodump` to export the data to a file:  
 
 ```bash
     mongodump --username <user> --password <pass> --authenticationDatabase admin --host localhost --port 27017 --gzip --db bio_api --archive=/export_data/bioapi_db-1.2.1.gz
