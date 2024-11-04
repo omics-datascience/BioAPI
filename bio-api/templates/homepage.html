@@ -1,17 +1,54 @@
+<!-- templates/index.html -->
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="es">
 <head>
-    <meta charset="utf-8">
-    <title>BioAPI</title>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioAPI v{{ version }}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background-color: #f5f5f5;
-            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+            padding-top: 50px;
+            padding: 10px 15px;
+        }
+        .container {
+            max-width: 600px;
+        }
+        h1 {
+            color: #343a40;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #6c757d;
+            margin-top: 30px;
+        }
+        .service-list .service-item {
+            padding: 5px 5px;
+            border-bottom: 1px solid #dee2e6;
+            text-align: left; /* Alinea el contenido a la izquierda */
+        }
+        .service-item span {
+            display: block; /* Coloca el nombre y el endpoint en líneas separadas */
+        }
+        .service-item code {
+            color: #6c757d;
+            font-size: 0.9em;
         }
     </style>
 </head>
 <body>
-    <h1>BioAPI {{ version }}</h1>
+    <h1>BioAPI v{{ version }}</h1>
+    <h2 class="mb-4">Servicios incluidos:</h2>
+    <ul class="list-group service-list">
+        {% for service in services %}
+            <li class="service-item">
+                <span>{{ service.name }}</span>
+                <code>{{ service.url }}</code>
+            </li>
+        {% endfor %}
+    </ul>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -643,6 +643,24 @@ def associated_string_genes(gene_symbol: str, min_combined_score: int = 400) -> 
     return res
 
 
+# Documentation of included services
+services = [
+    {"name": "Genes symbols validator", "url": "[POST] /gene-symbols"},
+    {"name": "Genes symbols finder", "url": "[GET] /gene-symbols-finder"},
+    {"name": "Genes information", "url": "[POST] /information-of-genes"},
+    {"name": "Gene Groups", "url": "[GET] /genes-of-its-group/<gene_id>"},
+    {"name": "Genes of a metabolic pathway", "url": "[GET] /pathway-genes/<source>/<external_id>"},
+    {"name": "Metabolic pathways from different genes", "url": "[POST] /pathways-in-common"},
+    {"name": "Gene expression", "url": "[POST] /expression-of-genes"},
+    {"name": "Therapies and actionable genes in cancer", "url": "[POST] /information-of-oncokb"},
+    {"name": "Gene Ontology terms related to a list of genes", "url": "[POST] /genes-to-terms"},
+    {"name": "Gene Ontology terms related to another specific term", "url": "[POST] /related-terms"},
+    {"name": "Cancer related drugs", "url": "[POST] /drugs-pharm-gkb"},
+    {"name": "Predicted functional associations network", "url": "[POST] /string-relations"},
+    {"name": "Drugs that regulate a gene", "url": "[GET] /drugs-regulating-gene/<gene_id>"}
+]
+
+
 def create_app():
     # Creates and configures the app
     flask_app = Flask(__name__, instance_relative_config=True)
@@ -650,23 +668,13 @@ def create_app():
     # Endpoints
     @flask_app.route("/")
     def homepage():
-        return render_template('homepage.html', version=VERSION)
+        # return render_template('index.html', title=f"API v{VERSION}", services=services)
+        return render_template('homepage.html', version=VERSION, services=services)
 
     @flask_app.route("/ping")
     def ping_ok():
         """To use as healthcheck by Docker"""
         output = "ok"
-        return make_response(output, 200, headers)
-
-    @flask_app.route("/bioapi-map")
-    def list_routes():
-        """Lists all BioAPI endpoints"""
-        output = {"endpoints": []}
-        for rule in flask_app.url_map.iter_rules():
-            methods = ','.join(rule.methods)
-            line = urllib.parse.unquote(
-                "{:50s} {:20s} {}".format(rule.endpoint, methods, rule))
-            output["endpoints"].append(line)
         return make_response(output, 200, headers)
 
     @flask_app.route("/gene-symbols", methods=['POST'])

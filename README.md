@@ -761,7 +761,7 @@ For a given gene, this service gets from the String database a list of genes and
 
 Service that takes gene symbol and returns a link to <https://go.drugbank.com> with all the drugs that upregulate and down regulate its expresion. Useful for embeding.
 
-- URL: drugs-regulating-gene/*gene_id*
+- URL: /drugs-regulating-gene/*gene_id*
   - `gene_id` is the identifier of the gene.
 - Method: GET
 - Params: -
@@ -800,7 +800,7 @@ All kind of contribution is welcome! If you want to contribute just:
 ### Run Flask dev server
 
 1. Start up Docker services like MongoDB: `docker compose -f docker-compose.dev.yml up -d`.
-2. Go to the `bioapi` folder.
+2. Go to the `bio-api` folder.
 3. Run Flask server: `python3 bioapi.py`.
 
 **NOTE:** If you are looking for documentation for a production deployment see [DEPLOYING.md](DEPLOYING.md).
