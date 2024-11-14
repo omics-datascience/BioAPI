@@ -3,14 +3,21 @@ import os
 import json
 import gzip
 import logging
+
+from apispec import APISpec
+from apispec.ext.marshmallow import MarshmallowPlugin
+from apispec_webframeworks.flask import FlaskPlugin
+from flask_apispec import FlaskApiSpec, doc, use_kwargs
+from flask_swagger_ui import get_swaggerui_blueprint
 from db import get_mongo_connection
 from concurrent.futures import ThreadPoolExecutor
 import configparser
-import urllib.parse
 from typing import List, Dict, Optional, Any
 from flask import Flask, jsonify, make_response, abort, render_template, request
 from utils import map_gene
 from gprofiler import GProfiler
+from schemas import swagger_schemas
+
 
 # Gets production flag
 IS_DEBUG: bool = os.environ.get('DEBUG', 'true') == 'true'
@@ -515,9 +522,6 @@ def bfs_on_terms(term_id, relations: Optional[List[str]] = None, general_depth=0
     return list(graph.values())
 
 
-# PharmGKB
-
-
 def cancer_drugs_related_to_gene(gene: str) -> List:
     """
     Gets all cancer related drugs associated with a gene .
@@ -526,6 +530,7 @@ def cancer_drugs_related_to_gene(gene: str) -> List:
     """
     collection_pharm = mydb["pharmgkb"]
     return list(collection_pharm.find({"genes": gene}, {"_id": 0}))
+
 
 def get_data_from_oncokb(genes: List[str], query: str) -> Dict[str, Dict[str, Any]]:
     """
@@ -643,33 +648,52 @@ def associated_string_genes(gene_symbol: str, min_combined_score: int = 400) -> 
     return res
 
 
-# Documentation of included services
-services = [
-    {"name": "Genes symbols validator", "url": "[POST] /gene-symbols"},
-    {"name": "Genes symbols finder", "url": "[GET] /gene-symbols-finder"},
-    {"name": "Genes information", "url": "[POST] /information-of-genes"},
-    {"name": "Gene Groups", "url": "[GET] /genes-of-its-group/<gene_id>"},
-    {"name": "Genes of a metabolic pathway", "url": "[GET] /pathway-genes/<source>/<external_id>"},
-    {"name": "Metabolic pathways from different genes", "url": "[POST] /pathways-in-common"},
-    {"name": "Gene expression", "url": "[POST] /expression-of-genes"},
-    {"name": "Therapies and actionable genes in cancer", "url": "[POST] /information-of-oncokb"},
-    {"name": "Gene Ontology terms related to a list of genes", "url": "[POST] /genes-to-terms"},
-    {"name": "Gene Ontology terms related to another specific term", "url": "[POST] /related-terms"},
-    {"name": "Cancer related drugs", "url": "[POST] /drugs-pharm-gkb"},
-    {"name": "Predicted functional associations network", "url": "[POST] /string-relations"},
-    {"name": "Drugs that regulate a gene", "url": "[GET] /drugs-regulating-gene/<gene_id>"}
-]
+# Create an APISpec
+spec = APISpec(
+    title="BioAPI",
+    version=VERSION,
+    openapi_version="2.0.1",
+    info=dict(description="A powerful abstraction of genomics databases."),
+    plugins=[FlaskPlugin(), MarshmallowPlugin()]
+)
 
 
 def create_app():
     # Creates and configures the app
     flask_app = Flask(__name__, instance_relative_config=True)
 
+    # URL for exposing Swagger UI
+    SWAGGER_URL = '/api/docs'
+    # Spec API url or path
+    API_URL = '/static/apispec.json'
+
+    # Call factory function to create our blueprint
+    swaggerui_blueprint = get_swaggerui_blueprint(SWAGGER_URL, API_URL, config={
+        'operationsSorter': 'alpha',
+        'tagsSorter': 'alpha',
+        "defaultModelsExpandDepth": -1,  # Oculta la sección "Models"
+        'filter': True  # Permite usar un campo de búsqueda para filtrar métodos en Swagger UI
+    })
+    flask_app.register_blueprint(swaggerui_blueprint)
+
+    flask_app.config.update({'APISPEC_SPEC': spec, 'APISPEC_SWAGGER_UI_URL': SWAGGER_URL})
+
+    docs = FlaskApiSpec(flask_app)
+
     # Endpoints
+    @flask_app.route(API_URL)
+    def swagger_json():
+        """ Path to get OpenAPI Spec in ${API_URL}"""
+        schema = app.config['APISPEC_SPEC'].to_dict()
+
+        for path, methods in schema.get("paths", {}).items():
+            methods.pop("options", None)
+
+        return jsonify(schema)
+
     @flask_app.route("/")
     def homepage():
-        # return render_template('index.html', title=f"API v{VERSION}", services=services)
-        return render_template('homepage.html', version=VERSION, services=services)
+        return render_template('homepage.html', version=VERSION)
 
     @flask_app.route("/ping")
     def ping_ok():
@@ -678,16 +702,20 @@ def create_app():
         return make_response(output, 200, headers)
 
     @flask_app.route("/gene-symbols", methods=['POST'])
-    def gene_symbols():
+    @doc(description='Gene symbols validator', tags=['Genes'], consumes=["application/json"])
+    @use_kwargs(args=swagger_schemas.GeneSymbolsRequestSchema, location="json")
+    def gene_symbols(gene_ids):
         """Receives a list of gene IDs in any standard and returns the standardized corresponding gene IDs.
         In case it is not found it returns an empty list for the specific not found gene."""
         response = {}
         if request.method == 'POST':
-            body = request.get_json()  # type: ignore
+            if not request.is_json:
+                abort(400, "NO ES JSON!")
+            body = request.get_json()
             if "gene_ids" not in body:
                 abort(400, "gene_ids is mandatory")
 
-            gene_ids = body['gene_ids']
+            # gene_ids = body['gene_ids']
             if not isinstance(gene_ids, list):
                 abort(400, "gene_ids must be a list")
 
@@ -700,7 +728,9 @@ def create_app():
         return make_response(response, 200, headers)
 
     @flask_app.route("/gene-symbols-finder/", methods=['GET'])
-    def gene_symbol_finder():
+    @doc(description='Gene symbols finder', tags=['Genes'])
+    @use_kwargs(args=swagger_schemas.GeneSymbolsFinderRequestSchema, location="query")
+    def gene_symbol_finder(query: str, limit: int|None):
         """Takes a string of any length and returns a list of genes that contain that search criteria."""
         if "query" not in request.args:
             abort(400, "'query' parameter is mandatory")
@@ -1044,6 +1074,10 @@ def create_app():
     @flask_app.errorhandler(404)
     def not_found(e):
         return jsonify(error=str(e)), 404
+
+    with flask_app.test_request_context():
+        docs.register(target=gene_symbols)
+        docs.register(target=gene_symbol_finder)
 
     return flask_app
 

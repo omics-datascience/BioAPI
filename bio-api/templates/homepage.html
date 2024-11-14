@@ -1,54 +1,19 @@
-<!-- templates/index.html -->
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en" dir="ltr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BioAPI v{{ version }}</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <meta charset="utf-8">
+    <title>BioAPI {{version}}</title>
+
     <style>
         body {
-            background-color: #f8f9fa;
-            font-family: Arial, sans-serif;
-            padding-top: 50px;
-            padding: 10px 15px;
-        }
-        .container {
-            max-width: 600px;
-        }
-        h1 {
-            color: #343a40;
-            margin-bottom: 20px;
-        }
-        h2 {
-            color: #6c757d;
-            margin-top: 30px;
-        }
-        .service-list .service-item {
-            padding: 5px 5px;
-            border-bottom: 1px solid #dee2e6;
-            text-align: left; /* Alinea el contenido a la izquierda */
-        }
-        .service-item span {
-            display: block; /* Coloca el nombre y el endpoint en líneas separadas */
-        }
-        .service-item code {
-            color: #6c757d;
-            font-size: 0.9em;
+            background-color: #f5f5f5;
+            font-family: Arial, Helvetica, sans-serif;
         }
     </style>
 </head>
 <body>
-    <h1>BioAPI v{{ version }}</h1>
-    <h2 class="mb-4">Services included:</h2>
-    <ul class="list-group service-list">
-        {% for service in services %}
-            <li class="service-item">
-                <span>{{ service.name }}</span>
-                <code>{{ service.url }}</code>
-            </li>
-        {% endfor %}
-    </ul>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <h1>BioAPI {{ version }}</h1>
+    <h2>A powerful abstraction of genomics databases</h2>
+    <p><a href="/api/docs/">Documentation</a></p>
 </body>
 </html>
