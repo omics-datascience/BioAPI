@@ -3,6 +3,7 @@ import os
 import json
 import gzip
 import logging
+from turtle import title
 
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
@@ -652,8 +653,12 @@ def associated_string_genes(gene_symbol: str, min_combined_score: int = 400) -> 
 spec = APISpec(
     title="BioAPI",
     version=VERSION,
-    openapi_version="2.0.1",
-    info=dict(description="A powerful abstraction of genomics databases."),
+    openapi_version="2.0.0",
+    info=dict(
+        description="""
+## A powerful abstraction of genomics databases.
+BioAPI is part of the Multiomix project. For more information, visit our [website](https://omicsdatascience.org/).
+To contribute: [OmicsDatascience](https://github.com/omics-datascience/BioAPI)"""),
     plugins=[FlaskPlugin(), MarshmallowPlugin()]
 )
 
@@ -667,13 +672,17 @@ def create_app():
     # Spec API url or path
     API_URL = '/static/apispec.json'
 
-    # Call factory function to create our blueprint
-    swaggerui_blueprint = get_swaggerui_blueprint(SWAGGER_URL, API_URL, config={
-        'operationsSorter': 'alpha',
-        'tagsSorter': 'alpha',
-        "defaultModelsExpandDepth": -1,  # Oculta la sección "Models"
-        'filter': True  # Permite usar un campo de búsqueda para filtrar métodos en Swagger UI
-    })
+    # Config and Call factory function to create our blueprint
+    swagger_ui_config = {
+        'docExpansion': False,  # Avoid extended tags
+        'displayRequestDuration': False,  # Hide the duration of the request
+        'tryItOutEnabled': False,  # Enables testing functions without clicking "Try it out"
+        'supportedSubmitMethods': ['get', 'post'],  # Allows testing only GET and POST methods
+        'validatorUrl': False,  # Avoid online validation of documentation
+        "defaultModelsExpandDepth": -1,  # Hide the Models section
+        'filter': False,  # Hide the method filter field
+    }
+    swaggerui_blueprint = get_swaggerui_blueprint(SWAGGER_URL, API_URL, config=swagger_ui_config)
     flask_app.register_blueprint(swaggerui_blueprint)
 
     flask_app.config.update({'APISPEC_SPEC': spec, 'APISPEC_SWAGGER_UI_URL': SWAGGER_URL})
@@ -684,8 +693,7 @@ def create_app():
     @flask_app.route(API_URL)
     def swagger_json():
         """ Path to get OpenAPI Spec in ${API_URL}"""
-        schema = app.config['APISPEC_SPEC'].to_dict()
-
+        schema = app.config['APISPEC_SPEC'].to_dict() 
         for path, methods in schema.get("paths", {}).items():
             methods.pop("options", None)
 
