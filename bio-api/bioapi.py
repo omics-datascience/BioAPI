@@ -3,21 +3,19 @@ import os
 import json
 import gzip
 import logging
-from turtle import title
 
-from apispec import APISpec
-from apispec.ext.marshmallow import MarshmallowPlugin
-from apispec_webframeworks.flask import FlaskPlugin
-from flask_apispec import FlaskApiSpec, doc, use_kwargs
-from flask_swagger_ui import get_swaggerui_blueprint
+from flask import Flask, jsonify, make_response, abort, render_template, request
+# from apispec import APISpec
+# from apispec.ext.marshmallow import MarshmallowPlugin
+# from apispec_webframeworks.flask import FlaskPlugin
+# from flask_swagger_ui import get_swaggerui_blueprint
+from flasgger import Swagger, swag_from
 from db import get_mongo_connection
 from concurrent.futures import ThreadPoolExecutor
 import configparser
 from typing import List, Dict, Optional, Any
-from flask import Flask, jsonify, make_response, abort, render_template, request
 from utils import map_gene
 from gprofiler import GProfiler
-from schemas import swagger_schemas
 
 
 # Gets production flag
@@ -650,55 +648,50 @@ def associated_string_genes(gene_symbol: str, min_combined_score: int = 400) -> 
 
 
 # Create an APISpec
-spec = APISpec(
-    title="BioAPI",
-    version=VERSION,
-    openapi_version="2.0.0",
-    info=dict(
-        description="""
-## A powerful abstraction of genomics databases.
-BioAPI is part of the Multiomix project. For more information, visit our [website](https://omicsdatascience.org/).
-To contribute: [OmicsDatascience](https://github.com/omics-datascience/BioAPI)"""),
-    plugins=[FlaskPlugin(), MarshmallowPlugin()]
-)
+# spec = APISpec(
+#     title="BioAPI",
+#     version=VERSION,
+#     openapi_version="2.0.0",
+#     info=dict(
+#         description="""
+# ## A powerful abstraction of genomics databases.
+# BioAPI is part of the Multiomix project. For more information, visit our [website](https://omicsdatascience.org/).
+# To contribute: [OmicsDatascience](https://github.com/omics-datascience/BioAPI)"""),
+#     plugins=[FlaskPlugin()],
+# )
 
 
 def create_app():
     # Creates and configures the app
     flask_app = Flask(__name__, instance_relative_config=True)
-
-    # URL for exposing Swagger UI
-    SWAGGER_URL = '/api/docs'
-    # Spec API url or path
-    API_URL = '/static/apispec.json'
-
-    # Config and Call factory function to create our blueprint
-    swagger_ui_config = {
-        'docExpansion': False,  # Avoid extended tags
-        'displayRequestDuration': False,  # Hide the duration of the request
-        'tryItOutEnabled': False,  # Enables testing functions without clicking "Try it out"
-        'supportedSubmitMethods': ['get', 'post'],  # Allows testing only GET and POST methods
-        'validatorUrl': False,  # Avoid online validation of documentation
-        "defaultModelsExpandDepth": -1,  # Hide the Models section
-        'filter': False,  # Hide the method filter field
+    swagger_config = {
+        "headers": [
+        ],
+        "openapi": "3.0.0",
+        "specs": [
+            {
+                "endpoint": "swagger",
+                "route": "/apispec.json",
+                "rule_filter": lambda rule: True,  # all in
+                "model_filter": lambda tag: True,  # all in
+            }
+        ],
+        "title": "BioAPI",
+        "uiversion": 3,
+        "version": VERSION,
+        "termsOfService": False,
+        "swagger_ui": True,
+        "static_url_path": "/",
+        "specs_route": "/apidocs/",
+        "description": """
+## A powerful abstraction of genomics databases.
+BioAPI is part of the Multiomix project. For more information, visit our [website](https://omicsdatascience.org/).
+To contribute: [OmicsDatascience](https://github.com/omics-datascience/BioAPI)"""
     }
-    swaggerui_blueprint = get_swaggerui_blueprint(SWAGGER_URL, API_URL, config=swagger_ui_config)
-    flask_app.register_blueprint(swaggerui_blueprint)
 
-    flask_app.config.update({'APISPEC_SPEC': spec, 'APISPEC_SWAGGER_UI_URL': SWAGGER_URL})
-
-    docs = FlaskApiSpec(flask_app)
+    swagger = Swagger(flask_app, config=swagger_config)
 
     # Endpoints
-    @flask_app.route(API_URL)
-    def swagger_json():
-        """ Path to get OpenAPI Spec in ${API_URL}"""
-        schema = app.config['APISPEC_SPEC'].to_dict() 
-        for path, methods in schema.get("paths", {}).items():
-            methods.pop("options", None)
-
-        return jsonify(schema)
-
     @flask_app.route("/")
     def homepage():
         return render_template('homepage.html', version=VERSION)
@@ -710,20 +703,17 @@ def create_app():
         return make_response(output, 200, headers)
 
     @flask_app.route("/gene-symbols", methods=['POST'])
-    @doc(description='Gene symbols validator', tags=['Genes'], consumes=["application/json"])
-    @use_kwargs(args=swagger_schemas.GeneSymbolsRequestSchema, location="json")
-    def gene_symbols(gene_ids):
+    @swag_from("swagger_specs/geneSymbols.yml")
+    def gene_symbols():
         """Receives a list of gene IDs in any standard and returns the standardized corresponding gene IDs.
         In case it is not found it returns an empty list for the specific not found gene."""
         response = {}
         if request.method == 'POST':
-            if not request.is_json:
-                abort(400, "NO ES JSON!")
             body = request.get_json()
             if "gene_ids" not in body:
                 abort(400, "gene_ids is mandatory")
 
-            # gene_ids = body['gene_ids']
+            gene_ids = body['gene_ids']
             if not isinstance(gene_ids, list):
                 abort(400, "gene_ids must be a list")
 
@@ -736,18 +726,19 @@ def create_app():
         return make_response(response, 200, headers)
 
     @flask_app.route("/gene-symbols-finder/", methods=['GET'])
-    @doc(description='Gene symbols finder', tags=['Genes'])
-    @use_kwargs(args=swagger_schemas.GeneSymbolsFinderRequestSchema, location="query")
-    def gene_symbol_finder(query: str, limit: int|None):
+    # @doc(description='Gene symbols finder', tags=['Genes'])
+    # @use_kwargs(args=swagger_schemas.GeneSymbolsFinderRequestSchema, location="query")
+    @swag_from("swagger_specs/geneSymbolFinder.yml")
+    def gene_symbol_finder():
         """Takes a string of any length and returns a list of genes that contain that search criteria."""
         if "query" not in request.args:
             abort(400, "'query' parameter is mandatory")
         else:
-            query = request.args.get('query')  # type: ignore
+            query = request.args.get('query')
 
         limit = 50
         if "limit" in request.args:
-            limit_arg = request.args.get('limit')  # type: ignore
+            limit_arg = request.args.get('limit')
             if limit_arg.isnumeric():
                 limit = int(limit_arg)
             else:
@@ -760,6 +751,9 @@ def create_app():
             abort(400, e)
 
     @flask_app.route("/information-of-genes", methods=['POST'])
+    # @doc(description='Genes information', tags=['Genes'], consumes=["application/json"])
+    # @use_kwargs(args=swagger_schemas.InformationOfGenesRequestSchema, location="json")
+    @swag_from("swagger_specs/informationOfGenes.yml")
     def information_of_genes():
         """Receives a list of gene IDs and returns information about them."""
         body = request.get_json()  # type: ignore
@@ -777,7 +771,9 @@ def create_app():
         return make_response(response, 200, headers)
 
     @flask_app.route("/genes-of-its-group/<gene_id>", methods=['GET'])
-    def genes_in_the_same_group(gene_id):
+    # @doc(description='Gene Groups', tags=['Genes'], params={"gene_id": {"description": "Identifier of the gene for any database", "type": "string", "required": True}})
+    @swag_from("swagger_specs/genesOfItsGroup.yml")
+    def genes_in_the_same_group(gene_id: str):
         response = {"gene_id": None, "groups": [],
                     "locus_group": None, "locus_type": None}
         try:
@@ -812,6 +808,10 @@ def create_app():
         return make_response(response, 200, headers)
 
     @flask_app.route("/pathway-genes/<pathway_source>/<pathway_id>", methods=['GET'])
+    @swag_from("swagger_specs/genesOfMetabolicPathway.yml")
+    # @doc(description='Genes of a metabolic pathway', tags=['Genes'], 
+    #      params={"pathway_source": {"description": "Database to query", "type": "string", "required": True, "example": "kegg", "enum": ["kegg", "biocarta", "ehmn", "humancyc", "inoh", "netpath", "pid", "reactome", "smpdb", "signalink", "wikipathways"]},
+    #              "pathway_id": {"description": "Pathway identifier in the source database", "type": "string", "required": True, "example": "hsa00740"}})
     def pathway_genes(pathway_source, pathway_id):
         if pathway_source.lower() not in PATHWAYS_SOURCES:
             abort(404, f'{pathway_source} is an invalid pathway source')
@@ -820,16 +820,18 @@ def create_app():
         return make_response(response, 200, headers)
 
     @flask_app.route("/pathways-in-common", methods=['POST'])
-    def pathways_in_common():
-        body = request.get_json()  # type: ignore
-        if "gene_ids" not in body:
-            abort(400, "gene_ids is mandatory")
+    # @doc(description='Metabolic pathways from different genes', tags=['Pathways'], consumes=["application/json"])
+    # @use_kwargs(args=swagger_schemas.PathwaysInCommonRequestSchema, location="json")
+    def pathways_in_common(gene_ids: List[str]):
+        # body = request.get_json()  # type: ignore
+        # if "gene_ids" not in body:
+        #     abort(400, "gene_ids is mandatory")
 
-        gene_ids = body['gene_ids']
-        if not isinstance(gene_ids, list):
-            abort(400, "gene_ids must be a list")
-        if len(gene_ids) == 0:
-            abort(400, "gene_ids must contain at least one gene symbol")
+        # gene_ids = body['gene_ids']
+        # if not isinstance(gene_ids, list):
+        #     abort(400, "gene_ids must be a list")
+        # if len(gene_ids) == 0:
+        #     abort(400, "gene_ids must contain at least one gene symbol")
 
         pathways_tmp = [get_pathways_of_gene(gene) for gene in gene_ids]
         pathways_intersection = list(set.intersection(*map(set, pathways_tmp)))
@@ -840,34 +842,36 @@ def create_app():
         return make_response(response, 200, headers)
 
     @flask_app.route("/expression-of-genes", methods=['POST'])
-    def expression_data_from_gtex():
-        body = request.get_json()  # type: ignore
+    # @doc(description='Gets gene expression in healthy tissue', tags=['Expression Data'], consumes=["application/json"])
+    # @use_kwargs(args=swagger_schemas.ExpressionOfGenesRequestSchema, location="json")
+    def expression_data_from_gtex(gene_ids: list[str], tissue: str, type: str):
+        # body = request.get_json()  # type: ignore
 
-        if "gene_ids" not in body:
-            abort(400, "gene_ids is mandatory")
+        # if "gene_ids" not in body:
+        #     abort(400, "gene_ids is mandatory")
 
-        gene_ids = body['gene_ids']
-        if not isinstance(gene_ids, list):
-            abort(400, "gene_ids must be a list")
+        # gene_ids = body['gene_ids']
+        # if not isinstance(gene_ids, list):
+        #     abort(400, "gene_ids must be a list")
 
-        if len(gene_ids) == 0:
-            abort(400, "gene_ids must contain at least one gene symbol")
+        # if len(gene_ids) == 0:
+        #     abort(400, "gene_ids must contain at least one gene symbol")
 
-        if "tissue" not in body:
-            abort(400, "tissue is mandatory")
+        # if "tissue" not in body:
+        #     abort(400, "tissue is mandatory")
 
-        tissue = body['tissue']
-        if "type" in body:
-            if body['type'] not in ["gzip", "json"]:
-                abort(400, "allowed values for the 'type' key are 'json' or 'gzip'")
-            else:
-                type_response = body['type']
-        else:
-            type_response = 'json'
+        # tissue = body['tissue']
+        # if "type" in body:
+        #     if body['type'] not in ["gzip", "json"]:
+        #         abort(400, "allowed values for the 'type' key are 'json' or 'gzip'")
+        #     else:
+        #         type_response = body['type']
+        # else:
+        #     type_response = 'json'
 
         expression_data = get_expression_from_gtex(tissue, gene_ids)
 
-        if type_response == "gzip":
+        if type == "gzip":
             content = gzip.compress(json.dumps(
                 expression_data).encode('utf8'), 5)
             response = make_response(content)
@@ -877,7 +881,9 @@ def create_app():
         return jsonify(expression_data)
 
     @flask_app.route("/genes-to-terms", methods=['POST'])
-    def genes_to_go_terms():
+    # @doc(description='Gene Ontology terms related to a list of genes', tags=['Gene Ontology'], consumes=["application/json"])
+    # @use_kwargs(args=swagger_schemas.GenesToTermsRequestSchema, location="json")
+    def genes_to_go_terms(gene_ids: list[str], filter_type: str, p_value_threshold: float|None, correction_method: str, relation_type: list[str], ontology_type: list[str]):
         """Receives a list of genes and returns the related terms"""
         valid_filter_types = ["union", "intersection", "enrichment"]
         valid_ontology_types = ["biological_process",
@@ -1011,17 +1017,19 @@ def create_app():
         return jsonify(response)
 
     @flask_app.route("/information-of-oncokb", methods=['POST'])
-    def oncokb_data():
-        body = request.get_json()  # type: ignore
+    # @doc(description='Therapies and actionable genes in cancer', tags=['Genes'], consumes=["application/json"])
+    # @use_kwargs(args=swagger_schemas.InformationOfOncokbRequestSchema, location="json")
+    def oncokb_data(gene_ids: list[str], query: str):
+        # body = request.get_json()  # type: ignore
 
-        if "gene_ids" not in body:
-            abort(400, "gene_ids is mandatory")
+        # if "gene_ids" not in body:
+        #     abort(400, "gene_ids is mandatory")
 
-        gene_ids = body['gene_ids']
-        query = "" if "query" not in body else body['query']
+        # gene_ids = body['gene_ids']
+        # query = "" if "query" not in body else body['query']
 
-        if not isinstance(gene_ids, list):
-            abort(400, "gene_ids must be a list")
+        # if not isinstance(gene_ids, list):
+        #     abort(400, "gene_ids must be a list")
 
         if len(gene_ids) == 0:
             abort(400, "gene_ids must contain at least one gene symbol")
@@ -1082,10 +1090,6 @@ def create_app():
     @flask_app.errorhandler(404)
     def not_found(e):
         return jsonify(error=str(e)), 404
-
-    with flask_app.test_request_context():
-        docs.register(target=gene_symbols)
-        docs.register(target=gene_symbol_finder)
 
     return flask_app
 

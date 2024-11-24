@@ -1,0 +1,23 @@
+tags:
+  - Gene Nomenclature
+summary: "Gene symbol finder"
+description: "Service that takes a string of any length and returns a list of genes that contain that search criteria."
+operationId: "Gene symbol finder"
+parameters:
+  - in: query
+    name: query
+    description: "Gene search string."
+    required: true
+    schema:
+      type: string
+      example: "TP"
+  - in: query
+    name: limit
+    description: "Limit the number of results returned (Default 50)."
+    required: false
+    schema:
+      type: integer
+      example: 10
+responses:
+  200:
+    description: "List of genes containing that search criterion in bioinformatics databases."

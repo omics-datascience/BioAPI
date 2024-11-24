@@ -1,0 +1,16 @@
+tags:
+  - Genes information
+summary: "Gene Groups"
+description: "Gets the identifier of a gene, validates it and then returns the group of genes to which it belongs according to HGNC, and all the other genes that belong to the same group."
+operationId: "Gene Groups"
+parameters:
+  - in: path
+    name: gene_id
+    description: "Identifier of the gene for any database."
+    required: true
+    schema:
+      type: string
+      example: "EGFR"
+responses:
+  200:
+    description: "Group of genes to which gene_id belongs according to HGNC."

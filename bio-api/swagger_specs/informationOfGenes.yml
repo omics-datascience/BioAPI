@@ -1,0 +1,21 @@
+tags:
+  - Genes information
+summary: "Genes information"
+description: "From a list of valid genes, it obtains different information for the human reference genomes GRCh38 and GRCh37."
+operationId: "Genes information"
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          gene_ids:
+            type: array
+            description: "List of gene identifiers."
+            items:
+              type: string
+            example: ["MC1R", "ALK"]
+responses:
+  200:
+    description: "Gene information"
