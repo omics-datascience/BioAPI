@@ -5,10 +5,6 @@ import gzip
 import logging
 
 from flask import Flask, jsonify, make_response, abort, render_template, request
-# from apispec import APISpec
-# from apispec.ext.marshmallow import MarshmallowPlugin
-# from apispec_webframeworks.flask import FlaskPlugin
-# from flask_swagger_ui import get_swaggerui_blueprint
 from flasgger import Swagger, swag_from
 from db import get_mongo_connection
 from concurrent.futures import ThreadPoolExecutor
@@ -647,23 +643,10 @@ def associated_string_genes(gene_symbol: str, min_combined_score: int = 400) -> 
     return res
 
 
-# Create an APISpec
-# spec = APISpec(
-#     title="BioAPI",
-#     version=VERSION,
-#     openapi_version="2.0.0",
-#     info=dict(
-#         description="""
-# ## A powerful abstraction of genomics databases.
-# BioAPI is part of the Multiomix project. For more information, visit our [website](https://omicsdatascience.org/).
-# To contribute: [OmicsDatascience](https://github.com/omics-datascience/BioAPI)"""),
-#     plugins=[FlaskPlugin()],
-# )
-
-
 def create_app():
     # Creates and configures the app
     flask_app = Flask(__name__, instance_relative_config=True)
+
     swagger_config = {
         "headers": [
         ],
@@ -672,8 +655,8 @@ def create_app():
             {
                 "endpoint": "swagger",
                 "route": "/apispec.json",
-                "rule_filter": lambda rule: True,  # all in
-                "model_filter": lambda tag: True,  # all in
+                "rule_filter": lambda rule: True,
+                "model_filter": lambda tag: True
             }
         ],
         "title": "BioAPI",
@@ -726,8 +709,6 @@ To contribute: [OmicsDatascience](https://github.com/omics-datascience/BioAPI)""
         return make_response(response, 200, headers)
 
     @flask_app.route("/gene-symbols-finder/", methods=['GET'])
-    # @doc(description='Gene symbols finder', tags=['Genes'])
-    # @use_kwargs(args=swagger_schemas.GeneSymbolsFinderRequestSchema, location="query")
     @swag_from("swagger_specs/geneSymbolFinder.yml")
     def gene_symbol_finder():
         """Takes a string of any length and returns a list of genes that contain that search criteria."""
@@ -751,8 +732,6 @@ To contribute: [OmicsDatascience](https://github.com/omics-datascience/BioAPI)""
             abort(400, e)
 
     @flask_app.route("/information-of-genes", methods=['POST'])
-    # @doc(description='Genes information', tags=['Genes'], consumes=["application/json"])
-    # @use_kwargs(args=swagger_schemas.InformationOfGenesRequestSchema, location="json")
     @swag_from("swagger_specs/informationOfGenes.yml")
     def information_of_genes():
         """Receives a list of gene IDs and returns information about them."""
@@ -771,7 +750,6 @@ To contribute: [OmicsDatascience](https://github.com/omics-datascience/BioAPI)""
         return make_response(response, 200, headers)
 
     @flask_app.route("/genes-of-its-group/<gene_id>", methods=['GET'])
-    # @doc(description='Gene Groups', tags=['Genes'], params={"gene_id": {"description": "Identifier of the gene for any database", "type": "string", "required": True}})
     @swag_from("swagger_specs/genesOfItsGroup.yml")
     def genes_in_the_same_group(gene_id: str):
         response = {"gene_id": None, "groups": [],
@@ -809,9 +787,6 @@ To contribute: [OmicsDatascience](https://github.com/omics-datascience/BioAPI)""
 
     @flask_app.route("/pathway-genes/<pathway_source>/<pathway_id>", methods=['GET'])
     @swag_from("swagger_specs/genesOfMetabolicPathway.yml")
-    # @doc(description='Genes of a metabolic pathway', tags=['Genes'], 
-    #      params={"pathway_source": {"description": "Database to query", "type": "string", "required": True, "example": "kegg", "enum": ["kegg", "biocarta", "ehmn", "humancyc", "inoh", "netpath", "pid", "reactome", "smpdb", "signalink", "wikipathways"]},
-    #              "pathway_id": {"description": "Pathway identifier in the source database", "type": "string", "required": True, "example": "hsa00740"}})
     def pathway_genes(pathway_source, pathway_id):
         if pathway_source.lower() not in PATHWAYS_SOURCES:
             abort(404, f'{pathway_source} is an invalid pathway source')
@@ -820,18 +795,17 @@ To contribute: [OmicsDatascience](https://github.com/omics-datascience/BioAPI)""
         return make_response(response, 200, headers)
 
     @flask_app.route("/pathways-in-common", methods=['POST'])
-    # @doc(description='Metabolic pathways from different genes', tags=['Pathways'], consumes=["application/json"])
-    # @use_kwargs(args=swagger_schemas.PathwaysInCommonRequestSchema, location="json")
-    def pathways_in_common(gene_ids: List[str]):
-        # body = request.get_json()  # type: ignore
-        # if "gene_ids" not in body:
-        #     abort(400, "gene_ids is mandatory")
+    @swag_from("swagger_specs/pathwaysInCommon.yml")
+    def pathways_in_common():
+        body = request.get_json()  # type: ignore
+        if "gene_ids" not in body:
+            abort(400, "gene_ids is mandatory")
 
-        # gene_ids = body['gene_ids']
-        # if not isinstance(gene_ids, list):
-        #     abort(400, "gene_ids must be a list")
-        # if len(gene_ids) == 0:
-        #     abort(400, "gene_ids must contain at least one gene symbol")
+        gene_ids = body['gene_ids']
+        if not isinstance(gene_ids, list):
+            abort(400, "gene_ids must be a list")
+        if len(gene_ids) == 0:
+            abort(400, "gene_ids must contain at least one gene symbol")
 
         pathways_tmp = [get_pathways_of_gene(gene) for gene in gene_ids]
         pathways_intersection = list(set.intersection(*map(set, pathways_tmp)))
@@ -842,36 +816,35 @@ To contribute: [OmicsDatascience](https://github.com/omics-datascience/BioAPI)""
         return make_response(response, 200, headers)
 
     @flask_app.route("/expression-of-genes", methods=['POST'])
-    # @doc(description='Gets gene expression in healthy tissue', tags=['Expression Data'], consumes=["application/json"])
-    # @use_kwargs(args=swagger_schemas.ExpressionOfGenesRequestSchema, location="json")
-    def expression_data_from_gtex(gene_ids: list[str], tissue: str, type: str):
-        # body = request.get_json()  # type: ignore
+    @swag_from("swagger_specs/expressionOfGenes.yml")
+    def expression_data_from_gtex():
+        body = request.get_json()  # type: ignore
 
-        # if "gene_ids" not in body:
-        #     abort(400, "gene_ids is mandatory")
+        if "gene_ids" not in body:
+            abort(400, "gene_ids is mandatory")
 
-        # gene_ids = body['gene_ids']
-        # if not isinstance(gene_ids, list):
-        #     abort(400, "gene_ids must be a list")
+        gene_ids = body['gene_ids']
+        if not isinstance(gene_ids, list):
+            abort(400, "gene_ids must be a list")
 
-        # if len(gene_ids) == 0:
-        #     abort(400, "gene_ids must contain at least one gene symbol")
+        if len(gene_ids) == 0:
+            abort(400, "gene_ids must contain at least one gene symbol")
 
-        # if "tissue" not in body:
-        #     abort(400, "tissue is mandatory")
+        if "tissue" not in body:
+            abort(400, "tissue is mandatory")
 
-        # tissue = body['tissue']
-        # if "type" in body:
-        #     if body['type'] not in ["gzip", "json"]:
-        #         abort(400, "allowed values for the 'type' key are 'json' or 'gzip'")
-        #     else:
-        #         type_response = body['type']
-        # else:
-        #     type_response = 'json'
+        tissue = body['tissue']
+        if "type" in body:
+            if body['type'] not in ["gzip", "json"]:
+                abort(400, "allowed values for the 'type' key are 'json' or 'gzip'")
+            else:
+                type_response = body['type']
+        else:
+            type_response = 'json'
 
         expression_data = get_expression_from_gtex(tissue, gene_ids)
 
-        if type == "gzip":
+        if type_response == "gzip":
             content = gzip.compress(json.dumps(
                 expression_data).encode('utf8'), 5)
             response = make_response(content)
@@ -881,9 +854,8 @@ To contribute: [OmicsDatascience](https://github.com/omics-datascience/BioAPI)""
         return jsonify(expression_data)
 
     @flask_app.route("/genes-to-terms", methods=['POST'])
-    # @doc(description='Gene Ontology terms related to a list of genes', tags=['Gene Ontology'], consumes=["application/json"])
-    # @use_kwargs(args=swagger_schemas.GenesToTermsRequestSchema, location="json")
-    def genes_to_go_terms(gene_ids: list[str], filter_type: str, p_value_threshold: float|None, correction_method: str, relation_type: list[str], ontology_type: list[str]):
+    @swag_from("swagger_specs/genesToTerms.yml")
+    def genes_to_go_terms():
         """Receives a list of genes and returns the related terms"""
         valid_filter_types = ["union", "intersection", "enrichment"]
         valid_ontology_types = ["biological_process",
@@ -970,6 +942,7 @@ To contribute: [OmicsDatascience](https://github.com/omics-datascience/BioAPI)""
         return jsonify(response)
 
     @flask_app.route("/related-terms", methods=['POST'])
+    @swag_from("swagger_specs/relatedTerms.yml")
     def related_terms():
         """Receives a term and returns the related terms"""
         valid_ontology_types = ["biological_process",
@@ -1017,19 +990,18 @@ To contribute: [OmicsDatascience](https://github.com/omics-datascience/BioAPI)""
         return jsonify(response)
 
     @flask_app.route("/information-of-oncokb", methods=['POST'])
-    # @doc(description='Therapies and actionable genes in cancer', tags=['Genes'], consumes=["application/json"])
-    # @use_kwargs(args=swagger_schemas.InformationOfOncokbRequestSchema, location="json")
-    def oncokb_data(gene_ids: list[str], query: str):
-        # body = request.get_json()  # type: ignore
+    @swag_from("swagger_specs/informationOfOncokb.yml")
+    def oncokb_data():
+        body = request.get_json()  # type: ignore
 
-        # if "gene_ids" not in body:
-        #     abort(400, "gene_ids is mandatory")
+        if "gene_ids" not in body:
+            abort(400, "gene_ids is mandatory")
 
-        # gene_ids = body['gene_ids']
-        # query = "" if "query" not in body else body['query']
+        gene_ids = body['gene_ids']
+        query = "" if "query" not in body else body['query']
 
-        # if not isinstance(gene_ids, list):
-        #     abort(400, "gene_ids must be a list")
+        if not isinstance(gene_ids, list):
+            abort(400, "gene_ids must be a list")
 
         if len(gene_ids) == 0:
             abort(400, "gene_ids must contain at least one gene symbol")
@@ -1039,6 +1011,7 @@ To contribute: [OmicsDatascience](https://github.com/omics-datascience/BioAPI)""
         return jsonify(data)
 
     @flask_app.route("/drugs-pharm-gkb", methods=['POST'])
+    @swag_from("swagger_specs/cancerDrugsRelatedToGenes.yml")
     def cancer_drugs_related_to_genes():
         """Receives genes and returns the related drugs"""
         response = {}
@@ -1053,6 +1026,7 @@ To contribute: [OmicsDatascience](https://github.com/omics-datascience/BioAPI)""
         return jsonify(response)
 
     @flask_app.route("/string-relations", methods=['POST'])
+    @swag_from("swagger_specs/stringRelations.yml")
     def string_relations_to_gene():
         body = request.get_json()
         optionals = {}
@@ -1070,6 +1044,7 @@ To contribute: [OmicsDatascience](https://github.com/omics-datascience/BioAPI)""
         return jsonify(res)
 
     @flask_app.route("/drugs-regulating-gene/<gene_id>", methods=['GET'])
+    @swag_from("swagger_specs/drugsRegulatingGene.yml")
     def drugs_regulating_gene(gene_id):
         return {
             "link": "https://go.drugbank.com/pharmaco/transcriptomics?q%5Bg%5B0%5D%5D%5Bm%5D=or&q%5Bg%5B0%5D%5D"

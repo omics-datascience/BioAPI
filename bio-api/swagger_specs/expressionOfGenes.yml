@@ -1,0 +1,61 @@
+tags:
+  - Gene Expression 
+summary: "Gene expression"
+description: "Gets gene expression in healthy tissue."
+operationId: "Gene expression in healthy tissues"
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          gene_ids:
+            type: array
+            description: "List of gene identifiers."
+            items:
+              type: string
+            example: ["BRCA1", "BRCA2"]
+          tissue:
+            type: string
+            enum:
+              - Adipose Tissue
+              - Adrenal Gland
+              - Bladder
+              - Blood
+              - Blood Vessel
+              - Brain
+              - Breast
+              - Cervix Uteri
+              - Colon
+              - Esophagus
+              - Fallopian Tube
+              - Heart
+              - Kidney
+              - Liver
+              - Lung
+              - Muscle
+              - Nerve
+              - Ovary
+              - Pancreas
+              - Pituitary
+              - Prostate
+              - Salivary Gland
+              - Skin
+              - Small Intestine
+              - Spleen
+              - Stomach
+              - Testis
+              - Thyroid
+              - Uterus
+              - Vagina
+            example: "Skin" 
+          type:
+            type: string
+            enum:
+              - json
+              - gzip
+            example: "gzip"
+responses:
+  200:
+    description: "Expression values ​​of each gene according to the GTEx database."

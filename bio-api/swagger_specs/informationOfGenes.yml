@@ -1,5 +1,5 @@
 tags:
-  - Genes information
+  - Genes Information
 summary: "Genes information"
 description: "From a list of valid genes, it obtains different information for the human reference genomes GRCh38 and GRCh37."
 operationId: "Genes information"

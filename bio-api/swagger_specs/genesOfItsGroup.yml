@@ -1,5 +1,5 @@
 tags:
-  - Genes information
+  - Genes Information
 summary: "Gene Groups"
 description: "Gets the identifier of a gene, validates it and then returns the group of genes to which it belongs according to HGNC, and all the other genes that belong to the same group."
 operationId: "Gene Groups"

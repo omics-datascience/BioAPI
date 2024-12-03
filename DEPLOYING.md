@@ -32,7 +32,6 @@ Below are the steps to perform a production deployment of BioAPI.
 
 BioAPI uses three genomic databases for its operation. These databases must be loaded in MongoDB. You can import all the databases in two ways:
 
-
 ### Import using public DB backup (recommended)
 
 To import all databases in MongoDB:  
@@ -67,7 +66,6 @@ To import all databases in MongoDB:
 4. Stop services with the command `docker compose -f docker-compose.dev.yml down`
 5. Roll up the changes in the `docker-compose.dev.yml` file to remove the backup file from the `volumes` section. Restart all the services again.
 
-
 ### Manually import the different databases
 
 Alternatively (but **not recommended** due to high computational demands) you can run a separate ETL process to download from source, process and import the databases into MongoDB.
@@ -101,6 +99,7 @@ docker-compose up -d
 ```
 
 By default, BioAPI runs on `localhost:8000`.  
+Test BioAPI with Swagger on `localhost:8000/apidocs`
 
 If you want to stop all services, you can execute:
 

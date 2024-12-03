@@ -1,0 +1,25 @@
+tags:
+  - Functional interactions
+summary: "Predicted functional associations network"
+description: "For a given gene, this service gets from the String database a list of genes and their relationships to it."
+operationId: "Cancer related drugs"
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          gene_id:
+            type: string
+            description: "Gene identifier."
+            items:
+              type: string
+            example: "MX2"
+          min_combined_score:
+            type: int
+            example: 976
+responses:
+  200:
+    description: "List of genes and their relationships according to the String database."
+

@@ -1,0 +1,16 @@
+tags:
+  - Accionable Genes and Drugs
+summary: "Drugs that regulate a gene expression."
+description: "Service that takes gene symbol and returns a link to https://go.drugbank.com with all the drugs that upregulate and down regulate its expresion. Useful for embeding."
+operationId: "Drugs that regulate genetic expression."
+parameters:
+  - in: path
+    name: gene_id
+    description: "Identifier of the gene."
+    required: true
+    schema:
+      type: string
+      example: "TP53"
+responses:
+  200:
+    description: "URL that points to the information on the DrugBank website."
