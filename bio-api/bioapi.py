@@ -672,7 +672,7 @@ BioAPI is part of the Multiomix project. For more information, visit our [websit
 To contribute: [OmicsDatascience](https://github.com/omics-datascience/BioAPI)"""
     }
 
-    swagger = Swagger(flask_app, config=swagger_config)
+    Swagger(flask_app, config=swagger_config)
 
     # Endpoints
     @flask_app.route("/")
