@@ -3,14 +3,16 @@ import os
 import json
 import gzip
 import logging
+
+from flask import Flask, jsonify, make_response, abort, render_template, request
+from flasgger import Swagger, swag_from
 from db import get_mongo_connection
 from concurrent.futures import ThreadPoolExecutor
 import configparser
-import urllib.parse
 from typing import List, Dict, Optional, Any
-from flask import Flask, jsonify, make_response, abort, render_template, request
 from utils import map_gene
 from gprofiler import GProfiler
+
 
 # Gets production flag
 IS_DEBUG: bool = os.environ.get('DEBUG', 'true') == 'true'
@@ -515,9 +517,6 @@ def bfs_on_terms(term_id, relations: Optional[List[str]] = None, general_depth=0
     return list(graph.values())
 
 
-# PharmGKB
-
-
 def cancer_drugs_related_to_gene(gene: str) -> List:
     """
     Gets all cancer related drugs associated with a gene .
@@ -526,6 +525,7 @@ def cancer_drugs_related_to_gene(gene: str) -> List:
     """
     collection_pharm = mydb["pharmgkb"]
     return list(collection_pharm.find({"genes": gene}, {"_id": 0}))
+
 
 def get_data_from_oncokb(genes: List[str], query: str) -> Dict[str, Dict[str, Any]]:
     """
@@ -643,33 +643,41 @@ def associated_string_genes(gene_symbol: str, min_combined_score: int = 400) -> 
     return res
 
 
-# Documentation of included services
-services = [
-    {"name": "Genes symbols validator", "url": "[POST] /gene-symbols"},
-    {"name": "Genes symbols finder", "url": "[GET] /gene-symbols-finder"},
-    {"name": "Genes information", "url": "[POST] /information-of-genes"},
-    {"name": "Gene Groups", "url": "[GET] /genes-of-its-group/<gene_id>"},
-    {"name": "Genes of a metabolic pathway", "url": "[GET] /pathway-genes/<source>/<external_id>"},
-    {"name": "Metabolic pathways from different genes", "url": "[POST] /pathways-in-common"},
-    {"name": "Gene expression", "url": "[POST] /expression-of-genes"},
-    {"name": "Therapies and actionable genes in cancer", "url": "[POST] /information-of-oncokb"},
-    {"name": "Gene Ontology terms related to a list of genes", "url": "[POST] /genes-to-terms"},
-    {"name": "Gene Ontology terms related to another specific term", "url": "[POST] /related-terms"},
-    {"name": "Cancer related drugs", "url": "[POST] /drugs-pharm-gkb"},
-    {"name": "Predicted functional associations network", "url": "[POST] /string-relations"},
-    {"name": "Drugs that regulate a gene", "url": "[GET] /drugs-regulating-gene/<gene_id>"}
-]
-
-
 def create_app():
     # Creates and configures the app
     flask_app = Flask(__name__, instance_relative_config=True)
 
+    swagger_config = {
+        "headers": [
+        ],
+        "openapi": "3.0.0",
+        "specs": [
+            {
+                "endpoint": "swagger",
+                "route": "/apispec.json",
+                "rule_filter": lambda rule: True,
+                "model_filter": lambda tag: True
+            }
+        ],
+        "title": "BioAPI",
+        "uiversion": 3,
+        "version": VERSION,
+        "termsOfService": False,
+        "swagger_ui": True,
+        "static_url_path": "/",
+        "specs_route": "/apidocs/",
+        "description": """
+## A powerful abstraction of genomics databases.
+BioAPI is part of the Multiomix project. For more information, visit our [website](https://omicsdatascience.org/).
+To contribute: [OmicsDatascience](https://github.com/omics-datascience/BioAPI)"""
+    }
+
+    Swagger(flask_app, config=swagger_config)
+
     # Endpoints
     @flask_app.route("/")
     def homepage():
-        # return render_template('index.html', title=f"API v{VERSION}", services=services)
-        return render_template('homepage.html', version=VERSION, services=services)
+        return render_template('homepage.html', version=VERSION)
 
     @flask_app.route("/ping")
     def ping_ok():
@@ -678,12 +686,13 @@ def create_app():
         return make_response(output, 200, headers)
 
     @flask_app.route("/gene-symbols", methods=['POST'])
+    @swag_from("swagger_specs/geneSymbols.yml")
     def gene_symbols():
         """Receives a list of gene IDs in any standard and returns the standardized corresponding gene IDs.
         In case it is not found it returns an empty list for the specific not found gene."""
         response = {}
         if request.method == 'POST':
-            body = request.get_json()  # type: ignore
+            body = request.get_json()
             if "gene_ids" not in body:
                 abort(400, "gene_ids is mandatory")
 
@@ -700,16 +709,17 @@ def create_app():
         return make_response(response, 200, headers)
 
     @flask_app.route("/gene-symbols-finder/", methods=['GET'])
+    @swag_from("swagger_specs/geneSymbolFinder.yml")
     def gene_symbol_finder():
         """Takes a string of any length and returns a list of genes that contain that search criteria."""
         if "query" not in request.args:
             abort(400, "'query' parameter is mandatory")
         else:
-            query = request.args.get('query')  # type: ignore
+            query = request.args.get('query')
 
         limit = 50
         if "limit" in request.args:
-            limit_arg = request.args.get('limit')  # type: ignore
+            limit_arg = request.args.get('limit')
             if limit_arg.isnumeric():
                 limit = int(limit_arg)
             else:
@@ -722,6 +732,7 @@ def create_app():
             abort(400, e)
 
     @flask_app.route("/information-of-genes", methods=['POST'])
+    @swag_from("swagger_specs/informationOfGenes.yml")
     def information_of_genes():
         """Receives a list of gene IDs and returns information about them."""
         body = request.get_json()  # type: ignore
@@ -739,7 +750,8 @@ def create_app():
         return make_response(response, 200, headers)
 
     @flask_app.route("/genes-of-its-group/<gene_id>", methods=['GET'])
-    def genes_in_the_same_group(gene_id):
+    @swag_from("swagger_specs/genesOfItsGroup.yml")
+    def genes_in_the_same_group(gene_id: str):
         response = {"gene_id": None, "groups": [],
                     "locus_group": None, "locus_type": None}
         try:
@@ -774,6 +786,7 @@ def create_app():
         return make_response(response, 200, headers)
 
     @flask_app.route("/pathway-genes/<pathway_source>/<pathway_id>", methods=['GET'])
+    @swag_from("swagger_specs/genesOfMetabolicPathway.yml")
     def pathway_genes(pathway_source, pathway_id):
         if pathway_source.lower() not in PATHWAYS_SOURCES:
             abort(404, f'{pathway_source} is an invalid pathway source')
@@ -782,6 +795,7 @@ def create_app():
         return make_response(response, 200, headers)
 
     @flask_app.route("/pathways-in-common", methods=['POST'])
+    @swag_from("swagger_specs/pathwaysInCommon.yml")
     def pathways_in_common():
         body = request.get_json()  # type: ignore
         if "gene_ids" not in body:
@@ -802,6 +816,7 @@ def create_app():
         return make_response(response, 200, headers)
 
     @flask_app.route("/expression-of-genes", methods=['POST'])
+    @swag_from("swagger_specs/expressionOfGenes.yml")
     def expression_data_from_gtex():
         body = request.get_json()  # type: ignore
 
@@ -839,6 +854,7 @@ def create_app():
         return jsonify(expression_data)
 
     @flask_app.route("/genes-to-terms", methods=['POST'])
+    @swag_from("swagger_specs/genesToTerms.yml")
     def genes_to_go_terms():
         """Receives a list of genes and returns the related terms"""
         valid_filter_types = ["union", "intersection", "enrichment"]
@@ -926,6 +942,7 @@ def create_app():
         return jsonify(response)
 
     @flask_app.route("/related-terms", methods=['POST'])
+    @swag_from("swagger_specs/relatedTerms.yml")
     def related_terms():
         """Receives a term and returns the related terms"""
         valid_ontology_types = ["biological_process",
@@ -973,6 +990,7 @@ def create_app():
         return jsonify(response)
 
     @flask_app.route("/information-of-oncokb", methods=['POST'])
+    @swag_from("swagger_specs/informationOfOncokb.yml")
     def oncokb_data():
         body = request.get_json()  # type: ignore
 
@@ -993,6 +1011,7 @@ def create_app():
         return jsonify(data)
 
     @flask_app.route("/drugs-pharm-gkb", methods=['POST'])
+    @swag_from("swagger_specs/cancerDrugsRelatedToGenes.yml")
     def cancer_drugs_related_to_genes():
         """Receives genes and returns the related drugs"""
         response = {}
@@ -1007,6 +1026,7 @@ def create_app():
         return jsonify(response)
 
     @flask_app.route("/string-relations", methods=['POST'])
+    @swag_from("swagger_specs/stringRelations.yml")
     def string_relations_to_gene():
         body = request.get_json()
         optionals = {}
@@ -1024,6 +1044,7 @@ def create_app():
         return jsonify(res)
 
     @flask_app.route("/drugs-regulating-gene/<gene_id>", methods=['GET'])
+    @swag_from("swagger_specs/drugsRegulatingGene.yml")
     def drugs_regulating_gene(gene_id):
         return {
             "link": "https://go.drugbank.com/pharmaco/transcriptomics?q%5Bg%5B0%5D%5D%5Bm%5D=or&q%5Bg%5B0%5D%5D"

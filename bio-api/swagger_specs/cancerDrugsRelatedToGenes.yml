@@ -1,0 +1,22 @@
+tags:
+  - Accionable Genes and Drugs
+summary: "Cancer related drugs"
+description: "Gets a list of drugs from the PharmGKB database related to a list of genes."
+operationId: "Cancer related drugs"
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          gene_ids:
+            type: array
+            description: "List of gene identifiers."
+            items:
+              type: string
+            example: ["JAK2", "EGFR"]
+responses:
+  200:
+    description: "List of all information related to drugs and genes."
+

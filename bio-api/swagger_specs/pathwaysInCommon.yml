@@ -1,0 +1,21 @@
+tags:
+  - Metabolic Pathway 
+summary: "Metabolic pathways from different genes"
+description: "Gets the common pathways for a list of genes."
+operationId: "Common pathways for genes"
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          gene_ids:
+            type: array
+            description: "List of gene identifiers."
+            items:
+              type: string
+            example: ["HLA-B", "BRAF"]
+responses:
+  200:
+    description: "A list of pathways that include the genes sent as parameters."

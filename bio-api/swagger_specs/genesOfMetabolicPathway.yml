@@ -1,0 +1,35 @@
+tags:
+  - Metabolic Pathway
+summary: "Genes of a metabolic pathway"
+description: "Get the list of genes that are involved in a pathway for a given database."
+operationId: "Genes of Metabolic Pathway"
+parameters:
+  - in: path
+    name: pathway_source
+    description: "Database to query."
+    required: true
+    schema:
+      type: string
+      enum:
+        - kegg
+        - biocarta
+        - ehmn
+        - humancyc
+        - inoh
+        - netpath
+        - pid
+        - reactome
+        - smpdb
+        - signalink
+        - wikipathways
+      example: "kegg"
+  - in: path
+    name: pathway_id
+    description: "Pathway identifier in the source database."
+    required: true
+    schema:
+      type: string
+      example: "hsa00740"
+responses:
+  200:
+    description: "List of genes involved in the metabolic pathway."

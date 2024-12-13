@@ -1,0 +1,48 @@
+tags:
+  - Gene Ontology
+summary: "Gene Ontology terms related to a list of genes"
+description: "Gets the list of related terms for a list of genes."
+operationId: "Gene ontology terms"
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          gene_ids:
+            type: array
+            description: "List of gene identifiers."
+            items:
+              type: string
+            example: ["TMCO4"]
+          filter_type:
+            type: string
+            enum:
+              - intersection
+              - union
+              - enrichment
+            example: "intersection"
+          relation_type:
+            type: array
+            items:
+              type: string
+              enum:
+                - enables
+                - involved_in
+                - part_of
+                - located_in
+            example: ["enables","involved_in","part_of","located_in"]
+          ontology_type:
+            type: array
+            items:
+              type: string
+              enum:
+                - biological_process
+                - molecular_function
+                - cellular_component
+            example: ["biological_process", "molecular_function", "cellular_component"]
+responses:
+  200:
+    description: "The response you get is a list of GO terms that meet the query conditions."
+

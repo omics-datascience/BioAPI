@@ -1,0 +1,21 @@
+tags:
+  - Accionable Genes and Drugs
+summary: "Therapies and Actionable Genes in Cancer"
+description: "This service retrieves information on FDA-approved precision oncology therapies, actionable genes, and drugs obtained from the OncoKB database, at a therapeutic, diagnostic, and prognostic level."
+operationId: "Therapies and Actionable Genes in Cancer"
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          gene_ids:
+            type: array
+            items:
+              type: string
+            example: ["ATM", "EGFR"]
+responses:
+  200:
+    description: "OncoKB database information for each gene."
+

@@ -1,0 +1,21 @@
+tags:
+  - Gene Nomenclature
+summary: "Gene symbol validator"
+description: "Searches the identifier of a list of genes of different genomics databases and returns the approved symbols according to HGNC nomenclature."
+operationId: "Gene symbol"
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          gene_ids:
+            type: array
+            description: "List of gene identifiers."
+            items:
+              type: string
+            example: ["FANCS", "BRCC1"]
+responses:
+  200:
+    description: "HGNC approved gene symbols."
