@@ -8,9 +8,14 @@ password=
 db=bio_api
 ############# Database URL ############
 oncokb_biomarker_drug_associations_dataset="oncokb_biomarker_drug_associations.tsv"
-oncokb_gene_cancer_list_dataset="cancer_gene_list.tsv"
-oncokb_precision_oncology_therapies="oncokb_precision_oncology_therapies.tsv"
+oncokb_gene_cancer_list_dataset="cancerGeneList.tsv"
+oncokb_precision_oncology_therapies="fda_approved_oncology_therapies.xlsx"
 
+date
+echo "INFO	Downloading Gene Symbols from HGNC..."
+HGNC_VALID_GENES_URL="https://www.genenames.org/cgi-bin/download/custom?col=gd_app_sym&col=gd_prev_sym&col=gd_aliases&status=Approved&hgnc_dbtag=on&order_by=gd_app_sym_sort&format=text&submit=submit"
+curl -fsSL "$HGNC_VALID_GENES_URL" -o valid_genes_from_hgnc.txt
+echo "INFO	OK."
 date
 echo "INFO	Reformatting database $oncokb_biomarker_drug_associations_dataset..."
 python3 oncokb_biomarker_drug_tsv2json.py --input $oncokb_biomarker_drug_associations_dataset --output oncokb_bda_output.json
@@ -21,7 +26,7 @@ python3 oncokb_cancer_gene_list_tsv2json.py --input $oncokb_gene_cancer_list_dat
 echo "INFO	OK."
 date
 echo "INFO	Reformatting database $oncokb_precision_oncology_therapies..."
-python3 oncokb_oncology_therapies_tsv2json.py --input $oncokb_precision_oncology_therapies --output oncokb_pot_output.json
+python3 oncokb_oncology_therapies_xlsx2json.py --input $oncokb_precision_oncology_therapies --output oncokb_pot_output.json
 echo "INFO	OK."
 date
 echo "INFO	Importing $oncokb_biomarker_drug_associations_dataset to MongoDB..."
@@ -33,7 +38,7 @@ cat oncokb_cgl_output.json | docker container exec -i bio_api_mongo_db mongoimpo
 echo "INFO	OK."
 date
 echo "INFO	Importing $oncokb_precision_oncology_therapies to MongoDB..."
-cat oncokb_pot_output.json | docker container exec -i bio_api_mongo_db mongoimport --verbose=0 --host $ip_mongo --port $port_mongo --username $user --password $password --drop --stopOnError --db $db --collection oncokb_precision_therapies --authenticationDatabase admin --jsonArray
+cat oncokb_pot_output.json | docker container exec -i bio_api_mongo_db mongoimport --verbose=0 --host $ip_mongo --port $port_mongo --username $user --password $password --drop --stopOnError --db $db --collection oncokb_precision_oncology_therapies --authenticationDatabase admin --jsonArray
 echo "INFO	OK."
 date
 echo "INFO	Removing intermediate files..."

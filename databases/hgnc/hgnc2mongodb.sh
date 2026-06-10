@@ -7,7 +7,7 @@ user=
 password=
 db=bio_api
 ############# Database URL ############
-hgnc_url="ftp://ftp.ebi.ac.uk/pub/databases/genenames/hgnc/tsv/hgnc_complete_set.txt"
+hgnc_url="https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/hgnc_complete_set.txt"
 
 date
 echo "INFO	Downloading HGNC database..."

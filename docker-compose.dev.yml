@@ -1,7 +1,7 @@
 services:
     # MongoDB Server
     mongo_bioapi:
-        image: mongo:6.0.12
+        image: mongo:8.3.2
         container_name: bio_api_mongo_db
         environment:
             MONGO_INITDB_ROOT_USERNAME: 'root'

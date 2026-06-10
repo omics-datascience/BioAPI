@@ -7,14 +7,10 @@
 # -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 
 import csv
+import json
 import argparse
 
 
-class C:
-    pass
-
-
-c = C()
 parser = argparse.ArgumentParser(
     description='Procesa la base de datos de lista de genes relacionados con algun tipo de cancer de OncoKB. Genera un nuevo archivo en Formato Json importable en MongoDB.')
 parser.add_argument(
@@ -22,46 +18,81 @@ parser.add_argument(
 parser.add_argument('--output', help='Nombre del archivo Json de salida',
                     required=False, default="oncokb_cgl_output.json")
 
-args = parser.parse_args(namespace=c)
+args = parser.parse_args()
+
+
+def clean_value(value):
+    if value is None:
+        return None
+    parsed = value.strip()
+    if parsed == "" or parsed.upper() == "NULL":
+        return None
+    if parsed.upper() == "YES":
+        return 1
+    if parsed.upper() == "NO":
+        return 0
+    return parsed
+
 
 if __name__ == '__main__':
-    archivo = c.input
-    archivo_salida = c.output
-    tsvfile = open(archivo)
-    contenido = csv.reader(tsvfile, dialect='excel', delimiter='\t')
+    archivo = args.input
+    archivo_salida = args.output
     cont_json = []
     print("Procesando archivo...")
-    headers = next(contenido)
-    # Cambio nombres en el header:
-    headers[headers.index('Hugo Symbol')] = 'hgnc_symbol'
-    headers[headers.index('GRCh38 RefSeq')] = 'refseq_transcript'
-    headers[headers.index('OncoKB Annotated')] = 'oncokb_annotated'
-    headers[headers.index('Is Oncogene')] = 'oncogene'
-    headers[headers.index('Is Tumor Suppressor Gene')
-            ] = 'tumor_suppressor_gene'
-    headers[headers.index('MSK-IMPACT')] = 'msk_impact'
-    headers[headers.index('MSK-HEME')] = 'msk_impact_heme'
-    headers[headers.index('FOUNDATION ONE')] = 'foundation_one_cdx'
-    headers[headers.index('FOUNDATION ONE HEME')] = 'foundation_one_heme'
-    headers[headers.index('Vogelstein')] = 'vogelstein'
-    headers[headers.index('SANGER CGC(05/30/2017)')] = 'sanger_cgc'
 
-    headers_a_filtrar = [1, 2, 3, 4, 6, 16]
+    # Permite parsear tanto formato viejo como actualizado del dataset.
+    rename_map = {
+        'Hugo Symbol': 'hgnc_symbol',
+        'GRCh38 RefSeq': 'refseq_transcript',
+        'OncoKB Annotated': 'oncokb_annotated',
+        'Is Oncogene': 'oncogene',
+        'Is Tumor Suppressor Gene': 'tumor_suppressor_gene',
+        'MSK-IMPACT': 'msk_impact',
+        'MSK-HEME': 'msk_impact_heme',
+        'FOUNDATION ONE': 'foundation_one_cdx',
+        'FOUNDATION ONE HEME': 'foundation_one_heme',
+        'Vogelstein': 'vogelstein',
+        'SANGER CGC(05/30/2017)': 'cosmic_cgc',
+        'COSMIC CGC (v99)': 'cosmic_cgc',
+    }
 
-    for registro in contenido:
-        json_file = {}
-        for i in range(0, len(headers)):
-            if i not in headers_a_filtrar:
-                if registro[i] != "" and registro[i] != None and registro[i].upper() != 'NULL':
-                    if registro[i].upper() == "YES":
-                        json_file[headers[i]] = 1
-                    elif registro[i].upper() == "NO":
-                        json_file[headers[i]] = 0
-                    else:
-                        json_file[headers[i]] = registro[i]
-        cont_json.append(json_file)
+    excluded_columns = {
+        'Entrez Gene ID',
+        'GRCh37 Isoform',
+        'GRCh37 RefSeq',
+        'GRCh38 Isoform',
+        'Gene Type',
+        'Gene Aliases',
+    }
 
-    jsonfile = open(archivo_salida, "w")
-    jsonfile.write(str(cont_json).replace("'", "\""))
-    jsonfile.close()
+    with open(archivo, newline='', encoding='utf-8') as tsvfile:
+        contenido = csv.DictReader(tsvfile, delimiter='\t')
+        for registro in contenido:
+            json_file = {}
+
+            for header, value in registro.items():
+                if header in excluded_columns:
+                    continue
+
+                parsed_value = clean_value(value)
+                if parsed_value is None:
+                    continue
+
+                output_key = rename_map.get(header, header)
+                json_file[output_key] = parsed_value
+
+            # En el formato nuevo no hay columnas Is Oncogene/Is Tumor Suppressor Gene.
+            if 'oncogene' not in json_file or 'tumor_suppressor_gene' not in json_file:
+                gene_type = (registro.get('Gene Type') or '').strip().upper()
+                if gene_type:
+                    if 'oncogene' not in json_file:
+                        json_file['oncogene'] = 1 if 'ONCOGENE' in gene_type else 0
+                    if 'tumor_suppressor_gene' not in json_file:
+                        json_file['tumor_suppressor_gene'] = 1 if 'TSG' in gene_type else 0
+
+            cont_json.append(json_file)
+
+    with open(archivo_salida, "w", encoding='utf-8') as jsonfile:
+        json.dump(cont_json, jsonfile, ensure_ascii=False)
+
     print("Finalizado!")

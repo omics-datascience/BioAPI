@@ -1,7 +1,7 @@
 *.pyc
 .idea
 .vscode
-venv
+venv/
 bio-api/__pycache__
 bio-api/.pytest_cache
 bio-api/media

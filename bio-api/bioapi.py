@@ -537,7 +537,7 @@ def get_data_from_oncokb(genes: List[str], query: str) -> Dict[str, Dict[str, An
     """
     collection_actionability_gene = mydb["oncokb_biomarker_drug_associations"]
     collection_cancer_gene = mydb["oncokb_gene_cancer_list"]
-    collection_precision_oncology_therapies = mydb["oncokb_precision_therapies"]
+    collection_precision_oncology_therapies = mydb["oncokb_precision_oncology_therapies"]
     query1 = {'gene': {'$in': genes}}
     query2 = {'hgnc_symbol': {'$in': genes}}
     projection = {'_id': 0}
