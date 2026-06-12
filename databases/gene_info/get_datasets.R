@@ -43,16 +43,12 @@ fil_chrom <- c("MT", "X", "Y", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"
 
 # GRCh37 ####
 ensembl_grch37 = useEnsembl(biomart="ensembl", dataset = "hsapiens_gene_ensembl", GRCh = 37)
-# listFilters(ensembl_grch37)
-# listAttributes(ensembl_grch37)
-atr <- c("ensembl_gene_id", "description", "chromosome_name", "start_position", "end_position", "strand", "band", "percentage_gene_gc_content", "gene_biotype", "hgnc_symbol", "hgnc_id", "entrezgene_id") 
 res_grch37 <- getBM(
   attributes = atr,
   filters = c("chromosome_name", "with_hgnc"),
   values = list(fil_chrom, TRUE),
   mart = ensembl_grch37
 )
-
 res_grch37$description <- data.frame(do.call('rbind', str_split(res_grch37$description, " \\[Source")))$X1
 
 

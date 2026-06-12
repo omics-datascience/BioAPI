@@ -45,6 +45,7 @@ echo "INFO	Removing intermediate files..."
 rm oncokb_bda_output.json
 rm oncokb_cgl_output.json
 rm oncokb_pot_output.json
+rm valid_genes_from_hgnc.txt
 echo "INFO	OK."
 echo "COMPLETED! You can now access the OncoKB database from MongoDB!"
 date

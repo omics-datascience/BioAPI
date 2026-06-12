@@ -81,12 +81,13 @@ Alternatively (but **not recommended** due to high computational demands) you ca
     - For Gene information ([Ensembl genomic data](https://www.ensembl.org/biomart/martview/), [RefSeq gene summaries](https://www.ncbi.nlm.nih.gov/refseq/), and [CiVIC gene descriptions](https://civicdb.org/welcome)) use "databases/gene_info" directory and the *geneinfo2mongodb.sh* file.  
     - For Oncokb cancer genes and drug information, it is necessary to download 3 datasets from their [official site](https://www.oncokb.org/) (**registration required**) and place it within the directory "databases/oncokb":
       - *Therapeutic, Diagnostic, and Prognostic dataset*: Download this dataset from [Actionable Genes page](https://www.oncokb.org/actionableGenes) by clicking the *Association* button. Save it with the name "oncokb_biomarker_drug_associations.tsv".
-      - *Cancer Genes dataset*: Download the dataset from the [Cancer Genes](https://www.oncokb.org/cancerGenes) by clicking the *Cancer Gene List* button. Save it with the name "cancer_gene_list.tsv".
-      - *Precision Oncology Therapies dataset*: Download this dataset from [Precision Oncology Therapies page](https://www.oncokb.org/precision-oncology-therapies) by clicking the *Download Table* button. Save it with the name "oncokb_precision_oncology_therapies.tsv". To import all this dataset to MongoDB, execute the oncokb2mongodb.sh script.
+      - *Cancer Genes dataset*: Download the dataset from the [Cancer Genes](https://www.oncokb.org/cancerGenes) by clicking the *Cancer Gene List* button. Save it with the name "cancerGeneList.tsv".
+      - *Precision Oncology Therapies dataset*: Download this dataset from [Precision Oncology Therapies page](https://www.oncokb.org/precision-oncology-therapies) by clicking the *Download Table* button. Save it with the name "fda_approved_oncology_therapies.xlsx".  
+      To import all this dataset to MongoDB, execute the oncokb2mongodb.sh script.
     - For cancer related drugs ([Pharmacogenomics Knowledge Base (PharmGKB)](https://www.pharmgkb.org/))  use "databases\pharmGKB" directory and the *pharmgkb2mongodb.sh* file.
     - For Gene ontology ([Gene Ontology (GO)](http://geneontology.org/)) use "databases\gene_ontology" directory and the *go2mongodb.sh* file. **NOTE:** This import needs the "Gene nomenclature" databases (2) already imported to properly process the gene ontology databases
     - For predicted functional associations network (String) it is necessary to download some datasets from their [official site](https://string-db.org/cgi/download), make sure that the **selected organism is Homo Sapiens** (the file sizes should be in Mb), from "INTERACTION DATA" download "protein network data (full network, incl. distinction: direct vs. interologs)" and rename it to "protein.links.full.txt.gz" then from "ACCESSORY DATA" download "list of STRING proteins incl. their display names and descriptions" and rename it to "protein.info.txt.gz", place the 2 files in the "databases\string".
-3. Run bash files.  
+1. Run bash files.  
     `./<file.sh>`  
     where file.sh can be *cpdb2mongodb.sh*, *hgnc2mongodb.sh*, *gtex2mongodb.sh*, *go2mongodb.sh*, *string2mongodb.sh*, *pharmgkb2mongodb.sh*, or *ensembl_gene2mongodb.sh*, as appropriate.  
 

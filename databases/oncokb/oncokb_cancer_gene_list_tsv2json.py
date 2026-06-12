@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Descripcion:
-# Filtra el archivo cancer_gene_list.tsv con la lista de genes de cancer de OncoKB
-#   y lo reformatea de TSV a un Json importable en MongoDB
+# Description:
+# Filters the cancer_gene_list.tsv file with the OncoKB cancer gene list
+#   and reformats it from TSV to a JSON file importable into MongoDB
 # -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 
 import csv
@@ -21,7 +21,16 @@ parser.add_argument('--output', help='Nombre del archivo Json de salida',
 args = parser.parse_args()
 
 
-def clean_value(value):
+def clean_value(value: str | None) -> str | int | None:
+    """Normalize raw TSV values before exporting records to JSON.
+
+    This helper standardizes incoming text values so the output is consistent
+    and ready for MongoDB import:
+    - trims surrounding whitespace,
+    - maps empty values and "NULL" to None,
+    - converts YES/NO flags to 1/0,
+    - keeps any other non-empty value as string.
+    """
     if value is None:
         return None
     parsed = value.strip()
@@ -35,12 +44,12 @@ def clean_value(value):
 
 
 if __name__ == '__main__':
-    archivo = args.input
-    archivo_salida = args.output
-    cont_json = []
+    input_file = args.input
+    output_file = args.output
+    output_json = []
     print("Procesando archivo...")
 
-    # Permite parsear tanto formato viejo como actualizado del dataset.
+    # Supports parsing both old and updated dataset formats.
     rename_map = {
         'Hugo Symbol': 'hgnc_symbol',
         'GRCh38 RefSeq': 'refseq_transcript',
@@ -65,12 +74,12 @@ if __name__ == '__main__':
         'Gene Aliases',
     }
 
-    with open(archivo, newline='', encoding='utf-8') as tsvfile:
-        contenido = csv.DictReader(tsvfile, delimiter='\t')
-        for registro in contenido:
-            json_file = {}
+    with open(input_file, newline='', encoding='utf-8') as tsvfile:
+        rows = csv.DictReader(tsvfile, delimiter='\t')
+        for record in rows:
+            json_record = {}
 
-            for header, value in registro.items():
+            for header, value in record.items():
                 if header in excluded_columns:
                     continue
 
@@ -79,20 +88,20 @@ if __name__ == '__main__':
                     continue
 
                 output_key = rename_map.get(header, header)
-                json_file[output_key] = parsed_value
+                json_record[output_key] = parsed_value
 
-            # En el formato nuevo no hay columnas Is Oncogene/Is Tumor Suppressor Gene.
-            if 'oncogene' not in json_file or 'tumor_suppressor_gene' not in json_file:
-                gene_type = (registro.get('Gene Type') or '').strip().upper()
+            # The new format does not include Is Oncogene/Is Tumor Suppressor Gene columns.
+            if 'oncogene' not in json_record or 'tumor_suppressor_gene' not in json_record:
+                gene_type = (record.get('Gene Type') or '').strip().upper()
                 if gene_type:
-                    if 'oncogene' not in json_file:
-                        json_file['oncogene'] = 1 if 'ONCOGENE' in gene_type else 0
-                    if 'tumor_suppressor_gene' not in json_file:
-                        json_file['tumor_suppressor_gene'] = 1 if 'TSG' in gene_type else 0
+                    if 'oncogene' not in json_record:
+                        json_record['oncogene'] = 1 if 'ONCOGENE' in gene_type else 0
+                    if 'tumor_suppressor_gene' not in json_record:
+                        json_record['tumor_suppressor_gene'] = 1 if 'TSG' in gene_type else 0
 
-            cont_json.append(json_file)
+            output_json.append(json_record)
 
-    with open(archivo_salida, "w", encoding='utf-8') as jsonfile:
-        json.dump(cont_json, jsonfile, ensure_ascii=False)
+    with open(output_file, "w", encoding='utf-8') as jsonfile:
+        json.dump(output_json, jsonfile, ensure_ascii=False)
 
     print("Finalizado!")

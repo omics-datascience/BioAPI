@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Descripcion:
-# Procesa el archivo databases/oncokb/oncokb_precision_oncology_therapies.tsv
-#   y lo reformatea de TSV a un Json importable en MongoDB
+# Description:
+# Processes databases/oncokb/oncokb_precision_oncology_therapies.tsv
+#   and reformats it from TSV to JSON importable into MongoDB
 # -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 
 import argparse
@@ -11,8 +11,7 @@ import json
 import re
 from pathlib import Path
 from typing import List
-
-from openpyxl import load_workbook  # type: ignore[import-not-found]
+from openpyxl import load_workbook
 
 
 class C:
@@ -21,10 +20,10 @@ class C:
 
 c = C()
 parser = argparse.ArgumentParser(
-    description='Procesa la base de datos de lista de genes relacionados con algun tipo de cancer de OncoKB. Genera un nuevo archivo en Formato Json importable en MongoDB.')
+    description='Processes the OncoKB database of genes related to cancer types and generates a new JSON file importable into MongoDB.')
 parser.add_argument(
-    '--input', help='archivo xlsx correspondiente a la base de datos de terapias oncologicas de precision de OncoKB', required=True)
-parser.add_argument('--output', help='Nombre del archivo Json de salida',
+    '--input', help='XLSX file for the OncoKB precision oncology therapies database', required=True)
+parser.add_argument('--output', help='Output JSON file name',
                     required=False, default="oncokb_pot_output.json")
 
 args = parser.parse_args(namespace=c)
@@ -160,21 +159,21 @@ def search_gene(biomarker_description: str) -> List[str]:
 
 
 if __name__ == '__main__':
-    archivo = c.input  # type: ignore
-    archivo_salida = c.output  # type: ignore
-    cont_json = []
-    patron = r"\?\s*\d+\s*\*"
+    input_file = c.input  # type: ignore
+    output_file = c.output  # type: ignore
+    json_content = []
+    pattern = r"\?\s*\d+\s*\*"
 
-    print("Procesando archivo...")
-    workbook = load_workbook(filename=archivo, data_only=True)
+    print("Processing file...")
+    workbook = load_workbook(filename=input_file, data_only=True)
     worksheet = workbook["FDA-Approved Oncology Therapies"] if "FDA-Approved Oncology Therapies" in workbook.sheetnames else workbook.active
     if worksheet is None:
-        raise ValueError("No se pudo obtener una hoja valida del archivo xlsx")
+        raise ValueError("Could not get a valid worksheet from the XLSX file")
 
     rows = worksheet.iter_rows(values_only=True)
     raw_headers = next(rows)
     if raw_headers is None:
-        raise ValueError("El archivo xlsx no tiene encabezados")
+        raise ValueError("The XLSX file has no headers")
 
     selected_columns = []
     for idx, raw_header in enumerate(raw_headers):
@@ -186,36 +185,36 @@ if __name__ == '__main__':
             selected_columns.append((idx, mapped))
 
     if not selected_columns:
-        raise ValueError("No se reconocieron columnas validas en el archivo xlsx")
+        raise ValueError("No valid columns were recognized in the XLSX file")
 
-    for registro in rows:
-        if registro is None:
+    for row_record in rows:
+        if row_record is None:
             continue
-        if all(value is None for value in registro):
+        if all(value is None for value in row_record):
             continue
 
-        json_file = {}
+        json_record = {}
         for idx, header_name in selected_columns:
-            value = registro[idx] if idx < len(registro) else ""
+            value = row_record[idx] if idx < len(row_record) else ""
             normalized_value = "" if value is None else str(value)
             normalized_value = normalized_value.replace("\n", " ")
 
             if header_name == "drug_classification" and normalized_value.upper() == "NA":
                 normalized_value = ""
             if header_name == "fda_first_approval":
-                if re.search(patron, normalized_value):
+                if re.search(pattern, normalized_value):
                     normalized_value = normalized_value.replace("?", "-")
                 normalized_value = normalized_value.replace("*", "")
 
-            json_file[header_name] = normalized_value
+            json_record[header_name] = normalized_value
 
             if header_name == "fda_recognized_biomarkers":
-                json_file["hgnc_symbol"] = search_gene(normalized_value)
+                json_record["hgnc_symbol"] = search_gene(normalized_value)
 
-        cont_json.append(json_file)
+        json_content.append(json_record)
 
-    with open(archivo_salida, "w", encoding="utf-8") as jsonfile:
-        json.dump(cont_json, jsonfile, ensure_ascii=False)
+    with open(output_file, "w", encoding="utf-8") as jsonfile:
+        json.dump(json_content, jsonfile, ensure_ascii=False)
 
     workbook.close()
-    print("Finalizado!")
+    print("Done!")
