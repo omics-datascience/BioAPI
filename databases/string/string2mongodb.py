@@ -81,19 +81,66 @@ string_collection.insert_many(gene_relations)
 protein_relations.close()
 print("INFO	OK.")
 
-print("INFO	Creating indexes in MongoDB...")
+print("INFO\tDeleting duplicates with aggregation pipeline...")
+dedup_collection_name = "string_dedup_tmp"
+db.drop_collection(dedup_collection_name)
+
+# Canonicalize gene pairs (A-B == B-A), keep the relation with highest combined_score.
+string_collection.aggregate(
+    [
+        {
+            "$set": {
+                "gene_a": {"$min": ["$gene_1", "$gene_2"]},
+                "gene_b": {"$max": ["$gene_1", "$gene_2"]},
+            }
+        },
+        {
+            "$set": {
+                "gene_1": "$gene_a",
+                "gene_2": "$gene_b",
+            }
+        },
+        {
+            "$unset": ["gene_a", "gene_b"]
+        },
+        {
+            "$sort": {
+                "combined_score": -1
+            }
+        },
+        {
+            "$group": {
+                "_id": {
+                    "gene_1": "$gene_1",
+                    "gene_2": "$gene_2",
+                },
+                "doc": {"$first": "$$ROOT"},
+            }
+        },
+        {
+            "$replaceRoot": {
+                "newRoot": "$doc"
+            }
+        },
+        {
+            "$merge": {
+                "into": dedup_collection_name,
+                "whenMatched": "replace",
+                "whenNotMatched": "insert",
+            }
+        },
+    ],
+    allowDiskUse=True,
+)
+
+db.drop_collection("string")
+db[dedup_collection_name].rename("string")
+string_collection = db["string"]
+
 string_collection.create_index([("gene_1", 1)])
 string_collection.create_index([("gene_2", 1)])
 string_collection.create_index([("combined_score", 1)])
-print("INFO	OK.")
-
-print("INFO	deleting duplicates...")
-for gene_symbol in tqdm(alias_dict.values()):
-    relations = string_collection.find({"gene_1": gene_symbol})
-    to_del = []
-    for r in relations:
-        to_del.append(r["gene_2"])
-    string_collection.delete_many({"gene_1": {"$in": to_del}, "gene_2": gene_symbol})
+print("INFO\tOK.")
 
 print("INFO	Removing intermediate files...")
 os.remove("protein.links.full.txt")

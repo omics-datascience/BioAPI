@@ -1,7 +1,7 @@
 *.pyc
 .idea
 .vscode
-venv
+venv/
 bio-api/__pycache__
 bio-api/.pytest_cache
 bio-api/media
@@ -32,3 +32,7 @@ databases/gene_ontology/logs.json
 databases/string/protein.info.txt.gz
 databases/gene_info/gene_info_grch37.csv
 databases/gene_info/gene_info_grch38.csv
+databases/oncokb/valid_genes_from_hgnc.txt
+databases/oncokb/oncokb_biomarker_drug_associations.tsv
+databases/oncokb/cancerGeneList.tsv
+databases/oncokb/fda_approved_oncology_therapies.xlsx

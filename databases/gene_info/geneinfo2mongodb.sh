@@ -7,8 +7,7 @@ user=
 password=
 db=bio_api
 #######################################
-CIVIC_URL="https://civicdb.org/downloads/nightly/nightly-GeneSummaries.tsv"
-# Using this URL you always get the latest release of CiVIC Gene Summaries
+
 
 date
 echo "INFO	Downloading genes database..."
