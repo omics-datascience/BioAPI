@@ -36,7 +36,7 @@ BioAPI uses three genomic databases for its operation. These databases must be l
 
 To import all databases in MongoDB:  
 
-1. Download the "bioapi_db-1.2.1.gz" from **[here](https://1drv.ms/u/s!Arl5qt99IiNPthDRkqnnGMparuTi?e=74ykEa)**
+1. Download the "bioapi_db-1.4.0.gz" from **[here](https://1drv.ms/u/c/4f23227ddfaa79b9/IQAfA0aotiUjTZYO8wasNM3uAYgucJb3TxDbZemORPzOFZ0?e=0uVU9X)**
 2. Shutdown all the services running `docker compose down`
 3. Edit the `docker-compose.dev.yml` file to include the downloaded file inside the container:
 
@@ -47,21 +47,21 @@ To import all databases in MongoDB:
             # ...
             volumes:
                 # ...
-                - /path/to/bioapi_db-1.2.1.gz:/bioapi_db-1.2.1.gz
+                - /path/to/bioapi_db-1.4.0.gz:/bioapi_db-1.4.0.gz
     # ...
     ```
 
-  Where "/path/to/" is the absolute path of the "bioapi_db-1.2.1.gz" file downloaded on step 1.  
+  Where "/path/to/" is the absolute path of the "bioapi_db-1.4.0.gz" file downloaded on step 1.  
 
 1. Start up the services again by running `docker compose -f docker-compose.dev.yml up -d`
 2. Go inside the container `docker container exec -it bio_api_mongo_db bash`
 3. Use `mongorestore` to import it into MongoDB:
 
     ```bash
-        mongorestore --username <user> --password <pass> --authenticationDatabase admin --gzip --archive=/bioapi_db-1.2.1.gz
+        mongorestore --username <user> --password <pass> --authenticationDatabase admin --gzip --archive=/bioapi_db-1.4.0.gz
     ```
 
-   Where *\<user\>*, *\<pass\>* are the preconfigured credentials to MongoDB in the `docker-compose.yml` file. *bioapi_db-1.2.1.gz* is the file downloaded in the previous step. **Remember that this loading process will import approximately *47 GB* of information into MongoDB, which may take a while**.  
+   Where *\<user\>*, *\<pass\>* are the preconfigured credentials to MongoDB in the `docker-compose.yml` file. *bioapi_db-1.4.0.gz* is the file downloaded in the previous step. **Remember that this loading process will import approximately *47 GB* of information into MongoDB, which may take a while**.  
 
 4. Stop services with the command `docker compose -f docker-compose.dev.yml down`
 5. Roll up the changes in the `docker-compose.dev.yml` file to remove the backup file from the `volumes` section. Restart all the services again.
@@ -159,9 +159,9 @@ Finally, if you want to create a new image of MongoDB data, you can follow the f
 5. Use `mongodump` to export the data to a file:  
 
 ```bash
-    mongodump --username <user> --password <pass> --authenticationDatabase admin --host localhost --port 27017 --gzip --db bio_api --archive=/export_data/bioapi_db-1.2.1.gz
+    mongodump --username <user> --password <pass> --authenticationDatabase admin --host localhost --port 27017 --gzip --db bio_api --archive=/export_data/bioapi_db-1.4.0.gz
 ```
 
 **NOTE**: The process can take a few hours  
 
-The new image can be found in *"/path/in/your/computer/bioapi_db-1.2.1.gz"*
+The new image can be found in *"/path/in/your/computer/bioapi_db-1.4.0.gz"*
