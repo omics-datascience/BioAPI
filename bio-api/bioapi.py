@@ -227,7 +227,7 @@ def get_information_of_genes(genes: List[str]) -> Dict[str, Dict[str, Any]]:
     return res
 
 
-def get_expression_from_gtex(tissue: str, genes: List[str]) -> List[Dict[str, float]]:
+def get_expression_from_gtex(tissue: str, genes: List[str], include_samples: bool = False) -> Dict[str, Any]:
     """
     Gets all the expressions for a specific tissue and a list of genes.
 
@@ -235,19 +235,26 @@ def get_expression_from_gtex(tissue: str, genes: List[str]) -> List[Dict[str, fl
     :param genes: List of genes to filter
     :return: List of expressions values. Each element of the list contains the expression values for each gene
     """
-    collection = mydb["gtex_" +
-                      tissue]  # Connects to specific tissue's collection
+    collection = mydb["gtex_" + tissue]  # Connects to specific tissue's collection
     query = {'gene': {'$in': genes}}
     projection = {'_id': 0, 'expression': 1, 'gene': 1, 'sample_id': 1}
     docs = collection.find(query, projection)
-    temp = {}
+    samples = []
+    sample_index = {}
+    gene_expression = {gene: [] for gene in genes}
     for doc in docs:
         sample_id = doc["sample_id"]
-        if sample_id not in temp:
-            temp[sample_id] = {}
-        temp[sample_id][doc["gene"]] = doc["expression"]
+        if sample_id not in sample_index:
+            sample_index[sample_id] = len(samples)
+            samples.append(sample_id)
+            for gene in gene_expression:
+                gene_expression[gene].append(0)
 
-    return list(temp.values())
+        gene_expression[doc["gene"]][sample_index[sample_id]] = doc["expression"]
+
+    if include_samples:
+        return {"samples": samples, **gene_expression}
+    return gene_expression
 
 
 def terms_related_to_one_gene(gene: str, relation_type: Optional[List[str]] = None) -> Dict[str, List[Dict[str, Any]]]:
@@ -834,6 +841,9 @@ To contribute: [OmicsDatascience](https://github.com/omics-datascience/BioAPI)""
             abort(400, "tissue is mandatory")
 
         tissue = body['tissue']
+        include_samples = False
+        if "samples" in body:
+            include_samples = bool(body["samples"])
         if "type" in body:
             if body['type'] not in ["gzip", "json"]:
                 abort(400, "allowed values for the 'type' key are 'json' or 'gzip'")
@@ -842,7 +852,7 @@ To contribute: [OmicsDatascience](https://github.com/omics-datascience/BioAPI)""
         else:
             type_response = 'json'
 
-        expression_data = get_expression_from_gtex(tissue, gene_ids)
+        expression_data = get_expression_from_gtex(tissue, gene_ids, include_samples)
 
         if type_response == "gzip":
             content = gzip.compress(json.dumps(

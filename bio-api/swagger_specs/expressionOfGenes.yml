@@ -56,6 +56,30 @@ requestBody:
               - json
               - gzip
             example: "gzip"
+          samples:
+            type: boolean
+            description: "Include sample ids in the response. Defaults to false."
+            example: true
 responses:
   200:
-    description: "Expression values ​​of each gene according to the GTEx database."
+    description: "Expression values of each gene according to the GTEx database. The samples key is optional and only returned when requested."
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            samples:
+              type: array
+              items:
+                type: string
+              example: ["GTEX-WWYW-0008-SM-4MVPF", "GTEX-WXYG-0008-SM-4ONDU", "GTEX-WXYG-2026-SM-4E3IY"]
+            BRCA1:
+              type: array
+              items:
+                type: number
+              example: [12.33, 0, 4.18]
+            BRCA2:
+              type: array
+              items:
+                type: number
+              example: [2.38, 1.12, 8.26]

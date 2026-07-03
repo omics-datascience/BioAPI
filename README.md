@@ -354,53 +354,50 @@ This service gets gene expression in healthy tissue
   - `gene_ids`: list of genes for which you want to get the expression.  
   - `tissue`: healthy tissue from which you want to get the expression values. The different options for this parameter are: `Adipose Tissue`, `Adrenal Gland`, `Bladder`, `Blood`, `Blood Vessel`, `Brain`, `Breast`, `Cervix Uteri`, `Colon`, `Esophagus`, `Fallopian Tube`, `Heart`, `Kidney`, `Liver`, `Lung`, `Muscle`, `Nerve`, `Ovary`, `Pancreas`, `Pituitary`, `Prostate`, `Salivary Gland`, `Skin`, `Small Intestine`, `Spleen`, `Stomach`, `Testis`, `Thyroid`, `Uterus` or `Vagina`. Any other value will cause the response to have no results.
   - `type`: Type of response format: `json` or `gzip`. Default: json.
+  - `samples`: Optional boolean. If `true`, the response also includes the GTEx sample ids in the `samples` key. Default: `false`.
 - Success Response:
   - Code: 200
   - Content:
-        The response you get is a list. Each element of the list is a new list containing the expression values for each gene in the same sample from the GTEx database.
-    - `gene_id`: expression value for the gene_id.
+    The response you get is a JSON object. Each gene is a key and its value is a list of expression values ordered by sample. When `samples` is `true`, the object also includes a `samples` key with the sample ids in the same order as the values.
   - Example:
     - URL: <https://bioapi.multiomix.org/expression-of-genes>
     - body:
-            `{
-                "tissue":"Skin",
-                "gene_ids":[
-                    "BRCA1",
-                    "BRCA2"
-                ]
-            }`
+
+      ```json
+      {
+          "tissue": "Skin",
+          "gene_ids": [
+              "BRCA1",
+              "BRCA2"
+          ],
+          "samples": true
+      }
+      ```
+
     - Response:
 
       ```json
-      [
-          [
-              {
-                  "BRCA1":1.627
-              },
-              {
-                  "BRCA2":0.2182
-              }
+      {
+          "samples": [
+              "GTEX-1J1OQ-0126-SM-D4P2N",
+              "GTEX-1J1OQ-0226-SM-CYPSH",
+              "GTEX-1J1R8-1726-SM-ARL8M"
           ],
-          [
-              {
-                  "BRCA1":1.27
-              },
-              {
-                  "BRCA2":0.4777
-              }
+          "BRCA1": [
+              1.627,
+              1.27,
+              1.462
           ],
-          [
-              {
-                  "BRCA1":1.462
-              },
-              {
-                  "BRCA2":0.4883
-              }
+          "BRCA2": [
+              0.2182,
+              0.4777,
+              0.4883
           ]
-      ]
+      }
       ```  
 
     keep in mind:
+  - If `samples` is omitted or `false`, the `samples` key is not included in the response.
   - As an example only three samples are shown. Note that in the GTEx database there may be more than 2500 samples for a given healthy tissue.
   - If one of the genes entered as a parameter corresponds to an invalid symbol, the response will omit the values for that gene. It is recommended to use the *"Genes symbols validator"* service to validate your genes before using this functionality.
 

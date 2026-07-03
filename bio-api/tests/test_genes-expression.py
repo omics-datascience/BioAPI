@@ -18,8 +18,30 @@ def test_valid_response_format(client):
     response = client.post(f'{URL_BASE}', data=json.dumps(data), headers=headers)
     res = json.loads(response.data)
     assert response.status_code == 200
-    assert type(res) == list
-    assert type(res[0]) == dict
+    assert type(res) == dict
+    assert gene in res
+    assert type(res[gene]) == list
+    assert "samples" not in res
+
+
+def test_valid_response_with_samples(client):
+    """Tests valid response format with samples enabled"""
+    gene = "FAM87B"
+    tissue = "Breast"
+    data = {
+        "tissue": tissue,
+        "gene_ids": [gene],
+        "samples": True
+    }
+    response = client.post(f'{URL_BASE}', data=json.dumps(data), headers=headers)
+    res = json.loads(response.data)
+    assert response.status_code == 200
+    assert type(res) == dict
+    assert "samples" in res
+    assert type(res["samples"]) == list
+    assert gene in res
+    assert type(res[gene]) == list
+    assert len(res[gene]) == len(res["samples"])
 
 
 def test_invalid_body_format(client):
@@ -64,4 +86,6 @@ def test_invalid_tissues(client):
     response = client.post(f'{URL_BASE}', data=json.dumps(data), headers=headers)
     res = json.loads(response.data)
     assert response.status_code == 200
-    assert res == []
+    assert type(res) == dict
+    assert res[gene] == []
+    assert "samples" not in res
