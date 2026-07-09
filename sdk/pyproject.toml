@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bioapi-sdk"
+version = "0.1.0"
+description = "Python SDK client for BioAPI genomics REST endpoints."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+    { name = "omics-datascience" },
+]
+keywords = [
+    "bioinformatics",
+    "genomics",
+    "gene-ontology",
+    "sdk",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Typing :: Typed",
+]
+dependencies = [
+    "requests>=2.31.0,<3",
+]
+
+[project.urls]
+Homepage = "https://bioapi.multiomix.org"
+Source = "https://github.com/omics-datascience/BioAPI"
+Issues = "https://github.com/omics-datascience/BioAPI/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["bioapi_sdk*"]
+
+[tool.setuptools.package-data]
+bioapi_sdk = ["py.typed"]

@@ -36,3 +36,6 @@ databases/oncokb/valid_genes_from_hgnc.txt
 databases/oncokb/oncokb_biomarker_drug_associations.tsv
 databases/oncokb/cancerGeneList.tsv
 databases/oncokb/fda_approved_oncology_therapies.xlsx
+sdk/build/
+sdk/dist/
+sdk/src/*.egg-info/
