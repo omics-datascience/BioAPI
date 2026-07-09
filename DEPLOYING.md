@@ -26,6 +26,13 @@ Below are the steps to perform a production deployment of BioAPI.
         - `MONGO_USER` and `MONGO_PASSWORD`: These variables are the username and password for BioAPI to access MongoDB. These credentials must be the same ones that were set for the MongoDB server.
         - `DEBUG`: If you change this value to `true`, then BioAPI will be use the configuration for database connection and ports for the API that you set in the `config.txt` file. Default `false`.
         - `BIOAPI_BASE_URL`: Base URL used by the BioAPI SDK client. Default `https://bioapi.multiomix.org`.
+    - BioAPI MCP Server:
+        - Public MCP URL: `https://bioapi.multiomix.org/mcp`.
+        - `BIOAPI_BASE_URL`: Internal BioAPI base URL used by MCP tools to call the backend. In Docker Compose this should normally stay `http://web_bioapi:8000`, so MCP tool calls use the private Docker network instead of looping through the public nginx route.
+        - `BIOAPI_TIMEOUT`: Timeout, in seconds, for MCP tool calls to the BioAPI backend. Default `30`.
+        - `MCP_PUBLIC_BASE_URL`: Public MCP endpoint advertised by the MCP server. Default `https://bioapi.multiomix.org/mcp`.
+        - `MCP_ALLOWED_HOSTS`: Comma-separated Host header allow-list for the MCP streamable HTTP transport. Default includes `bioapi.multiomix.org`, `bioapi.multiomix.org:*`, `localhost`, `localhost:*`, `127.0.0.1`, `127.0.0.1:*`, `[::1]`, and `[::1]:*`.
+        - `MCP_ALLOWED_ORIGINS`: Comma-separated Origin header allow-list for browser-based MCP clients. Default includes `https://bioapi.multiomix.org`, `http://localhost`, `http://localhost:*`, `http://127.0.0.1`, `http://127.0.0.1:*`, `http://[::1]`, and `http://[::1]:*`.
 3. (Optional) Optimize Mongo by changing the configuration in the `config/mongo/mongod.conf` file and uncommenting the reference in the `docker-compose.yml` and/or `docker-compose.dev.yml`.
 4. Start up all the services with Docker Compose running `docker compose up -d` to check that It's all working, and read the instructions in the following section to import the genomics databases.
 
@@ -103,6 +110,25 @@ docker-compose up -d
 By default, BioAPI runs on `localhost:8000`.  
 Test BioAPI with Swagger on `localhost:8000/apidocs`
 
+The public MCP streamable HTTP endpoint is:
+
+```bash
+https://bioapi.multiomix.org/mcp
+```
+
+Basic MCP deployment checks:
+
+```bash
+docker compose config
+docker compose config --services
+docker compose exec bioapi_mcp /usr/local/bin/python3 -c "import bioapi_sdk.mcp_server; print('bioapi mcp import ok')"
+docker compose logs bioapi_mcp
+curl -i -X POST https://bioapi.multiomix.org/mcp \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  --data '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"curl","version":"1.0.0"}}}'
+```
+
 If you want to stop all services, you can execute:
 
 ```bash
@@ -117,7 +143,7 @@ To check the different services' status you can run:
 docker-compose logs <service>
 ```
 
-Where  *\<service\>* could be `nginx_bioapi`, `web_bioapi` or `mongo_bioapi`.
+Where  *\<service\>* could be `nginx_bioapi`, `web_bioapi`, `bioapi_mcp`, or `mongo_bioapi`.
 
 ## Update genomic databases
 

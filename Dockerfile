@@ -19,6 +19,15 @@ WORKDIR /app
 COPY pyproject.toml uv.lock /app/
 RUN uv sync --frozen --no-cache --no-dev --no-install-project
 
+# MCP SDK and runtime dependencies. These are installed into the system Python
+# used by the dedicated MCP service, leaving the web service venv unchanged.
+COPY sdk/pyproject.toml sdk/uv.lock /app/sdk/
+COPY sdk/src /app/sdk/src
+RUN cd /app/sdk \
+    && uv export --frozen --no-cache --no-dev --extra mcp --format requirements.txt --no-emit-project --output-file /tmp/bioapi-sdk-mcp-requirements.txt \
+    && uv pip install --system --no-cache --requirements /tmp/bioapi-sdk-mcp-requirements.txt \
+    && rm /tmp/bioapi-sdk-mcp-requirements.txt
+
 # Flask app
 COPY ./bio-api /app
 
