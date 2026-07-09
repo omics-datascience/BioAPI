@@ -20,8 +20,8 @@ This document is focused on the **development** of the system. If you are lookin
     - [Cancer related drugs](#cancer-related-drugs)
     - [Predicted functional associations network](#predicted-functional-associations-network)
     - [Drugs that regulate a gene](#drugs-that-regulate-a-gene)
-    - [Python SDK](#python-sdk)
-    - [MCP server](#mcp-server)
+  - [Python SDK](#python-sdk)
+  - [MCP server](#mcp-server)
   - [Error Responses](#error-responses)
   - [Contributing](#contributing)
     - [Run Flask dev server](#run-flask-dev-server)
@@ -778,7 +778,7 @@ Service that takes gene symbol and returns a link to <https://go.drugbank.com> w
       }
       ```  
 
-### Python SDK
+## Python SDK
 
 Install the Python SDK with `pip install bioapi-sdk` and import it with `bioapi_sdk`. The SDK package is maintained in the [`sdk`](sdk) directory and installs only the client runtime dependencies required to call the BioAPI API.
 
@@ -788,7 +788,7 @@ from bioapi_sdk import information_of_genes
 details = information_of_genes(["TP53"])
 ```
 
-### MCP server
+## MCP server
 
 Install the SDK package with its MCP extra before configuring an MCP client:
 
