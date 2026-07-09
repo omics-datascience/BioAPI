@@ -25,6 +25,7 @@ Below are the steps to perform a production deployment of BioAPI.
     - BioAPI Server:
         - `MONGO_USER` and `MONGO_PASSWORD`: These variables are the username and password for BioAPI to access MongoDB. These credentials must be the same ones that were set for the MongoDB server.
         - `DEBUG`: If you change this value to `true`, then BioAPI will be use the configuration for database connection and ports for the API that you set in the `config.txt` file. Default `false`.
+        - `BIOAPI_BASE_URL`: Base URL used by the BioAPI SDK client. Default `https://bioapi.multiomix.org`.
 3. (Optional) Optimize Mongo by changing the configuration in the `config/mongo/mongod.conf` file and uncommenting the reference in the `docker-compose.yml` and/or `docker-compose.dev.yml`.
 4. Start up all the services with Docker Compose running `docker compose up -d` to check that It's all working, and read the instructions in the following section to import the genomics databases.
 

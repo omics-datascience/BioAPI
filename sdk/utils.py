@@ -1,12 +1,15 @@
 from __future__ import annotations
 
+import os
 from typing import Any, Final, Mapping
 from urllib.parse import urljoin
 
 import requests
 
 
-DEFAULT_BASE_URL: Final[str] = "https://bioapi.multiomix.org"
+DEFAULT_BASE_URL: Final[str] = os.getenv(
+    "BIOAPI_BASE_URL", "https://bioapi.multiomix.org"
+)
 
 
 class BioAPIRequestError(RuntimeError):

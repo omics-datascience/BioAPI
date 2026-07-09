@@ -1,11 +1,10 @@
-from __future__ import annotations
-
 from typing import Literal, NotRequired, Sequence, TypeAlias, TypedDict, cast
 from urllib.parse import quote
 
 import requests
 
-from .utils import DEFAULT_BASE_URL, get_api_response, post_api_response
+from .utils import get_api_response, post_api_response, DEFAULT_BASE_URL
+
 
 
 PathwaySource: TypeAlias = Literal[
