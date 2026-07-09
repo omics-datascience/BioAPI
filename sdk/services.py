@@ -45,24 +45,43 @@ GeneSymbolsResponse: TypeAlias = dict[str, list[str]]
 
 class GeneInformation(TypedDict, total=False):
     alias_symbol: str | list[str]
+    """Alternative symbols for a known gene."""
     percentage_gene_gc_content: float
+    """Ratio of guanine and cytosine nucleotides in the gene DNA sequence."""
     oncokb_cancer_gene: str
+    """Oncogene or Tumor Suppressor Gene when present in the OncoKB database."""
     name: str
+    """Gene name according to the HGNC database."""
     band: str
+    """Cytoband or specific location in the genome."""
     chromosome: str
+    """Chromosome where the gene is located, without the chr prefix."""
     start_position: int
+    """Chromosomal position where the gene starts in reference genome GRCh38."""
     end_position: int
+    """Chromosomal position where the gene ends in reference genome GRCh38."""
     start_GRCh37: int
+    """Chromosomal position where the gene starts in reference genome GRCh37."""
     end_GRCh37: int
+    """Chromosomal position where the gene ends in reference genome GRCh37."""
     strand: int
+    """DNA strand containing the coding sequence: 1 positive or -1 negative."""
     gene_biotype: str
+    """Gene or transcript classification, such as protein_coding or miRNA."""
     refseq_summary: str
+    """Complete gene description according to the RefSeq database."""
     civic_description: str
+    """Description of clinical relevance according to the CIViC database."""
     hgnc_id: str
+    """Gene identifier in the HGNC database."""
     uniprot_ids: str | list[str]
+    """Gene identifier or identifiers in the Uniprot database."""
     omim_id: str | list[str]
+    """Gene identifier or identifiers in the OMIM database."""
     ensembl_gene_id: str
+    """Gene identifier in the Ensembl database."""
     entrez_id: str
+    """Gene identifier in the NCBI Entrez database."""
 
 
 GeneInformationResponse: TypeAlias = dict[str, GeneInformation]
@@ -70,29 +89,44 @@ GeneInformationResponse: TypeAlias = dict[str, GeneInformation]
 
 class GeneGroup(TypedDict, total=False):
     gene_group: str
+    """Gene group name."""
     gene_group_id: str | int
+    """Gene group identifier."""
     genes: list[str]
+    """All other genes for this group."""
 
 
 class GeneGroupResponse(TypedDict):
     gene_id: str | None
+    """HGNC approved gene symbol."""
     groups: list[GeneGroup]
+    """HGNC gene groups to which the approved gene belongs."""
     locus_group: str | None
+    """
+    Related locus type set, such as protein-coding gene, pseudogene,
+    phenotype, or other.
+    """
     locus_type: str | None
+    """Genetic class of the gene entry according to HGNC."""
 
 
 class PathwayGenesResponse(TypedDict):
     genes: list[str]
+    """Genes involved in the metabolic pathway."""
 
 
 class Pathway(TypedDict):
     source: str
+    """Database of the metabolic pathway found."""
     external_id: str
+    """Pathway identifier in the source database."""
     pathway: str
+    """Name of the pathway."""
 
 
 class PathwaysInCommonResponse(TypedDict):
     pathways: list[Pathway]
+    """Metabolic pathways common to the submitted genes."""
 
 
 ExpressionValue: TypeAlias = int | float
@@ -101,27 +135,52 @@ GeneExpressionResponse: TypeAlias = dict[str, list[ExpressionValue] | list[str]]
 
 class OncoKBEvidence(TypedDict, total=False):
     drugs: str
+    """Therapeutic drug or drugs associated with the evidence."""
     level_of_evidence: str
+    """OncoKB evidence level for a therapeutic, diagnostic, or prognostic assertion."""
     alterations: str
+    """Specific cancer gene alterations."""
     cancer_types: str
+    """Cancer types using the OncoTree nomenclature."""
 
 
 class OncoKBPrecisionTherapy(TypedDict, total=False):
     precision_oncology_therapy: str
+    """
+    Drug most effective in a molecularly defined subset of patients where
+    pre-treatment molecular profiling is required for selection.
+    """
     fda_first_approval: str
+    """Year of the drug's first FDA approval in any indication."""
     drug_classification: str
+    """
+    Drug class based on OncoKB precision oncology therapy categories, such as
+    first-in-class, mechanistically-distinct, follow-on, or resistance.
+    """
     fda_recognized_biomarkers: str
+    """
+    Biomarkers related to the therapy according to the FDA, including
+    pathognomonic and indication-specific biomarkers.
+    """
     method_of_biomarker_detection: str
+    """Biomarker detection method, including companion diagnostic details."""
 
 
 class OncoKBGeneInformation(TypedDict, total=False):
     therapeutic: list[OncoKBEvidence]
+    """Therapeutic evidence records for the gene."""
     diagnostic: list[OncoKBEvidence]
+    """Diagnostic evidence records for the gene in hematologic malignancies."""
     prognostic: list[OncoKBEvidence]
+    """Prognostic evidence records for the gene in hematologic malignancies."""
     oncokb_cancer_gene: list[str]
+    """Cancer gene classification: Oncogene and/or Tumor Suppressor Gene."""
     refseq_transcript: str
+    """Gene transcript according to the RefSeq database."""
     sources: list[str]
+    """Sources with evidence of the gene's relationship with cancer."""
     precision_therapies: list[OncoKBPrecisionTherapy]
+    """FDA-approved therapies considered precision oncology therapies by OncoKB."""
 
 
 OncoKBInformationResponse: TypeAlias = dict[str, OncoKBGeneInformation]
@@ -129,51 +188,97 @@ OncoKBInformationResponse: TypeAlias = dict[str, OncoKBGeneInformation]
 
 class GeneTermRelation(TypedDict, total=False):
     gene: str
+    """Name of the gene."""
     relation_type: str
+    """Type of relation between the gene and the Gene Ontology term."""
     evidence: str
+    """Evidence code indicating how the annotation to the term is supported."""
 
 
 class EnrichmentMetrics(TypedDict, total=False):
     p_value: float
+    """Hypergeometric p-value after correction for multiple testing."""
     intersection_size: int
+    """Number of genes in the query annotated to the corresponding term."""
     effective_domain_size: int
+    """
+    Total number of genes in the universe used for the hypergeometric
+    probability function of statistical significance.
+    """
     query_size: int
+    """Number of genes included in the query."""
     term_size: int
+    """Number of genes annotated to the term."""
     precision: float
+    """Proportion of input genes annotated to the function."""
     recall: float
+    """Proportion of functionally annotated genes recovered by the query."""
 
 
 class GeneOntologyTerm(TypedDict, total=False):
     go_id: str
+    """Unique Gene Ontology identifier."""
     name: str
+    """Human-readable term name."""
     ontology_type: str
+    """
+    Sub-ontology to which the term belongs: biological_process,
+    molecular_function, or cellular_component.
+    """
     definition: str
+    """Textual description of what the term represents, plus source references."""
     synonyms: list[str]
+    """
+    Alternative words or phrases closely related to the term name, with
+    synonym scope.
+    """
     subset: list[str]
+    """Additional ontology categorization for grouping related terms."""
     is_a: str | list[str]
+    """Semantic relationship indicating a subtype of a more general term."""
     alt_id: str | list[str]
+    """Alternative or secondary identifiers for the ontology term."""
     synonym: list[str]
+    """Alternative words or phrases closely related in meaning to the term name."""
     definition_reference: str | list[str]
+    """Bibliographic references or sources for the term definition."""
     relations_to_genes: list[GeneTermRelation]
+    """Gene-to-term relation records for this Gene Ontology term."""
     enrichment_metrics: EnrichmentMetrics
+    """Enrichment metrics returned for gene enrichment analysis."""
 
 
 class RelatedTerm(TypedDict):
     go_id: str
+    """ID of the Gene Ontology term."""
     name: str
+    """Name of the Gene Ontology term."""
     ontology_type: str
+    """
+    Sub-ontology to which the term belongs: cellular_component,
+    biological_process, or molecular_function.
+    """
     relations: dict[str, list[str]]
+    """Relation names mapped to lists of related Gene Ontology identifiers."""
 
 
 class PharmGKBDrugLabel(TypedDict, total=False):
     pharmgkb_id: str
+    """Identifier assigned to this drug label by PharmGKB."""
     name: str
+    """Name assigned to the label by PharmGKB."""
     source: str
+    """Source that originally authored the label, such as EMA, FDA, HCSC, or PMDA."""
     biomarker_flag: str
+    """Whether the drug label appears on the FDA Biomarker list."""
     testing_level: str
+    """PGx testing level as annotated by PharmGKB."""
     chemicals: str
+    """Related chemicals."""
     genes: list[str]
+    """Related genes."""
     variants_haplotypes: str
+    """Related variants and/or haplotypes."""
 
 
 PharmGKBDrugsResponse: TypeAlias = dict[str, list[PharmGKBDrugLabel]]
@@ -181,24 +286,40 @@ PharmGKBDrugsResponse: TypeAlias = dict[str, list[PharmGKBDrugLabel]]
 
 class StringRelation(TypedDict):
     gene_1: str
+    """First gene in the bidirectional relationship."""
     gene_2: str
+    """Second gene in the bidirectional relationship."""
     neighborhood_transferred: NotRequired[int | None]
+    """Score for neighborhood evidence transferred from other organisms."""
     fusion: NotRequired[int | None]
+    """Score derived from fused proteins in other species."""
     cooccurence: NotRequired[int | None]
+    """Score derived from similar absence or presence patterns across species."""
     homology: NotRequired[int | None]
+    """Score measuring homology between the protein interaction partners."""
     coexpression: NotRequired[int | None]
+    """Score measuring coexpression of two genes."""
     coexpression_transferred: NotRequired[int | None]
+    """Coexpression score transferred from other species based on homology."""
     experiments: NotRequired[int | None]
+    """Score representing protein interaction confidence from experimental evidence."""
     experiments_transferred: NotRequired[int | None]
+    """Experimental evidence score transferred from other species based on homology."""
     database: NotRequired[int | None]
+    """Score derived from curated database evidence."""
     database_transferred: NotRequired[int | None]
+    """Curated database evidence score transferred from other species based on homology."""
     textmining: NotRequired[int | None]
+    """Score derived from co-occurrence of gene or protein names in publications."""
     textmining_transferred: NotRequired[int | None]
+    """Text-mining score transferred from other species based on homology."""
     combined_score: int
+    """Confidence score combining all evidence channels."""
 
 
 class DrugBankGeneRegulationResponse(TypedDict):
     link: str
+    """URL pointing to gene regulation information on the DrugBank website."""
 
 
 def _quote_path_segment(value: str) -> str:
