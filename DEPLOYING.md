@@ -121,8 +121,8 @@ Basic MCP deployment checks:
 ```bash
 docker compose config
 docker compose config --services
-docker compose exec bioapi_mcp /usr/local/bin/python3 -c "import bioapi_sdk.mcp_server; print('bioapi mcp import ok')"
-docker compose logs bioapi_mcp
+docker compose exec mcp_bioapi /usr/local/bin/python3 -c "import bioapi_sdk.mcp_server; print('bioapi mcp import ok')"
+docker compose logs mcp_bioapi
 curl -i -X POST https://bioapi.multiomix.org/mcp \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json, text/event-stream' \
@@ -143,7 +143,7 @@ To check the different services' status you can run:
 docker-compose logs <service>
 ```
 
-Where  *\<service\>* could be `nginx_bioapi`, `web_bioapi`, `bioapi_mcp`, or `mongo_bioapi`.
+Where  *\<service\>* could be `nginx_bioapi`, `web_bioapi`, `mcp_bioapi`, or `mongo_bioapi`.
 
 ## Update genomic databases
 
