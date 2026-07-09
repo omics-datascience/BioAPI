@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from typing import Any, Mapping
+from typing import Any, Final, Mapping
 from urllib.parse import urljoin
 
 import requests
 
 
-DEFAULT_BASE_URL = "https://bioapi.multiomix.org"
+DEFAULT_BASE_URL: Final[str] = "https://bioapi.multiomix.org"
 
 
 class BioAPIRequestError(RuntimeError):
@@ -20,6 +20,13 @@ class BioAPIRequestError(RuntimeError):
         url: str | None = None,
         response: requests.Response | None = None,
     ) -> None:
+        """Initialize a BioAPI request error.
+
+        :param message: Error message reported by BioAPI or the client.
+        :param status_code: HTTP status code returned by BioAPI.
+        :param url: Final URL requested.
+        :param response: Raw `requests.Response` object.
+        """
         super().__init__(message)
         self.status_code = status_code
         self.url = url
@@ -27,7 +34,12 @@ class BioAPIRequestError(RuntimeError):
 
 
 def build_url(endpoint: str, base_url: str = DEFAULT_BASE_URL) -> str:
-    """Return an absolute BioAPI URL from a documented endpoint path."""
+    """Return an absolute BioAPI URL from a documented endpoint path.
+
+    :param endpoint: Absolute URL or documented BioAPI endpoint path.
+    :param base_url: Base BioAPI URL used when `endpoint` is relative.
+    :returns: Absolute URL for the endpoint.
+    """
     if endpoint.startswith(("http://", "https://")):
         return endpoint
 
@@ -44,11 +56,21 @@ def request_api_response(
     timeout: float = 30.0,
     session: requests.Session | None = None,
 ) -> Any:
-    """
-    Request a documented BioAPI endpoint and return the decoded JSON response.
+    """Request a documented BioAPI endpoint and return its JSON response.
 
     BioAPI endpoints return JSON for successful responses and JSON objects with an
-    ``error`` key for 400, 404, and 500 responses.
+    `error` key for 400, 404, and 500 responses.
+
+    :param url: Absolute URL or documented BioAPI endpoint path.
+    :param method: HTTP method. BioAPI documents `GET` and `POST` endpoints.
+    :param params: Query string parameters for `GET` requests.
+    :param body: JSON body for `POST` requests.
+    :param base_url: Base BioAPI URL used when `url` is relative.
+    :param timeout: Request timeout in seconds.
+    :param session: Optional `requests.Session` used to send the request.
+    :returns: Decoded JSON response payload.
+    :raises ValueError: If `method` is not `GET` or `POST`.
+    :raises BioAPIRequestError: If BioAPI returns an error or invalid JSON.
     """
     request_method = method.upper()
     if request_method not in {"GET", "POST"}:
@@ -97,7 +119,15 @@ def get_api_response(
     timeout: float = 30.0,
     session: requests.Session | None = None,
 ) -> Any:
-    """Request a documented GET endpoint and return its JSON response."""
+    """Request a documented GET endpoint and return its JSON response.
+
+    :param url: Absolute URL or documented BioAPI endpoint path.
+    :param params: Query string parameters for the request.
+    :param base_url: Base BioAPI URL used when `url` is relative.
+    :param timeout: Request timeout in seconds.
+    :param session: Optional `requests.Session` used to send the request.
+    :returns: Decoded JSON response payload.
+    """
     return request_api_response(
         url,
         method="GET",
@@ -116,7 +146,15 @@ def post_api_response(
     timeout: float = 30.0,
     session: requests.Session | None = None,
 ) -> Any:
-    """Request a documented POST endpoint with a JSON body and return JSON."""
+    """Request a documented POST endpoint with a JSON body.
+
+    :param url: Absolute URL or documented BioAPI endpoint path.
+    :param body: JSON body for the request.
+    :param base_url: Base BioAPI URL used when `url` is relative.
+    :param timeout: Request timeout in seconds.
+    :param session: Optional `requests.Session` used to send the request.
+    :returns: Decoded JSON response payload.
+    """
     return request_api_response(
         url,
         method="POST",
