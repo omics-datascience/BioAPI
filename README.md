@@ -20,6 +20,7 @@ This document is focused on the **development** of the system. If you are lookin
     - [Cancer related drugs](#cancer-related-drugs)
     - [Predicted functional associations network](#predicted-functional-associations-network)
     - [Drugs that regulate a gene](#drugs-that-regulate-a-gene)
+  - [MCP server](#mcp-server)
   - [Error Responses](#error-responses)
   - [Contributing](#contributing)
     - [Run Flask dev server](#run-flask-dev-server)
@@ -775,6 +776,57 @@ Service that takes gene symbol and returns a link to <https://go.drugbank.com> w
           "link": "https://go.drugbank.com/pharmaco/transcriptomics?q%5Bg%5B0%5D%5D%5Bm%5D=or&q%5Bg%5B0%5D%5D%5Bdrug_approved_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_nutraceutical_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_illicit_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_investigational_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_withdrawn_true%5D=all&q%5Bg%5B0%5D%5D%5Bdrug_experimental_true%5D=all&q%5Bg%5B1%5D%5D%5Bm%5D=or&q%5Bg%5B1%5D%5D%5Bdrug_available_in_us_true%5D=all&q%5Bg%5B1%5D%5D%5Bdrug_available_in_ca_true%5D=all&q%5Bg%5B1%5D%5D%5Bdrug_available_in_eu_true%5D=all&commit=Apply+Filter&q%5Bdrug_precise_names_name_cont%5D=&q%5Bgene_symbol_eq%5D=TP53&q%5Bgene_id_eq%5D=&q%5Bchange_eq%5D=&q%5Binteraction_cont%5D=&q%5Bchromosome_location_cont%5D="
       }
       ```  
+
+## MCP server
+
+BioAPI provides an MCP server through the Python SDK package so LLM clients can use the documented BioAPI services as tools without reimplementing HTTP calls. The server exposes tools for gene symbol validation, gene information, HGNC groups, metabolic pathways, GTEx expression, OncoKB, Gene Ontology, PharmGKB, STRING, and DrugBank links.
+
+Install the SDK package with the MCP extra before configuring the MCP server:
+
+```bash
+pip install "bioapi-sdk[mcp]"
+```
+
+For local development from this repository, install the SDK in editable mode:
+
+```bash
+pip install -e "./sdk[mcp]"
+```
+
+The MCP server is distributed with `bioapi-sdk`; the `mcp` extra installs the MCP runtime dependency. The installed package provides the `bioapi-mcp` command. Use this JSON in MCP clients that accept an `mcpServers` configuration, such as Claude Code or clients with MCP JSON import support:
+
+```json
+{
+  "mcpServers": {
+    "bioapi": {
+      "command": "bioapi-mcp",
+      "env": {
+        "BIOAPI_BASE_URL": "https://bioapi.multiomix.org",
+        "BIOAPI_TIMEOUT": "30"
+      }
+    }
+  }
+}
+```
+
+If the `bioapi-mcp` script is not available on the client PATH, use Python module execution instead:
+
+```json
+{
+  "mcpServers": {
+    "bioapi": {
+      "command": "python",
+      "args": ["-m", "bioapi_sdk.mcp_server"],
+      "env": {
+        "BIOAPI_BASE_URL": "https://bioapi.multiomix.org",
+        "BIOAPI_TIMEOUT": "30"
+      }
+    }
+  }
+}
+```
+
+`BIOAPI_BASE_URL` is optional and defaults to `https://bioapi.multiomix.org`. Set it to a local or private BioAPI deployment when needed. `BIOAPI_TIMEOUT` is optional and defaults to 30 seconds.
 
 ## Error Responses
 

@@ -2,8 +2,7 @@
 
 Python SDK client for the BioAPI genomics REST service.
 
-The distribution package is named `bioapi-sdk` and the import package is
-`bioapi_sdk`.
+The distribution package is named `bioapi-sdk` and the import package is `bioapi_sdk`.
 
 ## Installation
 
@@ -30,6 +29,20 @@ from bioapi_sdk import gene_symbols
 symbols = gene_symbols(["TP53"], base_url="http://localhost:5000")
 ```
 
+## MCP server
+
+The SDK package also includes a BioAPI MCP server for LLM clients. Install the MCP extra to include the MCP runtime dependency:
+
+```bash
+pip install "bioapi-sdk[mcp]"
+```
+
+After installation, run the server over stdio with:
+
+```bash
+bioapi-mcp
+```
+
 ## Development
 
 Build the package from this directory:
@@ -38,4 +51,4 @@ Build the package from this directory:
 python -m build
 ```
 
-The SDK intentionally depends only on `requests` at runtime.
+The core SDK intentionally depends only on `requests` at runtime. The MCP server dependencies are installed only with the `mcp` extra.

@@ -34,6 +34,14 @@ dependencies = [
     "requests>=2.31.0,<3",
 ]
 
+[project.optional-dependencies]
+mcp = [
+    "mcp>=1.27,<2",
+]
+
+[project.scripts]
+bioapi-mcp = "bioapi_sdk.mcp_server:main"
+
 [project.urls]
 Homepage = "https://bioapi.multiomix.org"
 Source = "https://github.com/omics-datascience/BioAPI"
