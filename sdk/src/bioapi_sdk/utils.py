@@ -51,7 +51,6 @@ def build_url(endpoint: str, base_url: str = DEFAULT_BASE_URL) -> str:
 
 def request_api_response(
     url: str,
-    *,
     method: str = "GET",
     params: Mapping[str, Any] | None = None,
     body: Mapping[str, Any] | None = None,
@@ -62,7 +61,9 @@ def request_api_response(
     """Request a documented BioAPI endpoint and return its JSON response.
 
     BioAPI endpoints return JSON for successful responses and JSON objects with an
-    `error` key for 400, 404, and 500 responses.
+    `error` key for 400, 404, and 500 responses. If an upstream gateway returns
+    an HTML error page instead (for example, a 502 response), the raised error
+    identifies BioAPI as unavailable rather than reporting a JSON parsing error.
 
     :param url: Absolute URL or documented BioAPI endpoint path.
     :param method: HTTP method. BioAPI documents `GET` and `POST` endpoints.
@@ -88,17 +89,21 @@ def request_api_response(
         timeout=timeout,
     )
 
-    try:
-        payload = response.json()
-    except ValueError as exc:
-        raise BioAPIRequestError(
-            "BioAPI response was not valid JSON.",
-            status_code=response.status_code,
-            url=response.url,
-            response=response,
-        ) from exc
-
     if not response.ok:
+        try:
+            payload = response.json()
+        except ValueError as exc:
+            reason = f" {response.reason}" if response.reason else ""
+            raise BioAPIRequestError(
+                (
+                    "BioAPI is currently unavailable "
+                    f"(HTTP {response.status_code}{reason})."
+                ),
+                status_code=response.status_code,
+                url=response.url,
+                response=response,
+            ) from exc
+
         message = (
             payload.get("error", response.reason)
             if isinstance(payload, dict)
@@ -110,6 +115,16 @@ def request_api_response(
             url=response.url,
             response=response,
         )
+
+    try:
+        payload = response.json()
+    except ValueError as exc:
+        raise BioAPIRequestError(
+            "BioAPI response was not valid JSON.",
+            status_code=response.status_code,
+            url=response.url,
+            response=response,
+        ) from exc
 
     return payload
 

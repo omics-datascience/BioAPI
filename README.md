@@ -20,7 +20,8 @@ This document is focused on the **development** of the system. If you are lookin
     - [Cancer related drugs](#cancer-related-drugs)
     - [Predicted functional associations network](#predicted-functional-associations-network)
     - [Drugs that regulate a gene](#drugs-that-regulate-a-gene)
-  - [MCP server](#mcp-server)
+    - [Python SDK](#python-sdk)
+    - [MCP server](#mcp-server)
   - [Error Responses](#error-responses)
   - [Contributing](#contributing)
     - [Run Flask dev server](#run-flask-dev-server)
@@ -777,23 +778,43 @@ Service that takes gene symbol and returns a link to <https://go.drugbank.com> w
       }
       ```  
 
-## MCP server
+### Python SDK
 
-BioAPI provides an MCP server through the Python SDK package so LLM clients can use the documented BioAPI services as tools without reimplementing HTTP calls. The server exposes tools for gene symbol validation, gene information, HGNC groups, metabolic pathways, GTEx expression, OncoKB, Gene Ontology, PharmGKB, STRING, and DrugBank links.
+Install the Python SDK with `pip install bioapi-sdk` and import it with `bioapi_sdk`. The SDK package is maintained in the [`sdk`](sdk) directory and installs only the client runtime dependencies required to call the BioAPI API.
 
-Install the SDK package with the MCP extra before configuring the MCP server:
+```python
+from bioapi_sdk import information_of_genes
+
+details = information_of_genes(["TP53"])
+```
+
+### MCP server
+
+Install the SDK package with its MCP extra before configuring an MCP client:
 
 ```bash
 pip install "bioapi-sdk[mcp]"
 ```
 
-For local development from this repository, install the SDK in editable mode:
+The SDK's MCP extra installs a Model Context Protocol server for LLM clients. Run it with:
 
 ```bash
-pip install -e "./sdk[mcp]"
+bioapi-mcp
 ```
 
-The MCP server is distributed with `bioapi-sdk`; the `mcp` extra installs the MCP runtime dependency. The installed package provides the `bioapi-mcp` command. Use this JSON in MCP clients that accept an `mcpServers` configuration, such as Claude Code or clients with MCP JSON import support:
+Use the same command values in Codex, Claude Code, or any stdio MCP client. For clients that accept JSON MCP configuration, configure the server like this:
+
+```json
+{
+  "mcpServers": {
+    "bioapi": {
+      "command": "bioapi-mcp"
+    }
+  }
+}
+```
+
+To target a custom BioAPI deployment from the client configuration, set `BIOAPI_BASE_URL` in the server environment:
 
 ```json
 {
@@ -802,31 +823,27 @@ The MCP server is distributed with `bioapi-sdk`; the `mcp` extra installs the MC
       "command": "bioapi-mcp",
       "env": {
         "BIOAPI_BASE_URL": "https://bioapi.multiomix.org",
-        "BIOAPI_TIMEOUT": "30"
       }
     }
   }
 }
 ```
 
-If the `bioapi-mcp` script is not available on the client PATH, use Python module execution instead:
+For Streamable HTTP clients, run:
 
-```json
-{
-  "mcpServers": {
-    "bioapi": {
-      "command": "python",
-      "args": ["-m", "bioapi_sdk.mcp_server"],
-      "env": {
-        "BIOAPI_BASE_URL": "https://bioapi.multiomix.org",
-        "BIOAPI_TIMEOUT": "30"
-      }
-    }
-  }
-}
+```bash
+bioapi-mcp --transport streamable-http --host 127.0.0.1 --port 8000
 ```
 
-`BIOAPI_BASE_URL` is optional and defaults to `https://bioapi.multiomix.org`. Set it to a local or private BioAPI deployment when needed. `BIOAPI_TIMEOUT` is optional and defaults to 30 seconds.
+Then connect the client to `http://127.0.0.1:8000/mcp`. Set `BIOAPI_BASE_URL` or use each tool's `base_url` argument to target a custom deployment.
+
+The Docker deployment exposes the MCP server through the same public web service as the API. After setting your public host in `docker-compose.yml`, connect web MCP clients to:
+
+```text
+https://<mydomain.com>/mcp
+```
+
+The MCP service uses `BIOAPI_BASE_URL` for local backend calls and `MCP_PUBLIC_BASE_URL` for the public URL advertised by the MCP server.
 
 ## Error Responses
 

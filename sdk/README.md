@@ -29,6 +29,20 @@ from bioapi_sdk import gene_symbols
 symbols = gene_symbols(["TP53"], base_url="http://localhost:5000")
 ```
 
+## Error handling
+
+The SDK raises `BioAPIRequestError` when an API request cannot be completed.
+This includes temporary service or gateway failures: if BioAPI returns a non-JSON error response, such as an HTTP 502, the error states that BioAPI is currently unavailable and includes the HTTP status code instead of reporting a JSON parsing error.
+
+```python
+from bioapi_sdk import BioAPIRequestError, gene_symbols
+
+try:
+    symbols = gene_symbols(["TP53"])
+except BioAPIRequestError as exc:
+    print(exc)  # BioAPI is currently unavailable (HTTP 502 Bad Gateway).
+```
+
 ## MCP server
 
 The SDK package also includes a BioAPI MCP server for LLM clients. Install the MCP extra to include the MCP runtime dependency:
