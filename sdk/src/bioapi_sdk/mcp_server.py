@@ -9,6 +9,8 @@ import requests
 from mcp.server.fastmcp import FastMCP
 from mcp.server.fastmcp.exceptions import ToolError
 from mcp.server.transport_security import TransportSecuritySettings
+from starlette.requests import Request
+from starlette.responses import PlainTextResponse
 
 from . import services
 from .services import (
@@ -46,6 +48,12 @@ DEFAULT_ALLOWED_ORIGINS = [
 ]
 
 
+def _resolve_public_base_url() -> str:
+    """Resolve the public base URL for the BioAPI MCP server."""
+    public_base_url = os.getenv("MCP_PUBLIC_BASE_URL", DEFAULT_PUBLIC_BASE_URL)
+    return public_base_url.strip() or DEFAULT_PUBLIC_BASE_URL
+
+
 mcp = FastMCP(
     "BioAPI",
     instructions=(
@@ -58,17 +66,17 @@ mcp = FastMCP(
 )
 
 
+@mcp.custom_route("/health", methods=["GET"], include_in_schema=False)
+async def health_check(_: Request) -> PlainTextResponse:
+    """Return a lightweight readiness response for container health checks."""
+    return PlainTextResponse("ok")
+
+
 def _resolve_base_url(base_url: str | None) -> str:
     """Resolve the base URL for BioAPI requests."""
     if base_url is None or base_url.strip() == "":
         return DEFAULT_BASE_URL
     return base_url.strip()
-
-
-def _resolve_public_base_url() -> str:
-    """Resolve the public base URL for the BioAPI MCP server."""
-    public_base_url = os.getenv("MCP_PUBLIC_BASE_URL", DEFAULT_PUBLIC_BASE_URL)
-    return public_base_url.strip() or DEFAULT_PUBLIC_BASE_URL
 
 
 def _resolve_timeout(timeout: float | None) -> float:
