@@ -796,9 +796,12 @@ All kind of contribution is welcome! If you want to contribute just:
 
 ### Run Flask dev server
 
-1. Start up Docker services like MongoDB: `docker compose -f docker-compose.dev.yml up -d`.
-2. Go to the `bio-api` folder.
-3. Run Flask server: `python3 bioapi.py`.
+1. Install [uv](https://docs.astral.sh/uv/).
+2. From the repository root, install the Python dependencies: `uv sync`.
+3. Activate the virtual environment: `uv activate`.
+4. Start up Docker services like MongoDB: `docker compose -f docker-compose.dev.yml up -d`.
+5. Go to the `bio-api` folder.
+6. Run Flask server: `python bioapi.py`.
 
 **NOTE:** If you are looking for documentation for a production deployment see [DEPLOYING.md](DEPLOYING.md).
 
@@ -806,5 +809,7 @@ All kind of contribution is welcome! If you want to contribute just:
 
 To run all the tests:
 
-1. Go to the `bioapi` folder.
-2. Run the `pytest` command.
+1. From the repository root, install the Python dependencies: `uv sync`.
+2. Activate the virtual environment: `uv activate`.
+3. Go to the `bio-api` folder.
+4. Run the `pytest` command.

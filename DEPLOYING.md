@@ -70,10 +70,10 @@ To import all databases in MongoDB:
 
 Alternatively (but **not recommended** due to high computational demands) you can run a separate ETL process to download from source, process and import the databases into MongoDB.
 
-1. Install the requirements:  
+1. Install the dependencies:  
     - [R language](https://www.r-project.org/). Version 4.5.1 (Only necessary if you want to update the Gene information database from Ensembl and CiVIC)
-    - Some python packages. They can be installed using:  
-        `pip install -r config/genomic_db_conf/requirements.txt`  
+    - Some python packages. They can be installed from the repository root using:  
+        `uv sync --group genomic-db`  
 2. The ETL process is programmed in a single bash script for each database. Edit in the bash file of the database that you want to update the **user** and **password** parameters, using the same values that you set in the `docker-compose.yml` file. Bash files can be found in the *'databases'* folder, within the corresponding directories for each database:  
     - For Metabolic pathways ([ConsensusPathDB](http://cpdb.molgen.mpg.de/)) use "databases/cpdb" directory and the *cpdb2mongodb.sh* file.
     - For Gene nomenclature ([HUGO Gene Nomenclature Committee](https://www.genenames.org/)) use "databases/hgnc" directory and the *hgnc2mongodb.sh* file.
@@ -87,8 +87,8 @@ Alternatively (but **not recommended** due to high computational demands) you ca
     - For cancer related drugs ([Pharmacogenomics Knowledge Base (PharmGKB)](https://www.pharmgkb.org/))  use "databases\pharmGKB" directory and the *pharmgkb2mongodb.sh* file.
     - For Gene ontology ([Gene Ontology (GO)](http://geneontology.org/)) use "databases\gene_ontology" directory and the *go2mongodb.sh* file. **NOTE:** This import needs the "Gene nomenclature" databases (2) already imported to properly process the gene ontology databases
     - For predicted functional associations network (String) it is necessary to download some datasets from their [official site](https://string-db.org/cgi/download), make sure that the **selected organism is Homo Sapiens** (the file sizes should be in Mb), from "INTERACTION DATA" download "protein network data (full network, incl. distinction: direct vs. interologs)" and rename it to "protein.links.full.txt.gz" then from "ACCESSORY DATA" download "list of STRING proteins incl. their display names and descriptions" and rename it to "protein.info.txt.gz", place the 2 files in the "databases\string".
-1. Run bash files.  
-    `./<file.sh>`  
+1. From the relevant database folder, run bash files through uv so they use the project environment.  
+    `uv run --group genomic-db ./<file.sh>`  
     where file.sh can be *cpdb2mongodb.sh*, *hgnc2mongodb.sh*, *gtex2mongodb.sh*, *go2mongodb.sh*, *string2mongodb.sh*, *pharmgkb2mongodb.sh*, or *ensembl_gene2mongodb.sh*, as appropriate.  
 
 ## Run BioAPI

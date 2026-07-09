@@ -1,0 +1,31 @@
+[project]
+name = "bioapi"
+version = "0.1.0"
+description = "REST API for genomics databases."
+requires-python = ">=3.11"
+dependencies = [
+    "apispec==6.7.1",
+    "apispec-webframeworks==1.2.0",
+    "ConfigParser==7.2.0",
+    "flasgger==0.9.7.1",
+    "Flask==3.1.0",
+    "flask-cors==6.0.2",
+    "flask-swagger-ui==5.32.6",
+    "gprofiler-official==1.0.0",
+    "gunicorn==26.0.0",
+    "marshmallow==4.3.0",
+    "pymongo==4.6.1",
+    "pytest==9.0.3",
+    "setuptools==82.0.0",
+    "tqdm==4.66.1",
+    "Werkzeug==3.1.3",
+]
+
+[dependency-groups]
+genomic-db = [
+    "numpy==2.4.6",
+    "openpyxl==3.1.5",
+    "pandas==3.0.2",
+    "six==1.16.0",
+    "urllib3==2.7.0",
+]
