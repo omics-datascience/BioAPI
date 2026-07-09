@@ -20,7 +20,7 @@ services:
 
     # BioAPI server
     web_bioapi:
-        image: omicsdatascience/bio-api:1.4.0
+        image: omicsdatascience/bio-api:1.5.0
         restart: always
         volumes:
             - bioapi_logs:/logs
@@ -34,10 +34,16 @@ services:
             MONGO_USER: '' # Complete
             MONGO_PASSWORD: '' # Complete
             MONGO_DB: bio_api # Don't change this value!
+        healthcheck:
+            test: ["CMD", "curl", "--fail", "--silent", "--show-error", "http://127.0.0.1:8000/ping"]
+            interval: 30s
+            timeout: 10s
+            retries: 5
+            start_period: 60s
 
     # BioAPI MCP server
     bioapi_mcp:
-        image: omicsdatascience/bio-api:1.4.0
+        image: omicsdatascience/bio-api:1.5.0
         restart: always
         depends_on:
             - web_bioapi
@@ -58,6 +64,12 @@ services:
             MCP_PUBLIC_BASE_URL: 'https://bioapi.multiomix.org/mcp'
             MCP_ALLOWED_HOSTS: 'bioapi.multiomix.org,bioapi.multiomix.org:*,localhost,localhost:*,127.0.0.1,127.0.0.1:*,[::1],[::1]:*'
             MCP_ALLOWED_ORIGINS: 'https://bioapi.multiomix.org,http://localhost,http://localhost:*,http://127.0.0.1,http://127.0.0.1:*,http://[::1],http://[::1]:*'
+        healthcheck:
+            test: ["CMD", "curl", "--fail", "--silent", "--show-error", "http://127.0.0.1:8001/health"]
+            interval: 30s
+            timeout: 10s
+            retries: 5
+            start_period: 30s
 
     # NGINX server
     nginx_bioapi:
@@ -66,10 +78,18 @@ services:
         ports:
             - '80:8000'
         depends_on:
-            - web_bioapi
-            - bioapi_mcp
+            web_bioapi:
+                condition: service_healthy
+            bioapi_mcp:
+                condition: service_healthy
         volumes:
             - ./config/nginx/conf.d:/etc/nginx/conf.d
+        healthcheck:
+            test: ["CMD-SHELL", "curl --fail --silent --show-error http://127.0.0.1:8000/ping || exit 1"]
+            interval: 30s
+            timeout: 10s
+            retries: 5
+            start_period: 30s
 
 volumes:
     mongo_data:

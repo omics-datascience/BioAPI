@@ -31,8 +31,9 @@ RUN cd /app/sdk \
 # Flask app
 COPY ./bio-api /app
 
-# Creates logs directory
-RUN mkdir /logs
+# Installs curl for container health checks and creates the logs directory.
+RUN apk add --no-cache curl \
+    && mkdir /logs
 
 # Runs Gunicorn
 ENTRYPOINT ["gunicorn", "--bind", "0.0.0.0:8000", "bioapi:app", "--timeout", "3600"]
